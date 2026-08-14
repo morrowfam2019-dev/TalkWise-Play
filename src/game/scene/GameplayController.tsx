@@ -133,6 +133,18 @@ export function GameplayController({
         boxes,
         world.killPlane,
       );
+
+      // Check for jump pads
+      if (world.jumpPads) {
+        for (const pad of world.jumpPads) {
+          const dx = controller.position.x - pad.position[0];
+          const dz = controller.position.z - pad.position[2];
+          const distance = Math.hypot(dx, dz);
+          if (distance < pad.radius && controller.grounded) {
+            controller.velocity.y = pad.boost;
+          }
+        }
+      }
     }
 
     const position = controller.position;

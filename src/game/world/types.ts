@@ -51,6 +51,17 @@ export interface CheckpointAnchor {
   position: Vec3;
 }
 
+/** A trigger zone that boosts the player upward. */
+export interface JumpPad {
+  id: string;
+  /** Center position of the pad. */
+  position: Vec3;
+  /** Size of the trigger zone (half-width in X and Z). */
+  radius: number;
+  /** Upward velocity to apply when player steps on it. */
+  boost: number;
+}
+
 export interface WorldDefinition {
   id: string;
   /** Kid-facing world name. */
@@ -66,6 +77,8 @@ export interface WorldDefinition {
   checkpoints: CheckpointAnchor[];
   /** The finish destination, gated until every checkpoint is complete. */
   finish: Vec3;
+  /** Jump pad boost zones. */
+  jumpPads?: JumpPad[];
   /** Sky and fog colours. */
   skyColor: string;
   fogColor: string;

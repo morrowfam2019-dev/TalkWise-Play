@@ -50,8 +50,24 @@ function slab(
 }
 
 const solids: Solid[] = [
-  // Single flat island — one solid platform.
+  // Base island.
   slab(-26, 26, -24, 24, 0, -9, DIRT, GRASS),
+
+  // West platform (elevated).
+  slab(-20, -4, -10, 7, 1.4, -1, DIRT, GRASS),
+
+  // East platform (elevated higher).
+  slab(4, 20, -6, 5.6, 2.8, -1, DIRT, GRASS),
+
+  // Mid terrace (highest).
+  slab(-9, 9, -17, -7, 4.4, -1, ROCK, GRASS_HIGH),
+
+  // Routes — just walkable ramps.
+  slab(-16, -9, -13, -5, 4.4, -1, ROCK_DARK, GRASS_HIGH),
+  slab(9, 14, -11, -4, 4.4, -1, ROCK_DARK, GRASS_HIGH),
+
+  // Summit platform.
+  slab(-5, 5, -22, -15.3, 6.4, -1, ROCK, SUMMIT_STONE),
 ];
 
 const decorations: Decoration[] = [
@@ -113,18 +129,18 @@ const decorations: Decoration[] = [
 ];
 
 const collectibles: Collectible[] = [
-  { id: "coin-1", position: [-14, 1, 17], value: 2 },
-  { id: "coin-2", position: [6, 1, 16], value: 2 },
-  { id: "coin-3", position: [20, 1, 14], value: 2 },
-  { id: "coin-4", position: [-21, 1, 8], value: 2 },
-  { id: "coin-5", position: [-4.5, 1, 18.5], value: 2 },
-  { id: "coin-6", position: [-0.5, 1, 21.5], value: 2 },
-  { id: "coin-7", position: [-17, 1, 4], value: 2 },
-  { id: "coin-8", position: [-16, 1, -3], value: 2 },
-  { id: "coin-9", position: [18, 1, 2], value: 2 },
-  { id: "coin-10", position: [-6, 1, -14], value: 2 },
-  { id: "coin-11", position: [-13, 1, -11], value: 2 },
-  { id: "coin-12", position: [12, 1, -9], value: 2 },
+  { id: "coin-1", position: [-24, 1, 20], value: 2 },
+  { id: "coin-2", position: [0, 1, 20], value: 2 },
+  { id: "coin-3", position: [24, 1, 18], value: 2 },
+  { id: "coin-4", position: [-25, 1, 10], value: 2 },
+  { id: "coin-5", position: [-2, 1, 22], value: 2 },
+  { id: "coin-6", position: [2, 1, 22], value: 2 },
+  { id: "coin-7", position: [-25, 1, 5], value: 2 },
+  { id: "coin-8", position: [25, 1, 0], value: 2 },
+  { id: "coin-9", position: [-20, 1, -15], value: 2 },
+  { id: "coin-10", position: [20, 1, -18], value: 2 },
+  { id: "coin-11", position: [-20, 1, -12], value: 2 },
+  { id: "coin-12", position: [20, 1, -10], value: 2 },
 ];
 
 export const mountainOfM: WorldDefinition = {
@@ -138,11 +154,23 @@ export const mountainOfM: WorldDefinition = {
   checkpoints: [
     { id: "cp-1", position: [-9, 0, 13] },
     { id: "cp-2", position: [18, 0, 9] },
-    { id: "cp-3", position: [-14, 0, 2] },
-    { id: "cp-4", position: [15, 0, 0] },
-    { id: "cp-5", position: [0, 0, -11.5] },
+    { id: "cp-3", position: [-25, 0, 2] },
+    { id: "cp-4", position: [-25, 0, -5] },
+    { id: "cp-5", position: [-20, 0, -20] },
   ],
-  finish: [0, 0, -20],
+  finish: [0, 0, -24],
+  jumpPads: [
+    // Boost from shore to west platform
+    { id: "pad-west", position: [-12, 0, 10], radius: 2.5, boost: 8 },
+    // Boost from shore to east platform
+    { id: "pad-east", position: [11, 0, 10], radius: 2.5, boost: 12 },
+    // Boost from west platform to mid terrace
+    { id: "pad-west-mid", position: [-12, 1.4, -10], radius: 2, boost: 10 },
+    // Boost from east platform to mid terrace
+    { id: "pad-east-mid", position: [11, 2.8, -8], radius: 2, boost: 6 },
+    // Boost from mid terrace to summit
+    { id: "pad-summit", position: [0, 4.4, -16], radius: 2, boost: 8 },
+  ],
   skyColor: "#8fd8f5",
   fogColor: "#bfe9fb",
   waterColor: "#3fb8e8",

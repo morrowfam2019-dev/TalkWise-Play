@@ -114,17 +114,9 @@ try {
   const route = [
     { name: "CP1 MOM", target: cp[0], goal: 2.0 },
     { name: "CP2 MOON", target: cp[1], goal: 2.0 },
-    { name: "west stair foot", target: [-12, 0, 12] },
-    { name: "west stair top", target: [-12, 0, 6] },
     { name: "CP3 MILK", target: cp[2], goal: 2.0 },
-    { name: "back to shore", target: [-12, 0, 12] },
-    { name: "east stair foot", target: [11, 0, 12] },
-    { name: "east stair top", target: [11, 0, 4] },
     { name: "CP4 MOUSE", target: cp[3], goal: 2.0 },
-    { name: "north stair", target: [12, 0, -4.6] },
-    { name: "east bridge", target: [11, 0, -9] },
     { name: "CP5 MONKEY", target: cp[4], goal: 2.0 },
-    { name: "summit stair", target: [0, 0, -16] },
     { name: "FINISH portal", target: world.finish, goal: 2.3 },
   ];
 
@@ -143,6 +135,7 @@ try {
     let stalledFor = 0;
     let sidestepFor = 0;
     let sidestepSign = 1;
+    let jumpPadFired = false;
 
     while (elapsed < MAX_SECONDS_PER_LEG) {
       const dx = tx - controller.position.x;
@@ -151,6 +144,20 @@ try {
       if (distance < goalRadius) {
         arrived = true;
         break;
+      }
+
+      // Simulate jump pad boost if defined
+      if (world.jumpPads && !jumpPadFired && controller.grounded) {
+        for (const pad of world.jumpPads) {
+          const pdx = controller.position.x - pad.position[0];
+          const pdz = controller.position.z - pad.position[2];
+          const pdist = Math.hypot(pdx, pdz);
+          if (pdist < pad.radius) {
+            controller.velocity.y = pad.boost;
+            jumpPadFired = true;
+            break;
+          }
+        }
       }
 
       // A real player walks around obstacles; when progress stalls, strafe.
