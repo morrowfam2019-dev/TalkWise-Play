@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { COMING_SOON } from "@/content/comingSoon";
-import { listLevels } from "@/content/speech";
-import { getLevelProgress } from "@/player/storage";
+import { getLevel, listLevels } from "@/content/speech";
+import { getLevelProgress, isLevelUnlocked } from "@/player/storage";
 import { usePlayerProfile } from "@/player/usePlayerProfile";
 
 /** TalkWise Play home — the hub the adventures live inside. */
@@ -78,6 +78,39 @@ export default function HomePage() {
         <div className="grid gap-4 sm:grid-cols-2">
           {levels.map((level) => {
             const progress = getLevelProgress(profile, level.id);
+            const unlocked = isLevelUnlocked(profile, level);
+
+            if (!unlocked) {
+              const requiredTitle =
+                getLevel(level.unlockRequires ?? "")?.title ?? "the previous adventure";
+              return (
+                <article
+                  key={level.id}
+                  className="overflow-hidden rounded-[1.5rem] border-4 border-white/70 bg-white/55 shadow-md"
+                >
+                  <div className="relative flex h-32 items-center justify-center bg-gradient-to-br from-[#c9d4de] to-[#a8b6c4]">
+                    <span className="text-5xl font-black text-white/70 drop-shadow-lg">
+                      {level.sound.label}
+                    </span>
+                    <span className="absolute top-3 right-3 text-2xl" aria-hidden>
+                      🔒
+                    </span>
+                  </div>
+                  <div className="p-5">
+                    <h4 className="text-xl font-black tracking-tight text-[#5c6472]">
+                      {level.title}
+                    </h4>
+                    <p className="mt-1 text-sm font-semibold text-[#8a8aa0]">
+                      Target sound: {level.sound.label}
+                    </p>
+                    <p className="mt-4 block w-full rounded-2xl bg-[#d7dde4] px-6 py-4 text-center text-sm font-black text-[#7b8494]">
+                      Complete {requiredTitle} to unlock
+                    </p>
+                  </div>
+                </article>
+              );
+            }
+
             return (
               <article
                 key={level.id}

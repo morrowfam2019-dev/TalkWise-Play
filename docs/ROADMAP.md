@@ -41,9 +41,15 @@ Turn the one-off level into a content pipeline.
 ## Phase 3 — TalkWise Play World + Progression
 
 - Hub world replacing the current card-list home screen
-- Cross-level progression, unlocks, and a coin economy
+- Cross-level progression, unlocks, and a coin economy — ✅ unlocks in;
+  P Party stays locked (🔒 card on the home screen, and the `/play/p-party`
+  route itself) until M Adventure is completed. `SpeechLevel.unlockRequires`
+  is the data hook — a level names the id it needs, nothing else changes.
+  A lifetime coin total across levels already existed (`profile.totalCoins`)
 - Achievements and streaks
 - Richer environment art and character animation
+- Background music — ✅ a synthesised looping theme, same
+  no-shipped-audio-files approach as the sound effects
 
 ## Phase 4 — Voice Interaction
 

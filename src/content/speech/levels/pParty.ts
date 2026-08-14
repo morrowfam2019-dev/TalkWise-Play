@@ -12,6 +12,7 @@ export const pParty: SpeechLevel = {
   tagline: "Explore the Party Plaza of P and practice your /p/ words.",
   sound: P_SOUND,
   worldId: "party-plaza-of-p",
+  unlockRequires: "m-adventure",
   challenges: [
     {
       id: "pop",

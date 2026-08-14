@@ -46,6 +46,12 @@ export interface SpeechLevel {
   /** Id of the world the game engine should load for this level. */
   worldId: string;
   /**
+   * Id of a level that must be completed first. Undefined means the level is
+   * unlocked from the start. Checked against saved progress, never encoded
+   * into the level itself, so unlock rules stay data the player layer owns.
+   */
+  unlockRequires?: string;
+  /**
    * Challenges in checkpoint order. The world supplies N checkpoint anchors;
    * challenges are bound to anchors by index at load time, so neither side
    * hard-codes the other's contents.

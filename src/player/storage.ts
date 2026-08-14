@@ -100,6 +100,19 @@ export function getLevelProgress(
   return profile.levels[levelId] ?? EMPTY_LEVEL_PROGRESS;
 }
 
+/**
+ * Whether a level is playable yet. Takes a structural `{ unlockRequires? }`
+ * rather than importing `SpeechLevel`, so the player layer stays independent
+ * of the speech-content layer per the architecture split.
+ */
+export function isLevelUnlocked(
+  profile: PlayerProfile,
+  level: { unlockRequires?: string },
+): boolean {
+  if (!level.unlockRequires) return true;
+  return getLevelProgress(profile, level.unlockRequires).completed;
+}
+
 /** Folds a finished run into a profile, keeping personal bests. */
 export function mergeRunResult(
   profile: PlayerProfile,
