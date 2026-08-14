@@ -50,45 +50,8 @@ function slab(
 }
 
 const solids: Solid[] = [
-  // Base island.
+  // Single flat island — one solid platform.
   slab(-26, 26, -24, 24, 0, -9, DIRT, GRASS),
-
-  // West ledge (tier 1) and its stair up from the shore.
-  slab(-20, -4, -10, 7, 1.4, -1, DIRT, GRASS),
-  slab(-14, -10, 9, 10.8, 0.7, -1, STONE),
-  slab(-14, -10, 7, 9, 1.4, -1, STONE),
-
-  // East ledge (tier 2) and its stair up from the shore.
-  slab(4, 20, -6, 5.6, 2.8, -1, DIRT, GRASS),
-  slab(9, 13, 9.4, 10.8, 0.7, -1, STONE),
-  slab(9, 13, 8.2, 9.4, 1.4, -1, STONE),
-  slab(9, 13, 7, 8.2, 2.1, -1, STONE),
-  slab(9, 13, 5.6, 7, 2.8, -1, STONE),
-
-  // Mid terrace (tier 3).
-  slab(-9, 9, -17, -7, 4.4, -1, ROCK, GRASS_HIGH),
-
-  // West route: stair off the west ledge, then a buttress bridge to the terrace.
-  slab(-16, -12, -6.2, -5, 2.1, -1, STONE),
-  slab(-16, -12, -7.4, -6.2, 2.8, -1, STONE),
-  slab(-16, -12, -8.6, -7.4, 3.5, -1, STONE),
-  slab(-16, -12, -9.8, -8.6, 4.2, -1, STONE),
-  slab(-16, -9, -13, -9.8, 4.4, -6, ROCK_DARK, GRASS_HIGH),
-
-  // East route: stair off the east ledge, then a buttress bridge to the terrace.
-  slab(10, 14, -5.2, -4, 3.5, -1, STONE),
-  slab(10, 14, -6.4, -5.2, 4.2, -1, STONE),
-  slab(9, 14, -11, -6.4, 4.4, -6, ROCK_DARK, GRASS_HIGH),
-
-  // Summit stair and summit platform.
-  slab(-2.5, 2.5, -16.5, -15.3, 5.1, -1, SUMMIT_STONE),
-  slab(-2.5, 2.5, -17.7, -16.5, 5.8, -1, SUMMIT_STONE),
-  slab(-5, 5, -22, -17.5, 6.4, -2, ROCK, SUMMIT_STONE),
-
-  // Optional stepping stones behind the spawn — a small jump route for coins,
-  // kept clear of the main shore path between the west and east stairs.
-  slab(-6, -3, 17, 20, 1, -1, ROCK, GRASS),
-  slab(-2, 1, 20, 23, 1.6, -1, ROCK, GRASS),
 ];
 
 const decorations: Decoration[] = [
@@ -154,14 +117,14 @@ const collectibles: Collectible[] = [
   { id: "coin-2", position: [6, 1, 16], value: 2 },
   { id: "coin-3", position: [20, 1, 14], value: 2 },
   { id: "coin-4", position: [-21, 1, 8], value: 2 },
-  { id: "coin-5", position: [-4.5, 2, 18.5], value: 2 },
-  { id: "coin-6", position: [-0.5, 2.6, 21.5], value: 2 },
-  { id: "coin-7", position: [-17, 2.4, 4], value: 2 },
-  { id: "coin-8", position: [-16, 2.4, -3], value: 2 },
-  { id: "coin-9", position: [18, 3.8, 2], value: 2 },
-  { id: "coin-10", position: [-6, 5.4, -14], value: 2 },
-  { id: "coin-11", position: [-13, 5.4, -11], value: 2 },
-  { id: "coin-12", position: [12, 5.4, -9], value: 2 },
+  { id: "coin-5", position: [-4.5, 1, 18.5], value: 2 },
+  { id: "coin-6", position: [-0.5, 1, 21.5], value: 2 },
+  { id: "coin-7", position: [-17, 1, 4], value: 2 },
+  { id: "coin-8", position: [-16, 1, -3], value: 2 },
+  { id: "coin-9", position: [18, 1, 2], value: 2 },
+  { id: "coin-10", position: [-6, 1, -14], value: 2 },
+  { id: "coin-11", position: [-13, 1, -11], value: 2 },
+  { id: "coin-12", position: [12, 1, -9], value: 2 },
 ];
 
 export const mountainOfM: WorldDefinition = {
@@ -175,11 +138,11 @@ export const mountainOfM: WorldDefinition = {
   checkpoints: [
     { id: "cp-1", position: [-9, 0, 13] },
     { id: "cp-2", position: [18, 0, 9] },
-    { id: "cp-3", position: [-14, 1.4, 2] },
-    { id: "cp-4", position: [15, 2.8, 0] },
-    { id: "cp-5", position: [0, 4.4, -11.5] },
+    { id: "cp-3", position: [-14, 0, 2] },
+    { id: "cp-4", position: [15, 0, 0] },
+    { id: "cp-5", position: [0, 0, -11.5] },
   ],
-  finish: [0, 6.4, -20],
+  finish: [0, 0, -20],
   skyColor: "#8fd8f5",
   fogColor: "#bfe9fb",
   waterColor: "#3fb8e8",
