@@ -132,7 +132,14 @@ export function GameShell({ level, onExit }: GameShellProps) {
 
   const startRun = useCallback(() => {
     gameAudio.unlock();
+    gameAudio.startMusic();
     setPhase("playing");
+  }, []);
+
+  // Music runs for the lifetime of a run; stop it if the player leaves the
+  // level without an unmount happening some other way (e.g. route change).
+  useEffect(() => {
+    return () => gameAudio.stopMusic();
   }, []);
 
   const completedCount = completed.filter(Boolean).length;

@@ -18,9 +18,105 @@ interface ToneOptions {
   sweepTo?: number;
 }
 
+/**
+ * A gentle looping background theme, synthesised the same way as the sound
+ * effects: a stepped pentatonic melody over a slow bass drone, scheduled on a
+ * plain interval rather than a lookahead scheduler — background music has no
+ * hard rhythmic deadline, so the small timer jitter doesn't matter.
+ */
+class MusicLoop {
+  private ctx: AudioContext | null = null;
+  private masterGain: GainNode | null = null;
+  private muted = false;
+  private playing = false;
+  private stepIndex = 0;
+  private intervalId: number | null = null;
+
+  private readonly stepSeconds = 0.42;
+  // C major pentatonic — no note in this set can clash, so the loop stays
+  // pleasant however the steps land relative to the bass change underneath.
+  private readonly melody = [
+    261.63, 329.63, 392.0, 523.25, 440.0, 392.0, 329.63, 293.66,
+  ];
+  private readonly bassNotes = [130.81, 174.61]; // C3, F3
+
+  attach(ctx: AudioContext) {
+    this.ctx = ctx;
+    if (!this.masterGain) {
+      this.masterGain = ctx.createGain();
+      this.masterGain.gain.value = this.muted ? 0 : 1;
+      this.masterGain.connect(ctx.destination);
+    }
+  }
+
+  setMuted(muted: boolean) {
+    this.muted = muted;
+    if (this.masterGain && this.ctx) {
+      this.masterGain.gain.setTargetAtTime(muted ? 0 : 1, this.ctx.currentTime, 0.05);
+    }
+  }
+
+  start() {
+    if (this.playing || !this.ctx) return;
+    this.playing = true;
+    this.stepIndex = 0;
+    this.scheduleStep();
+    this.intervalId = window.setInterval(() => this.scheduleStep(), this.stepSeconds * 1000);
+  }
+
+  stop() {
+    this.playing = false;
+    if (this.intervalId !== null) {
+      window.clearInterval(this.intervalId);
+      this.intervalId = null;
+    }
+  }
+
+  private scheduleStep() {
+    const ctx = this.ctx;
+    const gain = this.masterGain;
+    if (!ctx || !gain) return;
+
+    const start = ctx.currentTime + 0.02;
+    const step = this.stepSeconds;
+
+    const melodyFreq = this.melody[this.stepIndex % this.melody.length];
+    const melodyOsc = ctx.createOscillator();
+    const melodyAmp = ctx.createGain();
+    melodyOsc.type = "triangle";
+    melodyOsc.frequency.setValueAtTime(melodyFreq, start);
+    melodyAmp.gain.setValueAtTime(0.0001, start);
+    melodyAmp.gain.exponentialRampToValueAtTime(0.05, start + 0.02);
+    melodyAmp.gain.exponentialRampToValueAtTime(0.0001, start + step * 0.92);
+    melodyOsc.connect(melodyAmp);
+    melodyAmp.connect(gain);
+    melodyOsc.start(start);
+    melodyOsc.stop(start + step);
+
+    // A soft bass note every four steps, sustained under the next four notes.
+    if (this.stepIndex % 4 === 0) {
+      const bassFreq = this.bassNotes[(this.stepIndex / 4) % this.bassNotes.length];
+      const bassOsc = ctx.createOscillator();
+      const bassAmp = ctx.createGain();
+      bassOsc.type = "sine";
+      bassOsc.frequency.setValueAtTime(bassFreq, start);
+      bassAmp.gain.setValueAtTime(0.0001, start);
+      bassAmp.gain.exponentialRampToValueAtTime(0.04, start + 0.08);
+      bassAmp.gain.exponentialRampToValueAtTime(0.0001, start + step * 4 * 0.95);
+      bassOsc.connect(bassAmp);
+      bassAmp.connect(gain);
+      bassOsc.start(start);
+      bassOsc.stop(start + step * 4);
+    }
+
+    this.stepIndex += 1;
+  }
+}
+
 class GameAudio {
   private ctx: AudioContext | null = null;
   private muted = false;
+  private readonly music = new MusicLoop();
 
   /** Must be called from a user gesture before the first sound. */
   unlock() {
@@ -33,6 +129,7 @@ class GameAudio {
             .webkitAudioContext;
         if (!Ctor) return;
         this.ctx = new Ctor();
+        this.music.attach(this.ctx);
       }
       if (this.ctx.state === "suspended") void this.ctx.resume();
     } catch {
@@ -42,10 +139,19 @@ class GameAudio {
 
   setMuted(muted: boolean) {
     this.muted = muted;
+    this.music.setMuted(muted);
   }
 
   isMuted() {
     return this.muted;
+  }
+
+  startMusic() {
+    this.music.start();
+  }
+
+  stopMusic() {
+    this.music.stop();
   }
 
   private tone({ freq, duration, type = "sine", gain = 0.12, delay = 0, sweepTo }: ToneOptions) {
