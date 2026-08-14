@@ -60,11 +60,14 @@ Turn the one-off level into a content pipeline.
 The first phase where the microphone is used at all.
 
 - Microphone capture with explicit, child-appropriate permission flow — ✅
-- Attempt-detection loop — ✅ still no pronunciation scoring, just "was a
-  sound made": listen (up to ~4.5s) → nothing heard → listen again → nothing
-  heard a 2nd time → "Miss Maya" speaks the word once → 3rd attempt always
-  advances the challenge, heard or not, so a quiet room or a shy voice never
-  hard-locks a run
+- Attempt-detection loop — ✅ word confirmation, not just noise: the
+  browser's built-in speech recognition transcribes the attempt and checks
+  it against the target word (`src/game/core/speech-recognition.ts`), so
+  background noise and the wrong word are both rejected. Still no
+  pronunciation *scoring* — a match either happened or it didn't. Listen (up
+  to ~4.5s) → no match → listen again → no match a 2nd time → "Miss Maya"
+  speaks the word once → 3rd attempt always advances the challenge, heard or
+  not, so a quiet room or a shy voice never hard-locks a run
 - Miss Maya's voice — ✅ real recorded clips (`public/audio/maya/*.mp3`, one
   per word, ElevenLabs via the Higgsfield connector's "Maya" preset — the
   brand's own ElevenLabs voice ID exists but isn't reachable through this
@@ -73,8 +76,9 @@ The first phase where the microphone is used at all.
 - Miss Maya's face — still the 👩‍🏫 emoji placeholder; the official
   TalkWise-headquarters PNG couldn't be pulled in this session (Google Drive
   connector unavailable here)
-- Real pronunciation feedback (recording, playback, comparison) — still open;
-  the attempt loop above only detects sound, not correctness
+- Real pronunciation feedback (recording, playback, comparison) — still
+  open; the attempt loop above confirms the right word was said, not how
+  *well* it was said
 - Honest confidence reporting — never a fabricated score
 - Manual "I said it" confirmation remains available as a fallback — ✅
   (shown automatically when microphone permission is denied)

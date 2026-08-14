@@ -3,9 +3,11 @@
 import { useEffect, useRef, useState } from "react";
 import type { SpeechChallenge } from "@/content/speech";
 import {
-  AudioCaptureManager,
-  type SpeechDetectionStatus,
-} from "@/game/core/audio-capture";
+  WordRecognizer,
+  isSpeechRecognitionSupported,
+  requestMicPermission,
+  type SpeechListenStatus,
+} from "@/game/core/speech-recognition";
 
 interface ChallengeModalProps {
   challenge: SpeechChallenge;
@@ -59,12 +61,14 @@ function playExampleWord(word: string) {
 /**
  * The speech challenge.
  *
- * There is no pronunciation scoring here — the microphone path only detects
- * that a sound was made, never whether it's the right word. After two
- * listening attempts with nothing heard, "Miss Maya" models the word once;
- * the third attempt always advances the challenge (heard or not), so a shy
- * voice or a flaky microphone never hard-locks a run. The manual "I SAID
- * IT!" button remains the fallback when the microphone is denied.
+ * The microphone path transcribes speech and checks it against the target
+ * word — background noise and wrong words don't pass, only the word itself
+ * does. This is still not pronunciation *scoring*: a match either happened
+ * or it didn't. After two attempts without a match, "Miss Maya" models the
+ * word once; the third attempt always advances the challenge regardless, so
+ * a shy voice or a flaky microphone never hard-locks a run. The manual "I
+ * SAID IT!" button remains the fallback when the microphone is denied or
+ * speech recognition isn't supported.
  */
 export function ChallengeModal({
   challenge,
@@ -77,11 +81,11 @@ export function ChallengeModal({
     "not-requested" | "granted" | "denied"
   >("not-requested");
   const [listeningStatus, setListeningStatus] =
-    useState<SpeechDetectionStatus>("idle");
+    useState<SpeechListenStatus>("idle");
   const [attempts, setAttempts] = useState(0);
   const [showExample, setShowExample] = useState(false);
   const confirmRef = useRef<HTMLButtonElement>(null);
-  const audioCaptureRef = useRef<AudioCaptureManager | null>(null);
+  const recognizerRef = useRef<WordRecognizer | null>(null);
   const attemptsRef = useRef(0);
 
   useEffect(() => {
@@ -99,15 +103,15 @@ export function ChallengeModal({
     playExampleWord(challenge.word);
   }, [showExample, challenge.word]);
 
-  const startListeningAttempt = async () => {
-    const manager = audioCaptureRef.current;
-    if (!manager) return;
-    await manager.startListening({
-      onDetected: () => {
+  const startListeningAttempt = () => {
+    const recognizer = recognizerRef.current ?? new WordRecognizer();
+    recognizerRef.current = recognizer;
+    recognizer.listenFor(challenge.word, {
+      onMatch: () => {
         setCelebrating(true);
         onConfirm();
       },
-      onTimeout: handleListenTimeout,
+      onNoMatch: handleListenTimeout,
       onStatus: setListeningStatus,
     });
   };
@@ -125,33 +129,32 @@ export function ChallengeModal({
     } else if (next === EXAMPLE_AFTER_ATTEMPT) {
       setShowExample(true);
     } else {
-      void startListeningAttempt();
+      startListeningAttempt();
     }
   }
 
   const handleRequestMic = async () => {
-    const manager = new AudioCaptureManager();
+    if (!isSpeechRecognitionSupported()) {
+      setMicPermission("denied");
+      return;
+    }
     try {
-      const granted = await manager.requestPermission();
-
+      const granted = await requestMicPermission();
       if (granted) {
         setMicPermission("granted");
-        audioCaptureRef.current = manager;
-        await startListeningAttempt();
+        startListeningAttempt();
       } else {
         setMicPermission("denied");
-        manager.dispose();
       }
     } catch (error) {
       console.error("Microphone error:", error);
       setMicPermission("denied");
-      manager.dispose();
     }
   };
 
   const handleTryAgainAfterExample = () => {
     setShowExample(false);
-    void startListeningAttempt();
+    startListeningAttempt();
   };
 
   const handleConfirm = () => {
@@ -162,9 +165,7 @@ export function ChallengeModal({
 
   useEffect(() => {
     return () => {
-      if (audioCaptureRef.current) {
-        audioCaptureRef.current.dispose();
-      }
+      recognizerRef.current?.stop();
     };
   }, []);
 
