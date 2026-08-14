@@ -1,12 +1,97 @@
 @import "tailwindcss";
 
+/* TalkWise Play brand tokens. The academy's black/gold drives the chrome;
+   the game world itself is deliberately much brighter. */
 :root {
-  --background: #0b0b12;
-  --foreground: #f5f5f7;
+  --twp-ink: #141420;
+  --twp-gold: #f5c33b;
+  --twp-sky: #8fd8f5;
+  --twp-grass: #6fd36b;
+  --twp-blue: #2f7fd4;
+  --twp-green: #2ecc71;
+}
+
+html,
+body {
+  height: 100%;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: system-ui, sans-serif;
+  background: var(--twp-ink);
+  color: #ffffff;
+  font-family:
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none;
+}
+
+/* Keep the game canvas from ever showing a text cursor or selection flash. */
+canvas {
+  display: block;
+  touch-action: none;
+}
+
+@keyframes tw-pop-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.82) translateY(12px);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.03) translateY(0);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.tw-pop {
+  animation: tw-pop-in 260ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes tw-star-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.3) rotate(-25deg);
+  }
+  70% {
+    opacity: 1;
+    transform: scale(1.25) rotate(8deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+.tw-star {
+  display: inline-block;
+  animation: tw-star-pop 520ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes tw-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.tw-float {
+  animation: tw-float 3.2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tw-pop,
+  .tw-star,
+  .tw-float {
+    animation: none;
+  }
 }
