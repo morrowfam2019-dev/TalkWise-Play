@@ -21,6 +21,12 @@ export interface PlayerProfile {
   totalCoins: number;
   /** Per-level records, keyed by level id. */
   levels: Record<string, LevelProgress>;
+  /** Consecutive calendar days (local time) with at least one run played. */
+  currentStreak: number;
+  /** Longest currentStreak ever reached. */
+  bestStreak: number;
+  /** ISO date (YYYY-MM-DD, local) of the last day a run was played. */
+  lastPlayedDate: string | null;
 }
 
 export const EMPTY_LEVEL_PROGRESS: LevelProgress = {
@@ -33,4 +39,7 @@ export const DEFAULT_PROFILE: PlayerProfile = {
   name: "",
   totalCoins: 0,
   levels: {},
+  currentStreak: 0,
+  bestStreak: 0,
+  lastPlayedDate: null,
 };

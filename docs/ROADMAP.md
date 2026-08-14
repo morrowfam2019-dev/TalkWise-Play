@@ -46,7 +46,11 @@ Turn the one-off level into a content pipeline.
   route itself) until M Adventure is completed. `SpeechLevel.unlockRequires`
   is the data hook — a level names the id it needs, nothing else changes.
   A lifetime coin total across levels already existed (`profile.totalCoins`)
-- Achievements and streaks
+- Achievements and streaks — ✅ 7 badges (`src/player/achievements.ts`) plus a
+  daily streak tracked on every completed run (local calendar day; same day
+  twice is a no-op, the day right after extends it, any bigger gap resets to
+  1). Both render on the home screen — a 🔥 streak badge in the header and an
+  achievements grid below the adventure cards
 - Richer environment art and character animation
 - Background music — ✅ a synthesised looping theme, same
   no-shipped-audio-files approach as the sound effects

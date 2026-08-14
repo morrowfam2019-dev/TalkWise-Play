@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { COMING_SOON } from "@/content/comingSoon";
 import { getLevel, listLevels } from "@/content/speech";
+import { ACHIEVEMENTS, getUnlockedAchievements } from "@/player/achievements";
 import { getLevelProgress, isLevelUnlocked } from "@/player/storage";
 import { usePlayerProfile } from "@/player/usePlayerProfile";
 
@@ -12,6 +13,17 @@ export default function HomePage() {
   const levels = listLevels();
 
   const greeting = profile.name ? `Hi, ${profile.name}!` : "Hi there!";
+
+  const levelChallengeCounts = Object.fromEntries(
+    levels.map((level) => [level.id, level.challenges.length]),
+  );
+  const unlockedAchievementIds = new Set(
+    getUnlockedAchievements({
+      profile,
+      totalLevels: levels.length,
+      levelChallengeCounts,
+    }).map((achievement) => achievement.id),
+  );
 
   return (
     <main className="min-h-[100dvh] bg-gradient-to-b from-[#8fd8f5] via-[#bfeafb] to-[#eaf8e6]">
@@ -26,13 +38,25 @@ export default function HomePage() {
               TalkWise <span className="text-[#f5c33b]">Play</span>
             </h1>
           </div>
-          <div className="rounded-2xl border-2 border-[#f5c33b]/40 bg-white/5 px-3 py-2 text-right">
-            <p className="text-[0.6rem] font-bold tracking-widest text-white/60 uppercase">
-              Coins
-            </p>
-            <p className="text-xl font-black text-[#f5c33b] tabular-nums">
-              {profile.totalCoins}
-            </p>
+          <div className="flex items-center gap-2">
+            {profile.currentStreak > 0 ? (
+              <div className="rounded-2xl border-2 border-[#ff8a3d]/40 bg-white/5 px-3 py-2 text-right">
+                <p className="text-[0.6rem] font-bold tracking-widest text-white/60 uppercase">
+                  Streak
+                </p>
+                <p className="text-xl font-black text-[#ff8a3d] tabular-nums">
+                  🔥 {profile.currentStreak}
+                </p>
+              </div>
+            ) : null}
+            <div className="rounded-2xl border-2 border-[#f5c33b]/40 bg-white/5 px-3 py-2 text-right">
+              <p className="text-[0.6rem] font-bold tracking-widest text-white/60 uppercase">
+                Coins
+              </p>
+              <p className="text-xl font-black text-[#f5c33b] tabular-nums">
+                {profile.totalCoins}
+              </p>
+            </div>
           </div>
         </div>
       </header>
@@ -180,6 +204,38 @@ export default function HomePage() {
               </div>
             </article>
           ))}
+        </div>
+
+        {/* Achievements */}
+        <h3 className="mt-8 mb-3 text-xs font-black tracking-[0.22em] text-[#3c5a68] uppercase">
+          Achievements
+        </h3>
+        <div className="grid grid-cols-3 gap-3 sm:grid-cols-4">
+          {ACHIEVEMENTS.map((achievement) => {
+            const unlocked = unlockedAchievementIds.has(achievement.id);
+            return (
+              <div
+                key={achievement.id}
+                title={achievement.description}
+                className={`flex flex-col items-center rounded-2xl border-4 p-3 text-center shadow-md ${
+                  unlocked
+                    ? "border-[#f5c33b] bg-white"
+                    : "border-white/70 bg-white/40 opacity-60"
+                }`}
+              >
+                <span className={`text-3xl ${unlocked ? "" : "grayscale"}`} aria-hidden>
+                  {achievement.glyph}
+                </span>
+                <p
+                  className={`mt-1 text-[0.65rem] font-black uppercase tracking-wide ${
+                    unlocked ? "text-[#141420]" : "text-[#8a8aa0]"
+                  }`}
+                >
+                  {achievement.title}
+                </p>
+              </div>
+            );
+          })}
         </div>
 
         <p className="mt-10 text-center text-xs font-semibold text-[#4a6b78]">

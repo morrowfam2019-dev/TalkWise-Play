@@ -45,6 +45,40 @@ function sanitize(raw: unknown): PlayerProfile {
     name: typeof value.name === "string" ? value.name.slice(0, 20) : "",
     totalCoins: Number(value.totalCoins) || 0,
     levels,
+    currentStreak: Number(value.currentStreak) || 0,
+    bestStreak: Number(value.bestStreak) || 0,
+    lastPlayedDate:
+      typeof value.lastPlayedDate === "string" ? value.lastPlayedDate : null,
+  };
+}
+
+/** YYYY-MM-DD in the player's local timezone — calendar days, not UTC ones. */
+function localDateKey(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+/**
+ * Advances the daily streak for a run played right now. A second run on the
+ * same calendar day is a no-op; a run on the day right after the last one
+ * extends the streak; any bigger gap (or a first-ever run) restarts it at 1.
+ */
+function advanceStreak(
+  profile: Pick<PlayerProfile, "currentStreak" | "bestStreak" | "lastPlayedDate">,
+  now: Date,
+): Pick<PlayerProfile, "currentStreak" | "bestStreak" | "lastPlayedDate"> {
+  const today = localDateKey(now);
+  if (profile.lastPlayedDate === today) return profile;
+
+  const yesterday = localDateKey(new Date(now.getTime() - 24 * 60 * 60 * 1000));
+  const currentStreak = profile.lastPlayedDate === yesterday ? profile.currentStreak + 1 : 1;
+
+  return {
+    currentStreak,
+    bestStreak: Math.max(profile.bestStreak, currentStreak),
+    lastPlayedDate: today,
   };
 }
 
@@ -113,15 +147,20 @@ export function isLevelUnlocked(
   return getLevelProgress(profile, level.unlockRequires).completed;
 }
 
-/** Folds a finished run into a profile, keeping personal bests. */
+/**
+ * Folds a finished run into a profile, keeping personal bests and advancing
+ * the daily streak. `now` is injectable for tests; real callers omit it.
+ */
 export function mergeRunResult(
   profile: PlayerProfile,
   levelId: string,
   run: { checkpoints: number; coins: number; completed: boolean },
+  now: Date = new Date(),
 ): PlayerProfile {
   const previous = getLevelProgress(profile, levelId);
   return {
     ...profile,
+    ...advanceStreak(profile, now),
     totalCoins: profile.totalCoins + run.coins,
     levels: {
       ...profile.levels,
