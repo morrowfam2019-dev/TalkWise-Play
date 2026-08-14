@@ -61,9 +61,14 @@ const solids: Solid[] = [
   // Mid terrace (highest).
   slab(-9, 9, -17, -7, 4.4, -1, ROCK, GRASS_HIGH),
 
-  // Routes — just walkable ramps.
-  slab(-16, -9, -13, -5, 4.4, -1, ROCK_DARK, GRASS_HIGH),
-  slab(9, 14, -11, -4, 4.4, -1, ROCK_DARK, GRASS_HIGH),
+  // Routes — mid-tier bridges. Their footprints stop exactly at the lower
+  // platforms' edges (z=-10 and z=-6) rather than overlapping them, so a
+  // platform's surface height stays true across its whole footprint and a
+  // jump pad placed on it lands where the visual says it does. Widened to
+  // the platforms' full x-range so a diagonal boosted jump can't slip
+  // through an uncovered corner between platform, bridge, and mid terrace.
+  slab(-20, -9, -17, -10, 4.4, -1, ROCK_DARK, GRASS_HIGH),
+  slab(4, 14, -17, -6, 4.4, -1, ROCK_DARK, GRASS_HIGH),
 
   // Summit platform.
   slab(-5, 5, -22, -15.3, 6.4, -1, ROCK, SUMMIT_STONE),
@@ -136,9 +141,9 @@ const collectibles: Collectible[] = [
   { id: "coin-6", position: [2, 1, 22], value: 2 },
   { id: "coin-7", position: [-25, 1, 5], value: 2 },
   { id: "coin-8", position: [25, 1, 0], value: 2 },
-  { id: "coin-9", position: [-20, 1, -15], value: 2 },
+  { id: "coin-9", position: [-22, 1, -15], value: 2 },
   { id: "coin-10", position: [20, 1, -18], value: 2 },
-  { id: "coin-11", position: [-20, 1, -12], value: 2 },
+  { id: "coin-11", position: [-22, 1, -12], value: 2 },
   { id: "coin-12", position: [20, 1, -10], value: 2 },
 ];
 
@@ -153,22 +158,24 @@ export const mountainOfM: WorldDefinition = {
   checkpoints: [
     { id: "cp-1", position: [-9, 0, 13] },
     { id: "cp-2", position: [18, 0, 9] },
-    { id: "cp-3", position: [-25, 0, 2] },
-    { id: "cp-4", position: [-25, 0, -5] },
-    { id: "cp-5", position: [-20, 0, -20] },
+    { id: "cp-3", position: [-14, 1.4, 2] },
+    { id: "cp-4", position: [15, 2.8, 0] },
+    { id: "cp-5", position: [0, 4.4, -11.5] },
   ],
-  finish: [0, 0, -24],
+  finish: [0, 6.4, -20],
+  // Ordered shore → west → east → mid → summit; verify-world.mjs relies on
+  // this order to route the traversal check through each pad in turn.
   jumpPads: [
-    // Boost from shore to west platform
-    { id: "pad-west", position: [-12, 0, 10], radius: 2.5, boost: 8 },
-    // Boost from shore to east platform
-    { id: "pad-east", position: [11, 0, 10], radius: 2.5, boost: 12 },
-    // Boost from west platform to mid terrace
-    { id: "pad-west-mid", position: [-12, 1.4, -10], radius: 2, boost: 10 },
-    // Boost from east platform to mid terrace
-    { id: "pad-east-mid", position: [11, 2.8, -8], radius: 2, boost: 6 },
-    // Boost from mid terrace to summit
-    { id: "pad-summit", position: [0, 4.4, -16], radius: 2, boost: 8 },
+    // Boost from shore to west platform (1.4 gap; needs ~7.9 to clear)
+    { id: "pad-west", position: [-12, 0, 10], radius: 2.5, boost: 12 },
+    // Boost from shore to east platform (2.8 gap; needs ~11.1 to clear)
+    { id: "pad-east", position: [11, 0, 10], radius: 2.5, boost: 13 },
+    // Boost from west platform to mid terrace (3.0 gap; needs ~11.5 to clear)
+    { id: "pad-west-mid", position: [-12, 1.4, -8], radius: 2, boost: 14 },
+    // Boost from east platform to mid terrace (1.6 gap; needs ~8.4 to clear)
+    { id: "pad-east-mid", position: [11, 2.8, -4], radius: 2, boost: 11 },
+    // Boost from mid terrace to summit (2.0 gap; needs ~9.4 to clear)
+    { id: "pad-summit", position: [0, 4.4, -15], radius: 2, boost: 12 },
   ],
   skyColor: "#8fd8f5",
   fogColor: "#bfe9fb",

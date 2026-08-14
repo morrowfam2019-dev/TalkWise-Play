@@ -9,6 +9,7 @@ import { Coins } from "./Coins";
 import { Decorations } from "./Decorations";
 import { FinishPortal } from "./FinishPortal";
 import { GameplayController, type GameplayCallbacks } from "./GameplayController";
+import { JumpPads } from "./JumpPads";
 import { Terrain } from "./Terrain";
 
 interface GameSceneProps extends GameplayCallbacks {
@@ -60,6 +61,7 @@ export function GameScene({
 
       <Terrain world={world} />
       <Decorations world={world} />
+      {world.jumpPads ? <JumpPads pads={world.jumpPads} /> : null}
       <Coins collectibles={world.collectibles} collected={collected} />
       <Checkpoints
         anchors={world.checkpoints}

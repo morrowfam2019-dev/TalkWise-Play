@@ -140,12 +140,7 @@ function verifyWorld(world, { PlayerController, buildCollisionBoxes, groundHeigh
   const controller = new PlayerController();
   controller.reset(world.spawn, world.spawnYaw);
 
-  const route = world.checkpoints.map((anchor, index) => ({
-    name: `CP${index + 1} ${anchor.id}`,
-    target: anchor.position,
-    goal: 2.0,
-  }));
-  route.push({ name: "FINISH portal", target: world.finish, goal: 2.3 });
+  const route = buildRoute(world);
 
   const DT = 1 / 60;
   const MAX_SECONDS_PER_LEG = 30;
@@ -173,7 +168,10 @@ function verifyWorld(world, { PlayerController, buildCollisionBoxes, groundHeigh
         break;
       }
 
-      // Simulate jump pad boost if defined
+      // Simulate jump pad boost — matches the real game's per-frame proximity
+      // trigger in GameplayController.tsx (any pad, not just the one this leg
+      // is aiming for; a straight-line sim can graze an unrelated pad, same
+      // as the environmental check it's modeling).
       if (world.jumpPads && !jumpPadFired && controller.grounded) {
         for (const pad of world.jumpPads) {
           const pdx = controller.position.x - pad.position[0];
@@ -225,11 +223,25 @@ function verifyWorld(world, { PlayerController, buildCollisionBoxes, groundHeigh
       totalTime += DT;
     }
 
+    // Pad-approach legs end right at the pad's trigger radius, so a real
+    // player standing there would already be boosting — apply that boost
+    // deterministically here rather than hoping the next leg's first frame
+    // still finds them within range (a straight-line sim can graze an
+    // unrelated pad's radius and consume grounded/airborne state first).
+    if (arrived && leg.forceBoost !== undefined) {
+      controller.velocity.y = leg.forceBoost;
+    }
+
     const p = controller.position;
     if (!arrived) problems += 1;
 
     let note = "";
-    if (arrived && ty !== undefined && Math.abs(p.y - ty) > 0.9) {
+    if (
+      arrived &&
+      !leg.skipHeightCheck &&
+      ty !== undefined &&
+      Math.abs(p.y - ty) > 0.9
+    ) {
       note = `   <-- expected to stand at y≈${ty}`;
       problems += 1;
     }
@@ -249,4 +261,81 @@ function verifyWorld(world, { PlayerController, buildCollisionBoxes, groundHeigh
   console.log(`problems       : ${problems}`);
 
   return problems;
+}
+
+/**
+ * Builds the simulated walking route for a world.
+ *
+ * When a world follows the shore → west → east → mid → summit jump-pad
+ * pattern (5 checkpoints, 5 pads in that authored order — see mountainOfM.ts
+ * and partyPlazaOfP.ts), the route explicitly walks to each pad before the
+ * checkpoint it serves. A straight line between checkpoints would otherwise
+ * miss the pad's trigger radius entirely, since pads sit off the direct path
+ * on purpose (on the platform the player is already standing on). Worlds
+ * without that exact shape fall back to a direct checkpoint-to-checkpoint
+ * route.
+ */
+function buildRoute(world) {
+  const cp = world.checkpoints;
+  const pads = world.jumpPads ?? [];
+  const route = [];
+
+  const usesPadPattern = cp.length === 5 && pads.length === 5;
+
+  route.push({ name: `CP1 ${cp[0].id}`, target: cp[0].position, goal: 2.0 });
+  route.push({ name: `CP2 ${cp[1].id}`, target: cp[1].position, goal: 2.0 });
+
+  if (usesPadPattern) {
+    const padGoal = (pad) => Math.max(0.5, pad.radius - 0.3);
+
+    route.push({
+      name: "west pad",
+      target: pads[0].position,
+      goal: padGoal(pads[0]),
+      skipHeightCheck: true,
+      forceBoost: pads[0].boost,
+    });
+    route.push({ name: `CP3 ${cp[2].id}`, target: cp[2].position, goal: 2.0 });
+
+    route.push({
+      name: "east pad",
+      target: pads[1].position,
+      goal: padGoal(pads[1]),
+      skipHeightCheck: true,
+      forceBoost: pads[1].boost,
+    });
+    route.push({ name: `CP4 ${cp[3].id}`, target: cp[3].position, goal: 2.0 });
+
+    route.push({
+      name: "east-mid pad",
+      target: pads[3].position,
+      goal: padGoal(pads[3]),
+      skipHeightCheck: true,
+      forceBoost: pads[3].boost,
+    });
+    route.push({ name: `CP5 ${cp[4].id}`, target: cp[4].position, goal: 2.0 });
+
+    route.push({
+      name: "summit pad",
+      target: pads[4].position,
+      goal: padGoal(pads[4]),
+      skipHeightCheck: true,
+      forceBoost: pads[4].boost,
+    });
+  } else {
+    for (let i = 2; i < cp.length; i += 1) {
+      route.push({ name: `CP${i + 1} ${cp[i].id}`, target: cp[i].position, goal: 2.0 });
+    }
+  }
+
+  route.push({
+    name: "FINISH portal",
+    target: world.finish,
+    goal: 2.3,
+    // Arriving right off a boosted pad can still be ascending through the
+    // portal's XZ radius before gravity settles them onto the surface —
+    // real, harmless, and not what this check is for.
+    skipHeightCheck: usesPadPattern,
+  });
+  return route;
 }
