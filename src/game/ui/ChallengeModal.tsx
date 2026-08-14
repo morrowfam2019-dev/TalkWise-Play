@@ -54,19 +54,25 @@ export function ChallengeModal({
 
   const handleRequestMic = async () => {
     const manager = new AudioCaptureManager();
-    const granted = await manager.requestPermission();
+    try {
+      const granted = await manager.requestPermission();
 
-    if (granted) {
-      setMicPermission("granted");
-      audioCaptureRef.current = manager;
-      manager.startListening(
-        () => {
-          setCelebrating(true);
-          onConfirm();
-        },
-        setListeningStatus,
-      );
-    } else {
+      if (granted) {
+        setMicPermission("granted");
+        audioCaptureRef.current = manager;
+        await manager.startListening(
+          () => {
+            setCelebrating(true);
+            onConfirm();
+          },
+          setListeningStatus,
+        );
+      } else {
+        setMicPermission("denied");
+        manager.dispose();
+      }
+    } catch (error) {
+      console.error("Microphone error:", error);
       setMicPermission("denied");
       manager.dispose();
     }
