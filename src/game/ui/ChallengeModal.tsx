@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import type { SpeechChallenge } from "@/content/speech";
 import {
@@ -61,14 +62,17 @@ function playExampleWord(word: string) {
 /**
  * The speech challenge.
  *
- * The microphone path transcribes speech and checks it against the target
- * word — background noise and wrong words don't pass, only the word itself
- * does. This is still not pronunciation *scoring*: a match either happened
- * or it didn't. After two attempts without a match, "Miss Maya" models the
- * word once; the third attempt always advances the challenge regardless, so
- * a shy voice or a flaky microphone never hard-locks a run. The manual "I
- * SAID IT!" button remains the fallback when the microphone is denied or
- * speech recognition isn't supported.
+ * "Hear Miss Maya say it" is available from the first moment the challenge
+ * appears, not just after failed attempts — a child shouldn't have to fail
+ * twice to learn what the word even sounds like. The microphone path
+ * transcribes speech and checks it against the target word — background
+ * noise and wrong words don't pass, only the word itself does. This is
+ * still not pronunciation *scoring*: a match either happened or it didn't.
+ * After two attempts without a match, Miss Maya's example pops up
+ * automatically as reinforcement; the third attempt always advances the
+ * challenge regardless, so a shy voice or a flaky microphone never
+ * hard-locks a run. The manual "I SAID IT!" button remains the fallback
+ * when the microphone is denied or speech recognition isn't supported.
  */
 export function ChallengeModal({
   challenge,
@@ -224,15 +228,32 @@ export function ChallengeModal({
             Say it out loud, nice and clear.
           </p>
 
+          <button
+            type="button"
+            onClick={() => playExampleWord(challenge.word)}
+            className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-2xl border-4 border-[#2f7fd4] bg-[#eaf4ff] px-4 py-2.5 text-sm font-black text-[#2f7fd4]"
+          >
+            <Image
+              src="/characters/miss-maya.png"
+              alt=""
+              aria-hidden
+              width={28}
+              height={28}
+              className="h-7 w-7 shrink-0 rounded-full border-2 border-[#2f7fd4] object-cover"
+            />
+            🔊 Hear Miss Maya say it
+          </button>
+
           {showExample ? (
-            <div className="tw-pop mt-6 rounded-2xl border-4 border-[#2f7fd4] bg-[#eaf4ff] p-4">
+            <div className="tw-pop mt-4 rounded-2xl border-4 border-[#2f7fd4] bg-[#eaf4ff] p-4">
               <div className="flex items-center gap-3">
-                <div
-                  className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[#2f7fd4] text-3xl"
-                  aria-hidden
-                >
-                  👩‍🏫
-                </div>
+                <Image
+                  src="/characters/miss-maya.png"
+                  alt="Miss Maya"
+                  width={56}
+                  height={56}
+                  className="h-14 w-14 shrink-0 rounded-full border-2 border-[#2f7fd4] object-cover"
+                />
                 <div className="text-left">
                   <p className="text-[0.65rem] font-black tracking-wide text-[#2f7fd4] uppercase">
                     Miss Maya says

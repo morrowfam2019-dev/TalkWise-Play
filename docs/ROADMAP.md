@@ -73,9 +73,11 @@ The first phase where the microphone is used at all.
   brand's own ElevenLabs voice ID exists but isn't reachable through this
   connector, so this is the nearest available match) with a browser
   text-to-speech fallback for any word that doesn't have a recorded clip yet
-- Miss Maya's face — still the 👩‍🏫 emoji placeholder; the official
-  TalkWise-headquarters PNG couldn't be pulled in this session (Google Drive
-  connector unavailable here)
+- Miss Maya's face — ✅ `public/characters/miss-maya.png`, the official
+  AI-generated TalkWise headquarters portrait (cropped to a square avatar).
+  A "🔊 Hear Miss Maya say it" button showing her photo is visible the
+  moment a challenge opens — not gated behind failed attempts, so a child
+  can hear the word before ever guessing at it
 - Real pronunciation feedback (recording, playback, comparison) — still
   open; the attempt loop above confirms the right word was said, not how
   *well* it was said
