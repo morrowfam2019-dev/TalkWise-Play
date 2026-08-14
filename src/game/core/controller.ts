@@ -64,6 +64,12 @@ export class PlayerController {
     this.landingImpact = 0;
   }
 
+  /** Sets upward velocity directly — used by jump pads and similar triggers. */
+  boostUp(velocityY: number) {
+    this.velocity.y = velocityY;
+    this.grounded = false;
+  }
+
   update(
     dt: number,
     input: ControllerInput,

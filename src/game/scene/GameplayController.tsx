@@ -141,7 +141,7 @@ export function GameplayController({
           const dz = controller.position.z - pad.position[2];
           const distance = Math.hypot(dx, dz);
           if (distance < pad.radius && controller.grounded) {
-            controller.velocity.y = pad.boost;
+            controller.boostUp(pad.boost);
           }
         }
       }

@@ -27,11 +27,16 @@ game that feels like a game.
 
 Turn the one-off level into a content pipeline.
 
-- Extract level authoring so a new sound is a data file, not new code
-- Multiple worlds sharing one engine; world/level binding by anchor index
+- Extract level authoring so a new sound is a data file, not new code — ✅
+  `P Party` added as a level file plus a world file; zero engine changes
+- Multiple worlds sharing one engine; world/level binding by anchor index — ✅
 - Difficulty settings (checkpoint count, world size, movement assists)
-- Authoring-time validation extended (`npm run verify:world` per level)
-- Second sound built end-to-end to prove the pipeline (`/P/` or `/B/`)
+- Authoring-time validation extended (`npm run verify:world` per level) — ✅
+  the script now verifies every registered world in one run
+- Second sound built end-to-end to prove the pipeline (`/P/` or `/B/`) — ✅
+  P Party: POP, PIG, PIZZA, PENGUIN, PANDA in the Party Plaza of P
+
+**Status: pipeline proven, pending founder review. Difficulty settings still open.**
 
 ## Phase 3 — TalkWise Play World + Progression
 

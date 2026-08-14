@@ -9,7 +9,6 @@ export interface ComingSoonEntry {
 }
 
 export const COMING_SOON: ComingSoonEntry[] = [
-  { title: "P Party", soundLabel: "/P/", glyph: "🎈" },
   { title: "B Bay", soundLabel: "/B/", glyph: "🫧" },
   { title: "W Woods", soundLabel: "/W/", glyph: "🌲" },
 ];

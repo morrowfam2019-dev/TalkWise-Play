@@ -15,7 +15,7 @@ export class AudioCaptureManager {
   private mediaStream: MediaStream | null = null;
   private audioContext: AudioContext | null = null;
   private analyser: AnalyserNode | null = null;
-  private dataArray: Uint8Array | null = null;
+  private dataArray: Uint8Array<ArrayBuffer> | null = null;
   private animationId: number | null = null;
   private volumeExceededSince: number | null = null;
   private silenceSince: number | null = null;
@@ -33,7 +33,7 @@ export class AudioCaptureManager {
         },
       });
       return true;
-    } catch (_error) {
+    } catch {
       return false;
     }
   }
@@ -50,8 +50,11 @@ export class AudioCaptureManager {
     this.statusCallback = onStatus ?? null;
 
     if (!this.audioContext) {
-      this.audioContext = new (window.AudioContext ||
-        (window as any).webkitAudioContext)();
+      const AudioContextCtor =
+        window.AudioContext ??
+        (window as unknown as { webkitAudioContext: typeof AudioContext })
+          .webkitAudioContext;
+      this.audioContext = new AudioContextCtor();
     }
 
     if (this.audioContext.state === "suspended") {
@@ -67,9 +70,7 @@ export class AudioCaptureManager {
       source.connect(this.analyser);
 
       const bufferLength = this.analyser.frequencyBinCount;
-      this.dataArray = new Uint8Array(
-        bufferLength,
-      ) as Uint8Array<ArrayBuffer>;
+      this.dataArray = new Uint8Array(bufferLength);
     }
 
     this.volumeExceededSince = null;
@@ -81,7 +82,7 @@ export class AudioCaptureManager {
   private detectVolume(): void {
     if (!this.analyser || !this.dataArray) return;
 
-    this.analyser.getByteFrequencyData(this.dataArray as any);
+    this.analyser.getByteFrequencyData(this.dataArray);
 
     const average =
       this.dataArray.reduce((a, b) => a + b) / this.dataArray.length / 255;

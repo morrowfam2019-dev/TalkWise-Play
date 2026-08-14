@@ -1,19 +1,22 @@
 /**
  * World verification for TalkWise Play.
  *
- * Runs two checks against the real game logic — no browser, no rendering:
+ * Runs two checks against the real game logic — no browser, no rendering —
+ * for every registered world (or a single one, passed as an argv filter):
  *
  *   1. Placement audit — every checkpoint, coin, and finish anchor must sit on
  *      the terrain surface rather than buried inside it or floating above it.
  *   2. Traversal — drives the actual PlayerController over the actual world
- *      data at a fixed timestep along the intended route, proving that a
- *      player can walk from spawn to the summit without getting stuck or
- *      falling off.
+ *      data at a fixed timestep along the checkpoint order, simulating jump
+ *      pads, and proving that a player can walk from spawn to the finish
+ *      without getting stuck or falling off.
  *
  * Level design is data, and data is easy to get subtly wrong; this catches
  * an unreachable checkpoint in seconds instead of during play testing.
  *
- * Usage: npm run verify:world
+ * Usage:
+ *   npm run verify:world                # every registered world
+ *   npm run verify:world -- mountain-of-m
  */
 import { execFileSync } from "node:child_process";
 import { createRequire } from "node:module";
@@ -48,15 +51,42 @@ try {
   );
 
   const require = createRequire(join(projectRoot, "package.json"));
-  const { getWorld } = require(join(outDir, "game/world/index.js"));
+  const { listWorlds } = require(join(outDir, "game/world/index.js"));
   const { PlayerController } = require(join(outDir, "game/core/controller.js"));
   const { buildCollisionBoxes, groundHeightAt } = require(
     join(outDir, "game/core/collision.js"),
   );
 
-  const world = getWorld("mountain-of-m");
-  if (!world) throw new Error("world 'mountain-of-m' not found");
+  const filter = process.argv[2];
+  const worlds = listWorlds().filter((w) => !filter || w.id === filter);
+  if (worlds.length === 0) {
+    throw new Error(filter ? `world '${filter}' not found` : "no worlds registered");
+  }
 
+  let totalProblems = 0;
+
+  for (const world of worlds) {
+    console.log(`\n=== ${world.name} (${world.id}) ===`);
+    const problems = verifyWorld(world, {
+      PlayerController,
+      buildCollisionBoxes,
+      groundHeightAt,
+    });
+    totalProblems += problems;
+  }
+
+  console.log("");
+  console.log(
+    totalProblems === 0
+      ? "WORLD VERIFICATION PASS"
+      : `WORLD VERIFICATION FAIL (${totalProblems} total problems)`,
+  );
+  process.exitCode = totalProblems === 0 ? 0 : 1;
+} finally {
+  rmSync(outDir, { recursive: true, force: true });
+}
+
+function verifyWorld(world, { PlayerController, buildCollisionBoxes, groundHeightAt }) {
   const boxes = buildCollisionBoxes(world.solids);
   let problems = 0;
 
@@ -110,15 +140,12 @@ try {
   const controller = new PlayerController();
   controller.reset(world.spawn, world.spawnYaw);
 
-  const cp = world.checkpoints.map((c) => c.position);
-  const route = [
-    { name: "CP1 MOM", target: cp[0], goal: 2.0 },
-    { name: "CP2 MOON", target: cp[1], goal: 2.0 },
-    { name: "CP3 MILK", target: cp[2], goal: 2.0 },
-    { name: "CP4 MOUSE", target: cp[3], goal: 2.0 },
-    { name: "CP5 MONKEY", target: cp[4], goal: 2.0 },
-    { name: "FINISH portal", target: world.finish, goal: 2.3 },
-  ];
+  const route = world.checkpoints.map((anchor, index) => ({
+    name: `CP${index + 1} ${anchor.id}`,
+    target: anchor.position,
+    goal: 2.0,
+  }));
+  route.push({ name: "FINISH portal", target: world.finish, goal: 2.3 });
 
   const DT = 1 / 60;
   const MAX_SECONDS_PER_LEG = 30;
@@ -220,8 +247,6 @@ try {
   console.log(`simulated play : ${totalTime.toFixed(1)}s`);
   console.log(`respawns       : ${respawns}`);
   console.log(`problems       : ${problems}`);
-  console.log(problems === 0 ? "\nWORLD VERIFICATION PASS" : "\nWORLD VERIFICATION FAIL");
-  process.exitCode = problems === 0 ? 0 : 1;
-} finally {
-  rmSync(outDir, { recursive: true, force: true });
+
+  return problems;
 }

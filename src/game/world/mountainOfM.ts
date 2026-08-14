@@ -21,7 +21,6 @@ const GRASS_HIGH = "#8ade7c";
 const DIRT = "#c58a55";
 const ROCK = "#a8b3c4";
 const ROCK_DARK = "#8b97a9";
-const STONE = "#e2dcCB";
 const SUMMIT_STONE = "#f3d488";
 
 let solidSeq = 0;
