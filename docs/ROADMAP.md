@@ -62,9 +62,17 @@ The first phase where the microphone is used at all.
 - Microphone capture with explicit, child-appropriate permission flow — ✅
 - Attempt-detection loop — ✅ still no pronunciation scoring, just "was a
   sound made": listen (up to ~4.5s) → nothing heard → listen again → nothing
-  heard a 2nd time → "Miss Maya" speaks the word once (browser TTS, a small
-  face popup, no shipped audio) → 3rd attempt always advances the challenge,
-  heard or not, so a quiet room or a shy voice never hard-locks a run
+  heard a 2nd time → "Miss Maya" speaks the word once → 3rd attempt always
+  advances the challenge, heard or not, so a quiet room or a shy voice never
+  hard-locks a run
+- Miss Maya's voice — ✅ real recorded clips (`public/audio/maya/*.mp3`, one
+  per word, ElevenLabs via the Higgsfield connector's "Maya" preset — the
+  brand's own ElevenLabs voice ID exists but isn't reachable through this
+  connector, so this is the nearest available match) with a browser
+  text-to-speech fallback for any word that doesn't have a recorded clip yet
+- Miss Maya's face — still the 👩‍🏫 emoji placeholder; the official
+  TalkWise-headquarters PNG couldn't be pulled in this session (Google Drive
+  connector unavailable here)
 - Real pronunciation feedback (recording, playback, comparison) — still open;
   the attempt loop above only detects sound, not correctness
 - Honest confidence reporting — never a fabricated score

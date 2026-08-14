@@ -21,8 +21,8 @@ const CELEBRATION_MS = 1600;
 const MAX_ATTEMPTS = 3;
 const EXAMPLE_AFTER_ATTEMPT = 2;
 
-/** Best-effort female voice for the "Miss Maya" example — falls back to the
- * browser default if nothing matches or speech synthesis isn't available. */
+/** Browser text-to-speech fallback, used only when no recorded clip exists
+ * for a word — picks a best-effort female voice. */
 function speakExampleWord(word: string) {
   if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
   try {
@@ -39,6 +39,21 @@ function speakExampleWord(word: string) {
   } catch {
     // Speech synthesis is best-effort — the face popup still shows the word.
   }
+}
+
+/** Plays the recorded "Miss Maya" clip for a word; falls back to browser
+ * text-to-speech if that word hasn't been recorded yet. */
+function playExampleWord(word: string) {
+  if (typeof window === "undefined") return;
+  const clip = new Audio(`/audio/maya/${word.toLowerCase()}.mp3`);
+  let fellBack = false;
+  const fallback = () => {
+    if (fellBack) return;
+    fellBack = true;
+    speakExampleWord(word);
+  };
+  clip.addEventListener("error", fallback);
+  clip.play().catch(fallback);
 }
 
 /**
@@ -81,7 +96,7 @@ export function ChallengeModal({
 
   useEffect(() => {
     if (!showExample) return;
-    speakExampleWord(challenge.word);
+    playExampleWord(challenge.word);
   }, [showExample, challenge.word]);
 
   const startListeningAttempt = async () => {
@@ -227,7 +242,7 @@ export function ChallengeModal({
               <div className="mt-3 flex gap-2">
                 <button
                   type="button"
-                  onClick={() => speakExampleWord(challenge.word)}
+                  onClick={() => playExampleWord(challenge.word)}
                   className="flex-1 rounded-xl bg-[#2f7fd4] px-3 py-2.5 text-sm font-black text-white"
                 >
                   🔊 Hear it again
