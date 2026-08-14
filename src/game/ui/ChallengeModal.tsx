@@ -2,6 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { SpeechChallenge } from "@/content/speech";
+import {
+  AudioCaptureManager,
+  type SpeechDetectionStatus,
+} from "@/game/core/audio-capture";
 
 interface ChallengeModalProps {
   challenge: SpeechChallenge;
@@ -30,7 +34,13 @@ export function ChallengeModal({
   onClose,
 }: ChallengeModalProps) {
   const [celebrating, setCelebrating] = useState(false);
+  const [micPermission, setMicPermission] = useState<
+    "not-requested" | "granted" | "denied"
+  >("not-requested");
+  const [listeningStatus, setListeningStatus] =
+    useState<SpeechDetectionStatus>("idle");
   const confirmRef = useRef<HTMLButtonElement>(null);
+  const audioCaptureRef = useRef<AudioCaptureManager | null>(null);
 
   useEffect(() => {
     confirmRef.current?.focus();
@@ -42,11 +52,39 @@ export function ChallengeModal({
     return () => window.clearTimeout(timer);
   }, [celebrating, onClose]);
 
+  const handleRequestMic = async () => {
+    const manager = new AudioCaptureManager();
+    const granted = await manager.requestPermission();
+
+    if (granted) {
+      setMicPermission("granted");
+      audioCaptureRef.current = manager;
+      manager.startListening(
+        () => {
+          setCelebrating(true);
+          onConfirm();
+        },
+        setListeningStatus,
+      );
+    } else {
+      setMicPermission("denied");
+      manager.dispose();
+    }
+  };
+
   const handleConfirm = () => {
     if (celebrating) return;
     setCelebrating(true);
     onConfirm();
   };
+
+  useEffect(() => {
+    return () => {
+      if (audioCaptureRef.current) {
+        audioCaptureRef.current.dispose();
+      }
+    };
+  }, []);
 
   return (
     <div
@@ -103,22 +141,70 @@ export function ChallengeModal({
             Say it out loud, nice and clear.
           </p>
 
-          <button
-            ref={confirmRef}
-            type="button"
-            onClick={handleConfirm}
-            className="mt-6 w-full rounded-2xl border-b-8 border-[#25a25a] bg-[#2ecc71] px-6 py-5 text-2xl font-black text-white shadow-lg transition-transform active:translate-y-1 active:border-b-4"
-          >
-            I SAID IT!
-          </button>
+          {micPermission === "not-requested" && (
+            <button
+              ref={confirmRef}
+              type="button"
+              onClick={handleRequestMic}
+              className="mt-6 w-full rounded-2xl border-b-8 border-[#3b82f6] bg-[#3b82f6] px-6 py-5 text-2xl font-black text-white shadow-lg transition-transform active:translate-y-1 active:border-b-4"
+            >
+              🎤 Use Microphone
+            </button>
+          )}
 
-          <button
-            type="button"
-            onClick={onDismiss}
-            className="mt-3 w-full rounded-xl px-4 py-2 text-base font-bold text-[#8a8aa0] hover:text-[#141420]"
-          >
-            Not yet
-          </button>
+          {micPermission === "granted" && listeningStatus === "listening" && (
+            <button
+              disabled
+              className="mt-6 w-full rounded-2xl border-b-8 border-[#f59e0b] bg-[#f59e0b] px-6 py-5 text-2xl font-black text-white shadow-lg"
+            >
+              🎤 Listening...
+            </button>
+          )}
+
+          {micPermission === "granted" && listeningStatus === "detected" && (
+            <button
+              disabled
+              className="mt-6 w-full rounded-2xl border-b-8 border-[#2ecc71] bg-[#2ecc71] px-6 py-5 text-2xl font-black text-white shadow-lg"
+            >
+              ✓ Speech Detected!
+            </button>
+          )}
+
+          {micPermission === "denied" && (
+            <>
+              <button
+                ref={confirmRef}
+                type="button"
+                onClick={handleConfirm}
+                className="mt-6 w-full rounded-2xl border-b-8 border-[#25a25a] bg-[#2ecc71] px-6 py-5 text-2xl font-black text-white shadow-lg transition-transform active:translate-y-1 active:border-b-4"
+              >
+                I SAID IT!
+              </button>
+              <p className="mt-2 text-xs text-[#8a8aa0]">
+                Microphone access denied — using button mode
+              </p>
+            </>
+          )}
+
+          {micPermission === "not-requested" && (
+            <button
+              type="button"
+              onClick={onDismiss}
+              className="mt-3 w-full rounded-xl px-4 py-2 text-base font-bold text-[#8a8aa0] hover:text-[#141420]"
+            >
+              Not yet
+            </button>
+          )}
+
+          {micPermission !== "not-requested" && (
+            <button
+              type="button"
+              onClick={onDismiss}
+              className="mt-3 w-full rounded-xl px-4 py-2 text-base font-bold text-[#8a8aa0] hover:text-[#141420]"
+            >
+              Not yet
+            </button>
+          )}
         </div>
       )}
     </div>
