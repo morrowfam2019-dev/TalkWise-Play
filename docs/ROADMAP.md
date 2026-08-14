@@ -59,10 +59,17 @@ Turn the one-off level into a content pipeline.
 
 The first phase where the microphone is used at all.
 
-- Microphone capture with explicit, child-appropriate permission flow
-- Real pronunciation feedback (recording, playback, comparison)
+- Microphone capture with explicit, child-appropriate permission flow — ✅
+- Attempt-detection loop — ✅ still no pronunciation scoring, just "was a
+  sound made": listen (up to ~4.5s) → nothing heard → listen again → nothing
+  heard a 2nd time → "Miss Maya" speaks the word once (browser TTS, a small
+  face popup, no shipped audio) → 3rd attempt always advances the challenge,
+  heard or not, so a quiet room or a shy voice never hard-locks a run
+- Real pronunciation feedback (recording, playback, comparison) — still open;
+  the attempt loop above only detects sound, not correctness
 - Honest confidence reporting — never a fabricated score
-- Manual "I said it" confirmation remains available as a fallback
+- Manual "I said it" confirmation remains available as a fallback — ✅
+  (shown automatically when microphone permission is denied)
 
 ## Phase 5 — Parent + Child Profiles
 

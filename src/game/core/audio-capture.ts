@@ -5,11 +5,20 @@
  * Does not perform pronunciation scoring — just detects an attempt.
  */
 
-export type SpeechDetectionStatus = "idle" | "listening" | "detected";
+export type SpeechDetectionStatus = "idle" | "listening" | "detected" | "timeout";
 
 const VOLUME_THRESHOLD = 0.02; // Adjust sensitivity (0-1)
 const DETECTION_DURATION_MS = 300; // How long sound must exceed threshold
-const SILENCE_TIMEOUT_MS = 1500; // Stop listening after silence
+const SILENCE_TIMEOUT_MS = 1500; // Stop listening after silence, once some sound happened
+const MAX_LISTEN_MS = 4500; // Hard cap when no sound is heard at all
+
+export interface ListenCallbacks {
+  /** An attempt was heard — no pronunciation judgement, just sound. */
+  onDetected: () => void;
+  /** Nothing was heard for the full listening window. */
+  onTimeout: () => void;
+  onStatus?: (status: SpeechDetectionStatus) => void;
+}
 
 export class AudioCaptureManager {
   private mediaStream: MediaStream | null = null;
@@ -19,10 +28,11 @@ export class AudioCaptureManager {
   private animationId: number | null = null;
   private volumeExceededSince: number | null = null;
   private silenceSince: number | null = null;
+  private listenStartedAt: number | null = null;
   private statusCallback: ((status: SpeechDetectionStatus) => void) | null =
     null;
-  private detectedCallback: ((
-    ) => void) | null = null;
+  private detectedCallback: (() => void) | null = null;
+  private timeoutCallback: (() => void) | null = null;
 
   async requestPermission(): Promise<boolean> {
     try {
@@ -38,15 +48,13 @@ export class AudioCaptureManager {
     }
   }
 
-  async startListening(
-    onDetected: () => void,
-    onStatus?: (status: SpeechDetectionStatus) => void,
-  ): Promise<void> {
+  async startListening({ onDetected, onTimeout, onStatus }: ListenCallbacks): Promise<void> {
     if (!this.mediaStream) {
       throw new Error("No media stream available");
     }
 
     this.detectedCallback = onDetected;
+    this.timeoutCallback = onTimeout;
     this.statusCallback = onStatus ?? null;
 
     if (!this.audioContext) {
@@ -75,6 +83,7 @@ export class AudioCaptureManager {
 
     this.volumeExceededSince = null;
     this.silenceSince = Date.now();
+    this.listenStartedAt = Date.now();
     this.updateStatus("listening");
     this.detectVolume();
   }
@@ -101,14 +110,24 @@ export class AudioCaptureManager {
       }
     }
 
-    // Check for timeout (silence)
+    // Some sound happened, then it went quiet — count that as an attempt.
     if (
       this.silenceSince &&
       Date.now() - this.silenceSince > SILENCE_TIMEOUT_MS &&
       this.volumeExceededSince !== null
     ) {
-      // Had sound but now it's been silent
       this.onSpeechDetected();
+      return;
+    }
+
+    // Nothing was ever heard for the whole window — a real timeout, not an
+    // attempt. Without this the loop would run forever on total silence.
+    if (
+      this.listenStartedAt &&
+      Date.now() - this.listenStartedAt > MAX_LISTEN_MS &&
+      this.volumeExceededSince === null
+    ) {
+      this.onTimedOut();
       return;
     }
 
@@ -120,6 +139,14 @@ export class AudioCaptureManager {
     this.stopListening();
     if (this.detectedCallback) {
       this.detectedCallback();
+    }
+  }
+
+  private onTimedOut(): void {
+    this.updateStatus("timeout");
+    this.stopListening();
+    if (this.timeoutCallback) {
+      this.timeoutCallback();
     }
   }
 
