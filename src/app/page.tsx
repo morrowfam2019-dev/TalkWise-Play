@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import { COMING_SOON } from "@/content/comingSoon";
 import { getLevel, listLevels } from "@/content/speech";
 import { ACHIEVEMENTS, getUnlockedAchievements } from "@/player/achievements";
@@ -9,8 +10,20 @@ import { usePlayerProfile } from "@/player/usePlayerProfile";
 
 /** TalkWise Play home — the hub the adventures live inside. */
 export default function HomePage() {
-  const { profile, setName } = usePlayerProfile();
+  const { profile, setName, children, activeChildId, switchChild, addChild } =
+    usePlayerProfile();
+  const [addingChild, setAddingChild] = useState(false);
+  const [newChildName, setNewChildName] = useState("");
   const levels = listLevels();
+
+  const handleAddChild = (event: React.FormEvent) => {
+    event.preventDefault();
+    const trimmed = newChildName.trim();
+    if (!trimmed) return;
+    addChild(trimmed);
+    setNewChildName("");
+    setAddingChild(false);
+  };
 
   const greeting = profile.name ? `Hi, ${profile.name}!` : "Hi there!";
 
@@ -76,6 +89,68 @@ export default function HomePage() {
                 Pick an adventure, explore the world, and practice your sounds
                 out loud.
               </p>
+
+              {children.length > 1 || addingChild ? (
+                <div className="mt-4">
+                  <span className="text-xs font-black tracking-widest text-[#8a8aa0] uppercase">
+                    Playing as
+                  </span>
+                  <div className="mt-1.5 flex flex-wrap items-center gap-2">
+                    {children.map((child) => (
+                      <button
+                        key={child.id}
+                        type="button"
+                        onClick={() => switchChild(child.id)}
+                        className={`rounded-full px-4 py-2 text-sm font-black transition ${
+                          child.id === activeChildId
+                            ? "bg-[#141420] text-white"
+                            : "border-2 border-[#e2e4ee] bg-white text-[#4a4a60]"
+                        }`}
+                      >
+                        {child.name || "Player"}
+                      </button>
+                    ))}
+                    {addingChild ? (
+                      <form
+                        onSubmit={handleAddChild}
+                        className="flex items-center gap-1.5"
+                      >
+                        <input
+                          type="text"
+                          autoFocus
+                          value={newChildName}
+                          onChange={(event) => setNewChildName(event.target.value)}
+                          placeholder="Name"
+                          maxLength={20}
+                          className="w-28 rounded-full border-2 border-[#e2e4ee] bg-white px-3 py-2 text-sm font-bold text-[#141420] outline-none focus:border-[#f5c33b]"
+                        />
+                        <button
+                          type="submit"
+                          className="rounded-full bg-[#2ecc71] px-3 py-2 text-sm font-black text-white"
+                        >
+                          Add
+                        </button>
+                      </form>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => setAddingChild(true)}
+                        className="rounded-full border-2 border-dashed border-[#8a8aa0] px-4 py-2 text-sm font-black text-[#6b6b80]"
+                      >
+                        + Add child
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setAddingChild(true)}
+                  className="mt-3 text-xs font-bold text-[#4a6b78] underline"
+                >
+                  + Add another child&apos;s profile
+                </button>
+              )}
 
               <label className="mt-4 block">
                 <span className="text-xs font-black tracking-widest text-[#8a8aa0] uppercase">
@@ -238,7 +313,16 @@ export default function HomePage() {
           })}
         </div>
 
-        <p className="mt-10 text-center text-xs font-semibold text-[#4a6b78]">
+        <div className="mt-10 text-center">
+          <Link
+            href="/parent"
+            className="text-xs font-bold text-[#4a6b78] underline"
+          >
+            👪 Parent View
+          </Link>
+        </div>
+
+        <p className="mt-3 text-center text-xs font-semibold text-[#4a6b78]">
           TalkWise Play · part of TalkWise Academy
         </p>
       </div>

@@ -43,3 +43,16 @@ export const DEFAULT_PROFILE: PlayerProfile = {
   bestStreak: 0,
   lastPlayedDate: null,
 };
+
+/**
+ * Multiple named child profiles sharing one household, with one active at a
+ * time. Each child's data is still a plain `PlayerProfile` — this just adds
+ * a selector on top, so nothing about progress tracking changes per child.
+ */
+export interface Household {
+  activeChildId: string;
+  /** Display order — object key order isn't guaranteed once ids are
+   * generated at runtime, so it's tracked explicitly. */
+  order: string[];
+  children: Record<string, PlayerProfile>;
+}

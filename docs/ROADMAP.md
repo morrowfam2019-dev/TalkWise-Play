@@ -87,10 +87,20 @@ The first phase where the microphone is used at all.
 
 ## Phase 5 — Parent + Child Profiles
 
-- Multiple child profiles per household
+- Multiple child profiles per household — ✅ `Household` in
+  `src/player/types.ts` holds many named `PlayerProfile`s with one active at
+  a time; existing single-profile saves migrate into a first child
+  automatically. A "Playing as" chip row on the home screen switches
+  children and adds new ones — every existing consumer (`ChallengeModal`,
+  `GameShell`, the home screen) still just reads "the active profile" and
+  needed no changes
+- Parent view of practice history — ✅ `/parent` lists every child's coins,
+  streak, badge count, and per-level bests side by side. Honestly labeled as
+  unprotected for now — there's no login system yet, so it's exactly as
+  private as the device it's opened on
 - Server-backed progress replacing the local storage implementation
-  (the `ProgressStore` interface already draws this seam)
-- Parent view of practice history
+  (the `HouseholdStore` interface already draws this seam) — still open;
+  needs a real backend/auth decision, not made here
 
 ## Phase 6 — Whop Integration
 

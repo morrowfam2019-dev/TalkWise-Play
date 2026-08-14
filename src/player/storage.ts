@@ -1,30 +1,45 @@
 import {
   DEFAULT_PROFILE,
   EMPTY_LEVEL_PROGRESS,
+  type Household,
   type LevelProgress,
   type PlayerProfile,
 } from "./types";
 
 /**
- * Storage abstraction for player progress.
+ * Storage abstraction for the household's player progress.
  *
  * Modelled as an observable external store so React can read it with
  * `useSyncExternalStore` — no load-on-mount effect, and no hydration mismatch.
  * A future server-backed store only has to satisfy this interface; no gameplay
  * code touches persistence directly.
  */
-export interface ProgressStore {
+export interface HouseholdStore {
   subscribe(listener: () => void): () => void;
-  /** Current profile. Stable by reference until `save` is called. */
-  getSnapshot(): PlayerProfile;
+  /** Current household. Stable by reference until `save` is called. */
+  getSnapshot(): Household;
   /** Value used during SSR and hydration. */
-  getServerSnapshot(): PlayerProfile;
-  save(profile: PlayerProfile): void;
+  getServerSnapshot(): Household;
+  save(household: Household): void;
 }
 
-const STORAGE_KEY = "talkwise-play/profile/v1";
+const HOUSEHOLD_STORAGE_KEY = "talkwise-play/household/v1";
+/** Pre-multi-profile storage key, read once to migrate existing players'
+ * progress into their first child profile instead of losing it. */
+const LEGACY_PROFILE_STORAGE_KEY = "talkwise-play/profile/v1";
 
-function sanitize(raw: unknown): PlayerProfile {
+const DEFAULT_CHILD_ID = "child-1";
+const DEFAULT_HOUSEHOLD: Household = {
+  activeChildId: DEFAULT_CHILD_ID,
+  order: [DEFAULT_CHILD_ID],
+  children: { [DEFAULT_CHILD_ID]: DEFAULT_PROFILE },
+};
+
+function makeChildId(): string {
+  return `child-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function sanitizeProfile(raw: unknown): PlayerProfile {
   if (typeof raw !== "object" || raw === null) return { ...DEFAULT_PROFILE };
   const value = raw as Partial<PlayerProfile>;
 
@@ -50,6 +65,39 @@ function sanitize(raw: unknown): PlayerProfile {
     lastPlayedDate:
       typeof value.lastPlayedDate === "string" ? value.lastPlayedDate : null,
   };
+}
+
+function sanitizeHousehold(raw: unknown): Household | null {
+  if (typeof raw !== "object" || raw === null) return null;
+  const value = raw as Partial<Household>;
+  if (typeof value.children !== "object" || value.children === null) return null;
+
+  const children: Record<string, PlayerProfile> = {};
+  for (const [id, entry] of Object.entries(value.children)) {
+    children[id] = sanitizeProfile(entry);
+  }
+  if (Object.keys(children).length === 0) return null;
+
+  const order = Array.isArray(value.order)
+    ? value.order.filter(
+        (id): id is string => typeof id === "string" && id in children,
+      )
+    : [];
+  for (const id of Object.keys(children)) {
+    if (!order.includes(id)) order.push(id);
+  }
+
+  const activeChildId =
+    typeof value.activeChildId === "string" && value.activeChildId in children
+      ? value.activeChildId
+      : order[0];
+
+  return { activeChildId, order, children };
+}
+
+function freshHousehold(): Household {
+  const id = makeChildId();
+  return { activeChildId: id, order: [id], children: { [id]: { ...DEFAULT_PROFILE } } };
 }
 
 /** YYYY-MM-DD in the player's local timezone — calendar days, not UTC ones. */
@@ -82,19 +130,29 @@ function advanceStreak(
   };
 }
 
-class LocalProgressStore implements ProgressStore {
-  private cache: PlayerProfile | null = null;
+class LocalHouseholdStore implements HouseholdStore {
+  private cache: Household | null = null;
   private listeners = new Set<() => void>();
 
-  private read(): PlayerProfile {
-    if (typeof window === "undefined") return DEFAULT_PROFILE;
+  private read(): Household {
+    if (typeof window === "undefined") return DEFAULT_HOUSEHOLD;
     try {
-      const raw = window.localStorage.getItem(STORAGE_KEY);
-      if (!raw) return { ...DEFAULT_PROFILE };
-      return sanitize(JSON.parse(raw));
+      const raw = window.localStorage.getItem(HOUSEHOLD_STORAGE_KEY);
+      if (raw) {
+        const sanitized = sanitizeHousehold(JSON.parse(raw));
+        if (sanitized) return sanitized;
+      }
+
+      const legacyRaw = window.localStorage.getItem(LEGACY_PROFILE_STORAGE_KEY);
+      if (legacyRaw) {
+        const profile = sanitizeProfile(JSON.parse(legacyRaw));
+        const id = makeChildId();
+        return { activeChildId: id, order: [id], children: { [id]: profile } };
+      }
     } catch {
-      return { ...DEFAULT_PROFILE };
+      // Corrupt storage — fall through to a fresh household below.
     }
+    return freshHousehold();
   }
 
   subscribe = (listener: () => void): (() => void) => {
@@ -104,18 +162,18 @@ class LocalProgressStore implements ProgressStore {
     };
   };
 
-  getSnapshot = (): PlayerProfile => {
+  getSnapshot = (): Household => {
     this.cache ??= this.read();
     return this.cache;
   };
 
-  getServerSnapshot = (): PlayerProfile => DEFAULT_PROFILE;
+  getServerSnapshot = (): Household => DEFAULT_HOUSEHOLD;
 
-  save = (profile: PlayerProfile): void => {
-    this.cache = profile;
+  save = (household: Household): void => {
+    this.cache = household;
     if (typeof window !== "undefined") {
       try {
-        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
+        window.localStorage.setItem(HOUSEHOLD_STORAGE_KEY, JSON.stringify(household));
       } catch {
         // Private browsing or quota exhausted — the in-memory cache still
         // serves the rest of this session.
@@ -125,7 +183,7 @@ class LocalProgressStore implements ProgressStore {
   };
 }
 
-export const progressStore: ProgressStore = new LocalProgressStore();
+export const householdStore: HouseholdStore = new LocalHouseholdStore();
 
 export function getLevelProgress(
   profile: PlayerProfile,
@@ -171,4 +229,24 @@ export function mergeRunResult(
       },
     },
   };
+}
+
+/** Adds a new child profile to the household and makes it the active one. */
+export function addChild(household: Household, name: string): { household: Household; id: string } {
+  const id = makeChildId();
+  const next: Household = {
+    activeChildId: id,
+    order: [...household.order, id],
+    children: {
+      ...household.children,
+      [id]: { ...DEFAULT_PROFILE, name: name.slice(0, 20) },
+    },
+  };
+  return { household: next, id };
+}
+
+/** Switches the active child. A no-op if the id isn't a known child. */
+export function setActiveChild(household: Household, id: string): Household {
+  if (!(id in household.children)) return household;
+  return { ...household, activeChildId: id };
 }
