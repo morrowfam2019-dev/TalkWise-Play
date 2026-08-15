@@ -43,7 +43,16 @@ export interface ControllerInput {
    */
   jumpBoost?: number;
   speedBoost?: number;
+  /**
+   * Easy-mode movement assist from the player's settings, not their loadout.
+   * Widens coyote time and the jump buffer so a mistimed jump still lands —
+   * it never changes speed, height, or anything the speech check touches.
+   */
+  assist?: boolean;
 }
+
+/** How much wider coyote time and the jump buffer get in assist mode. */
+const ASSIST_TIMING_MULTIPLIER = 1.6;
 
 /** The slice of a world the controller needs to move a player through it. */
 export interface WorldRules {
@@ -170,9 +179,14 @@ export class PlayerController {
     }
 
     // --- Jump ---------------------------------------------------------------
+    const timingScale = input.assist ? ASSIST_TIMING_MULTIPLIER : 1;
     const wantsJump = worldAction === "jump" && input.action;
-    this.jumpBuffer = wantsJump ? JUMP_BUFFER : Math.max(0, this.jumpBuffer - dt);
-    this.coyote = this.grounded ? COYOTE_TIME : Math.max(0, this.coyote - dt);
+    this.jumpBuffer = wantsJump
+      ? JUMP_BUFFER * timingScale
+      : Math.max(0, this.jumpBuffer - dt);
+    this.coyote = this.grounded
+      ? COYOTE_TIME * timingScale
+      : Math.max(0, this.coyote - dt);
 
     if (this.jumpBuffer > 0 && this.coyote > 0) {
       this.velocity.y = JUMP_SPEED * (input.jumpBoost ?? 1);

@@ -82,6 +82,7 @@ function sanitizeProfile(raw: unknown): PlayerProfile {
       characterId: equipped(rawLoadout.characterId) ?? DEFAULT_CHARACTER_ID,
       auraId: equipped(rawLoadout.auraId),
       boostId: equipped(rawLoadout.boostId),
+      hatId: equipped(rawLoadout.hatId),
     },
     levels,
     currentStreak: Number(value.currentStreak) || 0,
@@ -89,6 +90,7 @@ function sanitizeProfile(raw: unknown): PlayerProfile {
     lastPlayedDate:
       typeof value.lastPlayedDate === "string" ? value.lastPlayedDate : null,
     micEnabled: value.micEnabled !== false,
+    assistMode: value.assistMode === true,
   };
 }
 
@@ -263,7 +265,7 @@ export function mergeRunResult(
  */
 export function purchaseItem(
   profile: PlayerProfile,
-  item: { id: string; price: number; kind: "character" | "aura" | "boost" },
+  item: { id: string; price: number; kind: "character" | "aura" | "boost" | "hat" },
 ): { profile: PlayerProfile; bought: boolean } {
   if (profile.owned.includes(item.id)) return { profile, bought: false };
   if (spendableCoins(profile) < item.price) return { profile, bought: false };
@@ -274,6 +276,7 @@ export function purchaseItem(
   const loadout: Loadout = { ...profile.loadout };
   if (item.kind === "character") loadout.characterId = item.id;
   else if (item.kind === "aura") loadout.auraId = item.id;
+  else if (item.kind === "hat") loadout.hatId = item.id;
   else loadout.boostId = item.id;
 
   return {
@@ -293,7 +296,7 @@ export function purchaseItem(
  */
 export function equipItem(
   profile: PlayerProfile,
-  kind: "character" | "aura" | "boost",
+  kind: "character" | "aura" | "boost" | "hat",
   id: string | null,
 ): PlayerProfile {
   if (id !== null && !profile.owned.includes(id)) return profile;
@@ -304,10 +307,20 @@ export function equipItem(
     loadout.characterId = id;
   } else if (kind === "aura") {
     loadout.auraId = id;
+  } else if (kind === "hat") {
+    loadout.hatId = id;
   } else {
     loadout.boostId = id;
   }
   return { ...profile, loadout };
+}
+
+/** Turns the movement/listening assist setting on or off for a profile. */
+export function setAssistMode(
+  profile: PlayerProfile,
+  assistMode: boolean,
+): PlayerProfile {
+  return { ...profile, assistMode };
 }
 
 /** Adds a new child profile to the household and makes it the active one. */

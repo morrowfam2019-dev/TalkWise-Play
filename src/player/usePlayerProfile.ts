@@ -8,6 +8,7 @@ import {
   mergeRunResult,
   purchaseItem,
   setActiveChild,
+  setAssistMode as setAssistModeOnProfile,
 } from "./storage";
 import { DEFAULT_PROFILE, type PlayerProfile } from "./types";
 
@@ -75,7 +76,7 @@ export function usePlayerProfile() {
 
   /** Buys a shop item and equips it. Returns false if it wasn't affordable. */
   const buyItem = useCallback(
-    (item: { id: string; price: number; kind: "character" | "aura" | "boost" }) => {
+    (item: { id: string; price: number; kind: "character" | "aura" | "boost" | "hat" }) => {
       const current = householdStore.getSnapshot();
       const activeProfile = current.children[current.activeChildId] ?? DEFAULT_PROFILE;
       const { profile: next, bought } = purchaseItem(activeProfile, item);
@@ -99,8 +100,16 @@ export function usePlayerProfile() {
   );
 
   const equip = useCallback(
-    (kind: "character" | "aura" | "boost", id: string | null) => {
+    (kind: "character" | "aura" | "boost" | "hat", id: string | null) => {
       updateActive((p) => equipItem(p, kind, id));
+    },
+    [updateActive],
+  );
+
+  /** Turns movement/listening assists on or off for every future run. */
+  const setAssistMode = useCallback(
+    (assistMode: boolean) => {
+      updateActive((p) => setAssistModeOnProfile(p, assistMode));
     },
     [updateActive],
   );
@@ -129,6 +138,7 @@ export function usePlayerProfile() {
     buyItem,
     equip,
     setMicEnabled,
+    setAssistMode,
     children,
     activeChildId: household.activeChildId,
     switchChild,

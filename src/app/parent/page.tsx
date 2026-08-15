@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useSyncExternalStore } from "react";
 import { listLevels } from "@/content/speech";
 import { ACHIEVEMENTS, getUnlockedAchievements } from "@/player/achievements";
-import { getLevelProgress, householdStore } from "@/player/storage";
+import { getLevelProgress, householdStore, setAssistMode } from "@/player/storage";
 
 /**
  * Read-only history for a parent to check in on practice — total coins,
@@ -23,6 +23,19 @@ export default function ParentPage() {
   const levelChallengeCounts = Object.fromEntries(
     levels.map((level) => [level.id, level.challenges.length]),
   );
+
+  const toggleAssist = (childId: string) => {
+    const current = householdStore.getSnapshot();
+    const childProfile = current.children[childId];
+    if (!childProfile) return;
+    householdStore.save({
+      ...current,
+      children: {
+        ...current.children,
+        [childId]: setAssistMode(childProfile, !childProfile.assistMode),
+      },
+    });
+  };
 
   return (
     <main className="min-h-[100dvh] bg-gradient-to-b from-[#eaf8e6] via-[#f5f6fb] to-[#eaf4ff]">
@@ -84,6 +97,19 @@ export default function ParentPage() {
                     </span>
                   </div>
                 </div>
+
+                <button
+                  type="button"
+                  onClick={() => toggleAssist(childId)}
+                  className={`mt-3 rounded-xl border-2 px-3 py-2 text-xs font-black ${
+                    profile.assistMode
+                      ? "border-[#2ecc71] bg-[#e6f9ee] text-[#2ecc71]"
+                      : "border-[#e2e4ee] text-[#4a4a60]"
+                  }`}
+                >
+                  🧩 Easy mode (jump timing + listen window):{" "}
+                  {profile.assistMode ? "On" : "Off"}
+                </button>
 
                 <table className="mt-4 w-full text-left text-sm">
                   <thead>

@@ -30,7 +30,13 @@ Turn the one-off level into a content pipeline.
 - Extract level authoring so a new sound is a data file, not new code — ✅
   `P Party` added as a level file plus a world file; zero engine changes
 - Multiple worlds sharing one engine; world/level binding by anchor index — ✅
-- Difficulty settings (checkpoint count, world size, movement assists)
+- Difficulty settings — ✅ an "Easy mode" a parent sets per child from
+  `/parent` (`profile.assistMode`). Widens jump coyote time and the jump
+  buffer 1.6x (`src/game/core/controller.ts`) and gives a longer microphone
+  listen window before an attempt times out (7s vs 4.5s,
+  `src/game/ui/ChallengeModal.tsx`). Deliberately does **not** touch
+  checkpoint count or world size — those are level content, and shrinking a
+  word list is exactly the shortcut the speech check must never take
 - One action verb per world — ✅ `WorldDefinition.action` is `"jump"` or
   `"slide"`, and it is the only thing the action button does in that world.
   Jump worlds raise ledges and never ask a child to duck; slide worlds are
@@ -56,7 +62,7 @@ Turn the one-off level into a content pipeline.
   scripting a sustained walk into the edge and confirming the position
   holds exactly at the wall instead of drifting through it
 
-**Status: pipeline proven, pending founder review. Difficulty settings still open.**
+**Status: pipeline proven, pending founder review.**
 
 ## Phase 3 — TalkWise Play World + Progression
 
@@ -164,14 +170,28 @@ are available rather than building against a guessed protocol.
     lagoon mound, cut into six stretches by six arches. One full lap
   - **F Falls** (jump) — eight ledges corkscrewing around a waterfall
     pillar, everything within a few strides of the centre
-- Avatar customization — ✅ four characters (Milo, Pip, Nova, Sprout), each a
-  palette and a head crest over the same rig, bought and worn from the store
-- The store — ✅ `/shop`, spending coins on characters, auras, and movement
-  boosts. `totalCoins` stays the lifetime record and `spentCoins` tracks the
-  till, so buying something never erases an achievement already earned.
-  **Boosts only ever change movement** — Super Boots jump higher, Speed Shoes
-  run faster — and never the speech check; that line is stated in
-  `src/content/shop.ts` and on the store page itself, and is the one rule
+- Avatar customization — ✅ five characters (Milo, Pip, Nova, Sprout, TJ), each
+  a palette and a head crest over the same rig, bought and worn from the
+  store. TJ is a 1200-coin unlock — TalkWise's own hoodie-wearing crew
+  captain, the biggest single purchase in the store on purpose, as a
+  long-horizon goal rather than something a first session buys
+- The store — ✅ `/shop`, spending coins on characters, hats, auras, and
+  movement boosts. `totalCoins` stays the lifetime record and `spentCoins`
+  tracks the till, so buying something never erases an achievement already
+  earned. Each shop card now shows a real preview of the item — the
+  character's actual crest, eyes, and cheek colors, or the hat's actual
+  silhouette — instead of a plain color swatch
+- Hats — ✅ a cosmetic slot independent of character (`Loadout.hatId`),
+  three hero-archetype styles (`src/content/shop.ts`): Blaze Runner
+  (speedster), Web Slinger (webbed mask), Sky Guardian (caped cowl). These
+  are original silhouettes and names built to evoke the speedster /
+  web-slinger / caped-hero archetypes kids ask for by trademarked names —
+  no franchise name, logo, or exact costume design appears anywhere in the
+  game or its assets
+- **Boosts only ever change movement** — Super Boots jump higher, Speed Shoes
+  run faster, both now at double their original bonus so a boost is a move a
+  child can actually feel — and never the speech check; that line is stated
+  in `src/content/shop.ts` and on the store page itself, and is the one rule
   this feature must not break
 - Speech-bubble pickups — ✅ coins are the TalkWise mark itself, extruded
   with its three dots and tail, bobbing in place and turning to face the
@@ -188,7 +208,6 @@ are available rather than building against a guessed protocol.
   island with margin, each along one approach direction, and a ground arrow
   now marks that direction since height alone doesn't tell a child which way
   to be running when they hit the pad
-- Seasonal content
 
 ---
 

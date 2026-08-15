@@ -18,6 +18,8 @@ export interface Loadout {
   characterId: string;
   auraId: string | null;
   boostId: string | null;
+  /** Cosmetic hat, layered on top of whichever character is equipped. */
+  hatId: string | null;
 }
 
 /** Everything persisted about a player. */
@@ -49,6 +51,13 @@ export interface PlayerProfile {
    * moving on. Sticky, so it is answered once rather than every checkpoint.
    */
   micEnabled: boolean;
+  /**
+   * Easy-mode movement and listening assists: more forgiving jump timing and
+   * a longer window to speak before an attempt times out. Never touches
+   * checkpoint count or which words are asked — those stay level content,
+   * not something a difficulty setting can shorten.
+   */
+  assistMode: boolean;
 }
 
 export const EMPTY_LEVEL_PROGRESS: LevelProgress = {
@@ -62,12 +71,13 @@ export const DEFAULT_PROFILE: PlayerProfile = {
   totalCoins: 0,
   spentCoins: 0,
   owned: ["milo"],
-  loadout: { characterId: "milo", auraId: null, boostId: null },
+  loadout: { characterId: "milo", auraId: null, boostId: null, hatId: null },
   levels: {},
   currentStreak: 0,
   bestStreak: 0,
   lastPlayedDate: null,
   micEnabled: true,
+  assistMode: false,
 };
 
 /** Coins available to spend right now. */

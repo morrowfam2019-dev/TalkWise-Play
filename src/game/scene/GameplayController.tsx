@@ -41,6 +41,10 @@ interface GameplayControllerProps extends GameplayCallbacks {
   /** Movement multipliers from the equipped boost. Never affect speech. */
   jumpBoost: number;
   speedBoost: number;
+  /** Equipped cosmetic hat, layered over the character. */
+  hatId: string | null;
+  /** Easy-mode jump timing assist from settings. Never affects speech. */
+  assist: boolean;
   paused: boolean;
   completed: boolean[];
   collected: string[];
@@ -63,6 +67,8 @@ export function GameplayController({
   auraId,
   jumpBoost,
   speedBoost,
+  hatId,
+  assist,
   paused,
   completed,
   collected,
@@ -141,6 +147,7 @@ export function GameplayController({
           action: acting,
           jumpBoost,
           speedBoost,
+          assist,
         },
         boxes,
         world,
@@ -275,6 +282,7 @@ export function GameplayController({
           controller={controller}
           characterId={characterId}
           auraId={auraId}
+          hatId={hatId}
         />
       </group>
     </group>

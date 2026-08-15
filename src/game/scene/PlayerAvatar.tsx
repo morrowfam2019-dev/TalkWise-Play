@@ -3,7 +3,7 @@
 import { useFrame } from "@react-three/fiber";
 import { useRef } from "react";
 import * as THREE from "three";
-import { getAura, getCharacter, type CharacterLook } from "@/content/shop";
+import { getAura, getCharacter, getHat, type CharacterLook } from "@/content/shop";
 import type { PlayerController } from "../core/controller";
 
 const GOLD = "#f5c33b";
@@ -50,6 +50,23 @@ function Crest({ look, wobble }: { look: CharacterLook; wobble: React.RefObject<
           </mesh>
         </>
       );
+    case "curls":
+      return (
+        <>
+          {[
+            [-0.14, 0.32, 0.08],
+            [0.14, 0.32, 0.08],
+            [0, 0.36, -0.08],
+            [-0.08, 0.35, -0.18],
+            [0.08, 0.35, -0.18],
+          ].map(([x, y, z], i) => (
+            <mesh key={i} position={[x, y, z]} ref={i === 0 ? wobble : undefined}>
+              <sphereGeometry args={[0.1, 8, 7]} />
+              <meshLambertMaterial color={look.skinDark} />
+            </mesh>
+          ))}
+        </>
+      );
     case "antenna":
     default:
       return (
@@ -65,6 +82,86 @@ function Crest({ look, wobble }: { look: CharacterLook; wobble: React.RefObject<
         </>
       );
   }
+}
+
+/**
+ * The equipped hat, drawn over the head. Purely cosmetic, and layered on top
+ * of whichever crest the character already has — an original silhouette per
+ * style rather than any franchise's exact costume.
+ */
+function Hat({ hatId }: { hatId: string | null }) {
+  const hat = getHat(hatId);
+  if (!hat) return null;
+
+  if (hat.style === "speedster") {
+    return (
+      <group position={[0, 0.28, 0]}>
+        <mesh rotation={[0, 0, 0]} scale={[1.02, 0.55, 1.02]}>
+          <sphereGeometry args={[0.37, 16, 10, 0, Math.PI * 2, 0, Math.PI / 2]} />
+          <meshLambertMaterial color={hat.primary} />
+        </mesh>
+        <mesh position={[-0.16, 0.1, 0.22]} rotation={[0, 0, -0.3]}>
+          <coneGeometry args={[0.06, 0.16, 4]} />
+          <meshLambertMaterial color={hat.secondary} />
+        </mesh>
+        <mesh position={[0.16, 0.1, 0.22]} rotation={[0, 0, 0.3]}>
+          <coneGeometry args={[0.06, 0.16, 4]} />
+          <meshLambertMaterial color={hat.secondary} />
+        </mesh>
+        <mesh position={[0, 0.05, 0.34]} scale={[0.5, 0.14, 0.02]}>
+          <boxGeometry args={[0.5, 1, 1]} />
+          <meshLambertMaterial color={hat.secondary} emissive={hat.secondary} emissiveIntensity={0.4} />
+        </mesh>
+      </group>
+    );
+  }
+
+  if (hat.style === "webbed") {
+    return (
+      <group position={[0, 0.03, 0]}>
+        <mesh scale={[1.06, 1.06, 1.06]}>
+          <sphereGeometry args={[0.37, 16, 14]} />
+          <meshLambertMaterial color={hat.primary} />
+        </mesh>
+        {[0, 1, 2, 3].map((i) => (
+          <mesh key={`h${i}`} rotation={[0, 0, (i / 4) * Math.PI]} scale={[1.07, 1.07, 1.07]}>
+            <torusGeometry args={[0.37, 0.008, 4, 20, Math.PI]} />
+            <meshLambertMaterial color={hat.secondary} />
+          </mesh>
+        ))}
+        <mesh rotation={[Math.PI / 2, 0, 0]} scale={[1.07, 1.07, 1.07]}>
+          <torusGeometry args={[0.2, 0.008, 4, 16]} />
+          <meshLambertMaterial color={hat.secondary} />
+        </mesh>
+        <mesh position={[-0.13, 0.08, 0.3]} scale={[1.3, 0.7, 0.5]}>
+          <sphereGeometry args={[0.09, 10, 8]} />
+          <meshLambertMaterial color={hat.secondary} />
+        </mesh>
+        <mesh position={[0.13, 0.08, 0.3]} scale={[1.3, 0.7, 0.5]}>
+          <sphereGeometry args={[0.09, 10, 8]} />
+          <meshLambertMaterial color={hat.secondary} />
+        </mesh>
+      </group>
+    );
+  }
+
+  // "caped" — a cowl across the top of the head plus a cape behind the body.
+  return (
+    <>
+      <mesh position={[0, 0.16, -0.05]} scale={[1.05, 0.6, 1.05]}>
+        <sphereGeometry args={[0.37, 16, 10, 0, Math.PI * 2, 0, Math.PI / 2]} />
+        <meshLambertMaterial color={hat.primary} />
+      </mesh>
+      <mesh position={[0, 0.15, 0.3]} scale={[0.16, 0.16, 0.02]}>
+        <boxGeometry args={[1, 1, 1]} />
+        <meshLambertMaterial color={hat.secondary} emissive={hat.secondary} emissiveIntensity={0.35} />
+      </mesh>
+      <mesh position={[0, -0.75, -0.32]} rotation={[0.25, 0, 0]} scale={[0.62, 0.9, 1]}>
+        <planeGeometry args={[0.6, 0.9]} />
+        <meshLambertMaterial color={hat.secondary} side={THREE.DoubleSide} />
+      </mesh>
+    </>
+  );
 }
 
 /** The equipped aura, drawn around the player's feet. Cosmetic only. */
@@ -168,10 +265,12 @@ export function PlayerAvatar({
   controller,
   characterId,
   auraId,
+  hatId,
 }: {
   controller: PlayerController;
   characterId: string;
   auraId: string | null;
+  hatId?: string | null;
 }) {
   const root = useRef<THREE.Group>(null);
   const body = useRef<THREE.Group>(null);
@@ -356,6 +455,7 @@ export function PlayerAvatar({
             </mesh>
 
             <Crest look={look} wobble={crest} />
+            <Hat hatId={hatId ?? null} />
           </group>
         </group>
       </group>

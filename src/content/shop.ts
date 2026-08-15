@@ -11,7 +11,7 @@
  * to actually say BANANA.
  */
 
-export type ShopKind = "character" | "aura" | "boost";
+export type ShopKind = "character" | "aura" | "boost" | "hat";
 
 export interface ShopItem {
   id: string;
@@ -32,7 +32,7 @@ export interface CharacterLook {
   boot: string;
   cheek: string;
   /** What sits on top of the head. */
-  crest: "antenna" | "ears" | "halo" | "leaf";
+  crest: "antenna" | "ears" | "halo" | "leaf" | "curls";
 }
 
 export interface CharacterItem extends ShopItem {
@@ -53,6 +53,16 @@ export interface BoostItem extends ShopItem {
   jump: number;
   /** Multiplier on walking speed. 1 leaves speed untouched. */
   speed: number;
+}
+
+/** A cosmetic hat, worn on top of whichever character is equipped. Purely
+ * visual — see the file-level rule: nothing purchasable touches the speech
+ * check, and a hat is even further from that line than a boost is. */
+export interface HatItem extends ShopItem {
+  kind: "hat";
+  style: "speedster" | "webbed" | "caped";
+  primary: string;
+  secondary: string;
 }
 
 export const CHARACTERS: CharacterItem[] = [
@@ -120,6 +130,22 @@ export const CHARACTERS: CharacterItem[] = [
       crest: "leaf",
     },
   },
+  {
+    id: "tj",
+    kind: "character",
+    name: "TJ",
+    blurb: "TalkWise's own crew captain, hoodie and all. A big unlock!",
+    price: 1200,
+    look: {
+      skin: "#a9744f",
+      skinDark: "#8a5c3d",
+      belly: "#141a3d",
+      limb: "#1c2454",
+      boot: "#f5c33b",
+      cheek: "#ff9ec4",
+      crest: "curls",
+    },
+  },
 ];
 
 export const AURAS: AuraItem[] = [
@@ -152,24 +178,29 @@ export const AURAS: AuraItem[] = [
   },
 ];
 
+/**
+ * Boost multipliers are stored as 1 + bonus. Every bonus here is 2x what it
+ * used to be (0.22 -> 0.44, 0.28 -> 0.56, 0.18 -> 0.36) so a boost is a move
+ * a child can actually feel, not a rounding error.
+ */
 export const BOOSTS: BoostItem[] = [
   {
     id: "boost-boots",
     kind: "boost",
     name: "Super Boots",
-    blurb: "Jump higher. (Jump adventures only.)",
+    blurb: "Jump much higher. (Jump adventures only.)",
     price: 100,
-    jump: 1.22,
+    jump: 1.44,
     speed: 1,
   },
   {
     id: "boost-shoes",
     kind: "boost",
     name: "Speed Shoes",
-    blurb: "Run faster everywhere.",
+    blurb: "Run a lot faster everywhere.",
     price: 100,
     jump: 1,
-    speed: 1.28,
+    speed: 1.56,
   },
   {
     id: "boost-both",
@@ -177,8 +208,47 @@ export const BOOSTS: BoostItem[] = [
     name: "Sky Sneakers",
     blurb: "Faster and higher, all at once.",
     price: 260,
-    jump: 1.18,
-    speed: 1.18,
+    jump: 1.36,
+    speed: 1.36,
+  },
+];
+
+/**
+ * Hero-styled hats. Original silhouettes and names built to evoke the
+ * speedster / web-slinger / caped-hero archetypes a kid asks for by their
+ * trademarked names — not likenesses of any of them. No franchise name,
+ * logo, or exact costume design appears anywhere in the game or its assets.
+ */
+export const HATS: HatItem[] = [
+  {
+    id: "hat-blaze",
+    kind: "hat",
+    name: "Blaze Runner",
+    blurb: "A streak of speed-blue with a lightning bolt up front.",
+    price: 180,
+    style: "speedster",
+    primary: "#2f6fe4",
+    secondary: "#ffd23b",
+  },
+  {
+    id: "hat-web",
+    kind: "hat",
+    name: "Web Slinger",
+    blurb: "A red-and-blue mask webbed all over.",
+    price: 220,
+    style: "webbed",
+    primary: "#e5342f",
+    secondary: "#2f6fe4",
+  },
+  {
+    id: "hat-sky",
+    kind: "hat",
+    name: "Sky Guardian",
+    blurb: "A caped cowl with a bold chest emblem and a flowing cape.",
+    price: 260,
+    style: "caped",
+    primary: "#2f6fe4",
+    secondary: "#e5342f",
   },
 ];
 
@@ -199,6 +269,13 @@ export function getBoost(id: string | null): BoostItem | null {
   return BOOSTS.find((b) => b.id === id) ?? null;
 }
 
+export function getHat(id: string | null): HatItem | null {
+  if (!id) return null;
+  return HATS.find((h) => h.id === id) ?? null;
+}
+
 export function getShopItem(id: string): ShopItem | undefined {
-  return [...CHARACTERS, ...AURAS, ...BOOSTS].find((item) => item.id === id);
+  return [...CHARACTERS, ...AURAS, ...BOOSTS, ...HATS].find(
+    (item) => item.id === id,
+  );
 }

@@ -6,6 +6,9 @@ import {
   AURAS,
   BOOSTS,
   CHARACTERS,
+  HATS,
+  type CharacterLook,
+  type HatItem,
   type ShopItem,
   type ShopKind,
 } from "@/content/shop";
@@ -14,26 +17,138 @@ import { spendableCoins } from "@/player/types";
 
 const TABS: { kind: ShopKind; label: string; items: ShopItem[] }[] = [
   { kind: "character", label: "Characters", items: CHARACTERS },
+  { kind: "hat", label: "Hats", items: HATS },
   { kind: "aura", label: "Auras", items: AURAS },
   { kind: "boost", label: "Boosts", items: BOOSTS },
 ];
 
-/** The little coloured stand-in shown on a shop card. */
+/** The little crest icon on a character preview — mirrors what the 3D
+ * avatar actually wears on its head, so the card is a true preview. */
+function CrestGlyph({ look }: { look: CharacterLook }) {
+  switch (look.crest) {
+    case "ears":
+      return (
+        <div className="absolute -top-2 left-1/2 flex -translate-x-1/2 gap-3" aria-hidden>
+          <span className="block h-3 w-3 rounded-full" style={{ background: look.skinDark }} />
+          <span className="block h-3 w-3 rounded-full" style={{ background: look.skinDark }} />
+        </div>
+      );
+    case "halo":
+      return (
+        <div
+          className="absolute -top-3 left-1/2 h-2 w-7 -translate-x-1/2 rounded-full border-2"
+          style={{ borderColor: look.boot }}
+          aria-hidden
+        />
+      );
+    case "leaf":
+      return (
+        <span
+          className="absolute -top-3 left-1/2 block h-4 w-3 -translate-x-1/2 rounded-full"
+          style={{ background: "#8ade7c" }}
+          aria-hidden
+        />
+      );
+    case "curls":
+      return (
+        <div className="absolute -top-2 left-1/2 flex -translate-x-1/2 gap-0.5" aria-hidden>
+          {[0, 1, 2, 3].map((i) => (
+            <span
+              key={i}
+              className="block h-2.5 w-2.5 rounded-full"
+              style={{ background: look.skinDark }}
+            />
+          ))}
+        </div>
+      );
+    case "antenna":
+    default:
+      return (
+        <span
+          className="absolute -top-3 left-1/2 block h-2.5 w-2.5 -translate-x-1/2 rounded-full"
+          style={{ background: "#f5c33b" }}
+          aria-hidden
+        />
+      );
+  }
+}
+
+/** A small preview of what the character actually looks like — head, crest,
+ * eyes and cheeks in the character's real palette, not just a colour swatch. */
+function CharacterPreview({ look }: { look: CharacterLook }) {
+  return (
+    <div className="relative mx-auto h-16 w-16" aria-hidden>
+      <CrestGlyph look={look} />
+      <div
+        className="relative grid h-16 w-16 place-items-center rounded-full"
+        style={{ background: look.skin }}
+      >
+        <div className="flex gap-1.5">
+          <span className="block h-3.5 w-3.5 rounded-full bg-white">
+            <span className="mx-auto mt-1 block h-1.5 w-1.5 rounded-full bg-[#1b2233]" />
+          </span>
+          <span className="block h-3.5 w-3.5 rounded-full bg-white">
+            <span className="mx-auto mt-1 block h-1.5 w-1.5 rounded-full bg-[#1b2233]" />
+          </span>
+        </div>
+        <span
+          className="absolute bottom-3 left-2 block h-2 w-2 rounded-full"
+          style={{ background: look.cheek }}
+        />
+        <span
+          className="absolute right-2 bottom-3 block h-2 w-2 rounded-full"
+          style={{ background: look.cheek }}
+        />
+      </div>
+    </div>
+  );
+}
+
+/** A preview of a hat's silhouette and colours, matching the 3D shape. */
+function HatPreview({ hat }: { hat: HatItem }) {
+  return (
+    <div
+      className="mx-auto grid h-16 w-16 place-items-center rounded-full"
+      style={{ background: `${hat.primary}22` }}
+      aria-hidden
+    >
+      {hat.style === "speedster" ? (
+        <div className="relative h-9 w-11 rounded-t-full" style={{ background: hat.primary }}>
+          <span
+            className="absolute -top-1 left-1/2 h-3 w-1.5 -translate-x-1/2 -skew-x-12"
+            style={{ background: hat.secondary }}
+          />
+        </div>
+      ) : hat.style === "webbed" ? (
+        <div
+          className="h-11 w-11 rounded-full bg-[length:8px_8px]"
+          style={{
+            background: hat.primary,
+            backgroundImage: `linear-gradient(${hat.secondary} 1px, transparent 1px), linear-gradient(90deg, ${hat.secondary} 1px, transparent 1px)`,
+          }}
+        />
+      ) : (
+        <div className="relative h-10 w-10 rounded-t-full" style={{ background: hat.primary }}>
+          <span
+            className="absolute top-3 left-1/2 h-2.5 w-2.5 -translate-x-1/2 rounded-sm"
+            style={{ background: hat.secondary }}
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** The stand-in shown on a shop card — a true preview for characters and
+ * hats, a swatch for auras and boosts. */
 function ItemGlyph({ item }: { item: ShopItem }) {
   if (item.kind === "character") {
     const look = CHARACTERS.find((c) => c.id === item.id)!.look;
-    return (
-      <div
-        className="mx-auto grid h-16 w-16 place-items-center rounded-full"
-        style={{ background: look.skin }}
-        aria-hidden
-      >
-        <div className="flex gap-1.5">
-          <span className="block h-3.5 w-3.5 rounded-full bg-white" />
-          <span className="block h-3.5 w-3.5 rounded-full bg-white" />
-        </div>
-      </div>
-    );
+    return <CharacterPreview look={look} />;
+  }
+  if (item.kind === "hat") {
+    const hat = HATS.find((h) => h.id === item.id)!;
+    return <HatPreview hat={hat} />;
   }
   if (item.kind === "aura") {
     const aura = AURAS.find((a) => a.id === item.id)!;
@@ -78,7 +193,9 @@ export default function ShopPage() {
       ? profile.loadout.characterId
       : kind === "aura"
         ? profile.loadout.auraId
-        : profile.loadout.boostId;
+        : kind === "hat"
+          ? profile.loadout.hatId
+          : profile.loadout.boostId;
 
   const handleBuy = (item: ShopItem) => {
     const bought = buyItem({ id: item.id, price: item.price, kind: item.kind });

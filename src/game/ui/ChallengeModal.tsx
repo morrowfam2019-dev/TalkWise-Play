@@ -14,6 +14,9 @@ interface ChallengeModalProps {
   challenge: SpeechChallenge;
   /** Whether this player wants the microphone used at all. */
   micEnabled: boolean;
+  /** Easy-mode assist: a longer listen window before an attempt times out.
+   * Never changes which word is asked or how many attempts there are. */
+  assist: boolean;
   /** Persists a change to that preference, so it holds for every checkpoint. */
   onMicEnabledChange: (enabled: boolean) => void;
   /** Called when the child confirms they practiced the word. */
@@ -27,6 +30,8 @@ interface ChallengeModalProps {
 const CELEBRATION_MS = 1600;
 const MAX_ATTEMPTS = 3;
 const EXAMPLE_AFTER_ATTEMPT = 2;
+/** Assist mode gives a child longer to speak before an attempt times out. */
+const ASSIST_LISTEN_TIMEOUT_MS = 7000;
 
 /** Browser text-to-speech fallback, used only when no recorded clip exists
  * for a word — picks a best-effort female voice. */
@@ -81,6 +86,7 @@ function playExampleWord(word: string) {
 export function ChallengeModal({
   challenge,
   micEnabled,
+  assist,
   onMicEnabledChange,
   onConfirm,
   onDismiss,
@@ -123,6 +129,7 @@ export function ChallengeModal({
       },
       onNoMatch: handleListenTimeout,
       onStatus: setListeningStatus,
+      timeoutMs: assist ? ASSIST_LISTEN_TIMEOUT_MS : undefined,
     });
   };
 

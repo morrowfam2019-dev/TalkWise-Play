@@ -21,6 +21,9 @@ export interface SpeechListenCallbacks {
    * different word). */
   onNoMatch: () => void;
   onStatus?: (status: SpeechListenStatus) => void;
+  /** Overrides the default listen window — used by assist mode to give a
+   * child longer to speak before an attempt times out. */
+  timeoutMs?: number;
 }
 
 /** Minimal shape of the Web Speech API this module relies on — not present
@@ -113,7 +116,7 @@ export class WordRecognizer {
    * calls exactly one of onMatch/onNoMatch. */
   listenFor(
     targetWord: string,
-    { onMatch, onNoMatch, onStatus }: SpeechListenCallbacks,
+    { onMatch, onNoMatch, onStatus, timeoutMs }: SpeechListenCallbacks,
   ): void {
     this.statusCallback = onStatus ?? null;
     this.finished = false;
@@ -168,7 +171,10 @@ export class WordRecognizer {
       return;
     }
 
-    this.timeoutId = window.setTimeout(() => finish(false), LISTEN_TIMEOUT_MS);
+    this.timeoutId = window.setTimeout(
+      () => finish(false),
+      timeoutMs ?? LISTEN_TIMEOUT_MS,
+    );
   }
 
   private clearTimer(): void {

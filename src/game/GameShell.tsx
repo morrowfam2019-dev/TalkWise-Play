@@ -218,8 +218,10 @@ export function GameShell({ level, onExit }: GameShellProps) {
           input={input}
           characterId={profile.loadout.characterId}
           auraId={profile.loadout.auraId}
+          hatId={profile.loadout.hatId}
           jumpBoost={boost?.jump ?? 1}
           speedBoost={boost?.speed ?? 1}
+          assist={profile.assistMode}
           paused={paused}
           completed={completed}
           collected={collected}
@@ -297,6 +299,7 @@ export function GameShell({ level, onExit }: GameShellProps) {
             key={activeChallenge.id}
             challenge={activeChallenge}
             micEnabled={profile.micEnabled}
+            assist={profile.assistMode}
             onMicEnabledChange={setMicEnabled}
             onConfirm={handleConfirmChallenge}
             onDismiss={closeChallenge}

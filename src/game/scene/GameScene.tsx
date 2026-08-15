@@ -18,8 +18,10 @@ interface GameSceneProps extends GameplayCallbacks {
   input: GameInput;
   characterId: string;
   auraId: string | null;
+  hatId: string | null;
   jumpBoost: number;
   speedBoost: number;
+  assist: boolean;
   paused: boolean;
   completed: boolean[];
   collected: string[];
@@ -40,8 +42,10 @@ export function GameScene({
   input,
   characterId,
   auraId,
+  hatId,
   jumpBoost,
   speedBoost,
+  assist,
   paused,
   completed,
   collected,
@@ -88,8 +92,10 @@ export function GameScene({
         input={input}
         characterId={characterId}
         auraId={auraId}
+        hatId={hatId}
         jumpBoost={jumpBoost}
         speedBoost={speedBoost}
+        assist={assist}
         paused={paused}
         completed={completed}
         collected={collected}
