@@ -136,8 +136,19 @@ The first phase where the microphone is used at all.
   unprotected for now — there's no login system yet, so it's exactly as
   private as the device it's opened on
 - Server-backed progress replacing the local storage implementation
-  (the `HouseholdStore` interface already draws this seam) — still open;
-  needs a real backend/auth decision, not made here
+  (the `HouseholdStore` interface already draws this seam) — **deferred to
+  Phase 6.** Whop integration will need its own account/auth story (member
+  identity, entitlement checks), and progress sync needs a backend/auth
+  decision of its own — building both separately risks two competing
+  authentication systems. The decision (provider, whether kids' data needs
+  COPPA-specific handling, hosting cost) gets made once, as part of Phase 6's
+  architecture, and this line item rides along with it. Local storage stays
+  the live implementation until then; nothing about it changes in the
+  meantime, and this is the only piece of Phase 5 that's blocked — profiles
+  and parent view above are both complete on their own.
+
+**Status: complete except server-backed progress, which is intentionally
+deferred to Phase 6 rather than blocking the rest of the phase.**
 
 ## Phase 6 — Whop Integration
 
@@ -148,6 +159,9 @@ are available rather than building against a guessed protocol.
 - Membership-gated access via the platform boundary in `src/platform/`
 - Embedded (iframe) hosting alongside continued standalone operation
 - Entitlement checks gate *content*, never the ability to run the app
+- Backend/auth decision for member identity — this is also where Phase 5's
+  deferred server-backed progress gets designed, so household progress and
+  Whop entitlement share one auth system instead of two
 
 ## Phase 7 — Game Expansion
 
