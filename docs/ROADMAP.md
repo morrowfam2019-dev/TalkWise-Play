@@ -12,7 +12,7 @@ One complete, genuinely playable adventure proving TalkWise can make a speech
 game that feels like a game.
 
 - **M Adventure** — target sound `/M/`, world "Mountain of M"
-- Original TalkWise character ("Milo"), third-person movement, desktop + touch
+- Original TalkWise character ("AJ"), third-person movement, desktop + touch
 - Five speech checkpoints (MOM, MOON, MILK, MOUSE, MONKEY)
 - Manual practice confirmation — **no pronunciation scoring, no fake AI**
 - Coins, optional collectibles, gated summit portal, results, replay
@@ -184,7 +184,7 @@ are available rather than building against a guessed protocol.
     lagoon mound, cut into six stretches by six arches. One full lap
   - **F Falls** (jump) — eight ledges corkscrewing around a waterfall
     pillar, everything within a few strides of the centre
-- Avatar customization — ✅ five characters (Milo, Pip, Nova, Sprout, TJ), each
+- Avatar customization — ✅ five characters (AJ, Jam, Kenn, Jayce, TJ), each
   a palette and a head crest over the same rig, bought and worn from the
   store. TJ is a 1200-coin unlock — TalkWise's own hoodie-wearing crew
   captain, the biggest single purchase in the store on purpose, as a

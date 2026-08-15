@@ -69,7 +69,7 @@ export const CHARACTERS: CharacterItem[] = [
   {
     id: "milo",
     kind: "character",
-    name: "Milo",
+    name: "AJ",
     blurb: "The original TalkWise explorer.",
     price: 0,
     look: {
@@ -85,7 +85,7 @@ export const CHARACTERS: CharacterItem[] = [
   {
     id: "pip",
     kind: "character",
-    name: "Pip",
+    name: "Jam",
     blurb: "Sunny, round-eared, always first up the hill.",
     price: 120,
     look: {
@@ -101,7 +101,7 @@ export const CHARACTERS: CharacterItem[] = [
   {
     id: "nova",
     kind: "character",
-    name: "Nova",
+    name: "Kenn",
     blurb: "Stargazer with a ring that never stops glowing.",
     price: 200,
     look: {
@@ -117,7 +117,7 @@ export const CHARACTERS: CharacterItem[] = [
   {
     id: "sprout",
     kind: "character",
-    name: "Sprout",
+    name: "Jayce",
     blurb: "Grew up in the woods. Talks to the trees.",
     price: 200,
     look: {
