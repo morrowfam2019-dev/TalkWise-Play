@@ -129,11 +129,11 @@ const decorations: Decoration[] = [
   { id: "wf5", kind: "flower", position: [-3, 0, -17], scale: 1, color: "#ff9ec4" },
 
   // Fireflies over each log, so the next duck is always visible.
-  { id: "wc1", kind: "crystal", position: [-5, 0, 16], scale: 0.7 },
-  { id: "wc2", kind: "crystal", position: [5, 0, 6], scale: 0.7 },
-  { id: "wc3", kind: "crystal", position: [-5, 0, -4], scale: 0.7 },
-  { id: "wc4", kind: "crystal", position: [5, 0, -15], scale: 0.7 },
-  { id: "wc5", kind: "crystal", position: [-5, 0, -23], scale: 0.7 },
+  { id: "wc1", kind: "crystal", position: [-5, 0, 16], scale: 0.7, color: "#e8ff8a" },
+  { id: "wc2", kind: "crystal", position: [5, 0, 6], scale: 0.7, color: "#e8ff8a" },
+  { id: "wc3", kind: "crystal", position: [-5, 0, -4], scale: 0.7, color: "#e8ff8a" },
+  { id: "wc4", kind: "crystal", position: [5, 0, -15], scale: 0.7, color: "#e8ff8a" },
+  { id: "wc5", kind: "crystal", position: [-5, 0, -23], scale: 0.7, color: "#e8ff8a" },
 
   { id: "wcl1", kind: "cloud", position: [-16, 17, 8], scale: 2.6 },
   { id: "wcl2", kind: "cloud", position: [18, 19, -8], scale: 3 },

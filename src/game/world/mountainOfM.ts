@@ -118,14 +118,14 @@ const decorations: Decoration[] = [
   { id: "f5", kind: "flower", position: [13, T2, -12], scale: 1, color: "#ff6f91" },
 
   // Crystals lighting each stair, so the way up is always visible.
-  { id: "c1", kind: "crystal", position: [-4.4, 0, 21], scale: 0.9 },
-  { id: "c2", kind: "crystal", position: [4.4, 0, 21], scale: 0.9 },
-  { id: "c3", kind: "crystal", position: [17, T1, 4.4], scale: 0.9 },
-  { id: "c4", kind: "crystal", position: [17, T1, -4.4], scale: 0.9 },
-  { id: "c5", kind: "crystal", position: [-4.4, T2, -12], scale: 0.9 },
-  { id: "c6", kind: "crystal", position: [4.4, T2, -12], scale: 0.9 },
-  { id: "c7", kind: "crystal", position: [-8, T3, 4.4], scale: 0.9 },
-  { id: "c8", kind: "crystal", position: [-8, T3, -4.4], scale: 0.9 },
+  { id: "c1", kind: "crystal", position: [-4.4, 0, 21], scale: 0.9, color: "#dff3ff" },
+  { id: "c2", kind: "crystal", position: [4.4, 0, 21], scale: 0.9, color: "#dff3ff" },
+  { id: "c3", kind: "crystal", position: [17, T1, 4.4], scale: 0.9, color: "#dff3ff" },
+  { id: "c4", kind: "crystal", position: [17, T1, -4.4], scale: 0.9, color: "#dff3ff" },
+  { id: "c5", kind: "crystal", position: [-4.4, T2, -12], scale: 0.9, color: "#dff3ff" },
+  { id: "c6", kind: "crystal", position: [4.4, T2, -12], scale: 0.9, color: "#dff3ff" },
+  { id: "c7", kind: "crystal", position: [-8, T3, 4.4], scale: 0.9, color: "#dff3ff" },
+  { id: "c8", kind: "crystal", position: [-8, T3, -4.4], scale: 0.9, color: "#dff3ff" },
 
   // Clouds.
   { id: "cl1", kind: "cloud", position: [-18, 16, 6], scale: 2.4 },

@@ -55,6 +55,25 @@ function Pad({ pad, seed }: { pad: JumpPad; seed: number }) {
           />
         </mesh>
       </group>
+
+      {/* Ground arrow pointing the direction this pad's boost is tuned for —
+          the height alone doesn't tell a child which way to be running.
+          Yawed in an outer group first, so the flattening rotation below
+          always happens in that group's own local frame. */}
+      {pad.aimYaw !== undefined ? (
+        <group rotation={[0, pad.aimYaw, 0]} position={[0, 0.045, 0]}>
+          <mesh rotation={[-Math.PI / 2, 0, 0]}>
+            <coneGeometry args={[pad.radius * 0.45, pad.radius * 1.1, 3]} />
+            <meshLambertMaterial
+              color="#ffffff"
+              emissive="#ffffff"
+              emissiveIntensity={0.5}
+              transparent
+              opacity={0.85}
+            />
+          </mesh>
+        </group>
+      ) : null}
     </group>
   );
 }

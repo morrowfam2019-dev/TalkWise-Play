@@ -23,7 +23,7 @@ interface CheckpointProps {
 }
 
 function Checkpoint({ anchor, challenge, completed, isNear }: CheckpointProps) {
-  const gem = useRef<THREE.Mesh>(null);
+  const pennant = useRef<THREE.Mesh>(null);
   const ring = useRef<THREE.Mesh>(null);
   const label = useRef<THREE.Mesh>(null);
   const beam = useRef<THREE.Mesh>(null);
@@ -36,11 +36,13 @@ function Checkpoint({ anchor, challenge, completed, isNear }: CheckpointProps) {
   useFrame((state, delta) => {
     const t = state.clock.elapsedTime;
 
-    if (gem.current) {
-      gem.current.rotation.y += delta * (completed ? 0.7 : 1.8);
-      gem.current.position.y = 1.5 + Math.sin(t * 2) * 0.16;
-      const pulse = isNear && !completed ? 1 + Math.sin(t * 9) * 0.12 : 1;
-      gem.current.scale.setScalar(pulse);
+    if (pennant.current) {
+      // A flag waves side to side — planted on its pole, never floating —
+      // so it reads as a marker rather than something to pick up.
+      const wave = Math.sin(t * 2.6) * 0.14;
+      pennant.current.rotation.y = wave;
+      const pulse = isNear && !completed ? 1 + Math.sin(t * 9) * 0.1 : 1;
+      pennant.current.scale.setScalar(pulse);
     }
 
     if (ring.current) {
@@ -81,10 +83,15 @@ function Checkpoint({ anchor, challenge, completed, isNear }: CheckpointProps) {
         <meshLambertMaterial color={color} emissive={color} emissiveIntensity={0.5} />
       </mesh>
 
-      {/* Floating gem */}
-      <mesh ref={gem} position={[0, 1.5, 0]}>
-        <octahedronGeometry args={[0.42, 0]} />
-        <meshLambertMaterial color={color} emissive={color} emissiveIntensity={0.65} />
+      {/* Flag — planted on the plinth, not floating, so nothing here reads
+          as a pickup a child forgot to grab. */}
+      <mesh position={[0, 1.15, 0]}>
+        <cylinderGeometry args={[0.04, 0.04, 1.3, 6]} />
+        <meshLambertMaterial color={STONE} />
+      </mesh>
+      <mesh ref={pennant} position={[0, 1.9, 0.22]} rotation={[0, 0, Math.PI / 2]}>
+        <coneGeometry args={[0.3, 0.5, 3]} />
+        <meshLambertMaterial color={color} emissive={color} emissiveIntensity={0.55} />
       </mesh>
 
       {/* Guiding light beam, hidden once the challenge is done */}

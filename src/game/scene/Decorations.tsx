@@ -11,7 +11,6 @@ const LEAF_B = "#57d47a";
 const PINE = "#2fa85a";
 const ROCK = "#9aa6b6";
 const CLOUD = "#ffffff";
-const GOLD = "#f5c33b";
 
 function Tree({ scale }: { scale: number }) {
   return (
@@ -102,16 +101,31 @@ function Cloud({ scale }: { scale: number }) {
   );
 }
 
-function Crystal({ scale }: { scale: number }) {
-  const ref = useRef<THREE.Mesh>(null);
+/**
+ * A ground-planted crystal cluster — three tall thin spikes, not a floating
+ * round token. Deliberately unlike a coin in both shape and default color, so
+ * a trail marker never reads as a stray pickup a child forgot to collect.
+ */
+function Crystal({ scale, color = "#bff2ff" }: { scale: number; color?: string }) {
+  const ref = useRef<THREE.Group>(null);
   useFrame((_, delta) => {
-    if (ref.current) ref.current.rotation.y += delta * 0.8;
+    if (ref.current) ref.current.rotation.y += delta * 0.5;
   });
   return (
-    <mesh ref={ref} scale={scale} position={[0, 0.7, 0]}>
-      <octahedronGeometry args={[0.42, 0]} />
-      <meshLambertMaterial color={GOLD} emissive={GOLD} emissiveIntensity={0.45} />
-    </mesh>
+    <group ref={ref} scale={scale}>
+      <mesh position={[0, 0.3, 0]}>
+        <coneGeometry args={[0.13, 0.6, 5]} />
+        <meshLambertMaterial color={color} emissive={color} emissiveIntensity={0.4} />
+      </mesh>
+      <mesh position={[0.14, 0.16, 0.05]} rotation={[0, 0, -0.25]} scale={0.6}>
+        <coneGeometry args={[0.13, 0.6, 5]} />
+        <meshLambertMaterial color={color} emissive={color} emissiveIntensity={0.4} />
+      </mesh>
+      <mesh position={[-0.12, 0.13, -0.08]} rotation={[0, 0, 0.3]} scale={0.5}>
+        <coneGeometry args={[0.13, 0.6, 5]} />
+        <meshLambertMaterial color={color} emissive={color} emissiveIntensity={0.4} />
+      </mesh>
+    </group>
   );
 }
 
@@ -128,7 +142,7 @@ function DecorationItem({ decoration }: { decoration: Decoration }) {
     case "cloud":
       return <Cloud scale={decoration.scale} />;
     case "crystal":
-      return <Crystal scale={decoration.scale} />;
+      return <Crystal scale={decoration.scale} color={decoration.color} />;
     default:
       return null;
   }

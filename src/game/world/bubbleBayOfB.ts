@@ -106,8 +106,8 @@ const decorations: Decoration[] = [
   { id: "bf5", kind: "flower", position: [12, D, 4], scale: 1, color: "#8fe3f0" },
 
   // Crystals marking the lighthouse.
-  { id: "bc1", kind: "crystal", position: [-4, F, -19], scale: 1.1 },
-  { id: "bc2", kind: "crystal", position: [3, F, -19], scale: 1.1 },
+  { id: "bc1", kind: "crystal", position: [-4, F, -19], scale: 1.1, color: "#bff2ff" },
+  { id: "bc2", kind: "crystal", position: [3, F, -19], scale: 1.1, color: "#bff2ff" },
 
   { id: "bcl1", kind: "cloud", position: [-18, 15, 6], scale: 2.4 },
   { id: "bcl2", kind: "cloud", position: [16, 17, -6], scale: 3 },
@@ -149,11 +149,18 @@ export const bubbleBayOfB: WorldDefinition = {
     { id: "b-cp-5", position: [12, E, -6] },
   ],
   finish: [0, F, -16],
-  // Rescue launches back onto the middle of the chain, so a splash costs a
-  // short swim rather than the whole loop over again.
+  // Rescue pads for a splash into the lagoon — each is planted just outside
+  // the island it launches onto, with a boost tuned (by simulating the
+  // controller's real gravity/accel numbers) to clear that island's height
+  // with margin, given a straight run in the one direction that lines up.
+  // Pad A needs a run toward +Z (north, into island A); pad D needs +X
+  // (east, into island D). Both sit well clear of the main route so an
+  // ordinary walk along the shore never grazes one by accident.
   jumpPads: [
-    { id: "b-pad-mid", position: [3, 0, 3], radius: 2.4, boost: 13 },
-    { id: "b-pad-late", position: [-3, 0, -6], radius: 2.4, boost: 15 },
+    // aimYaw follows the same convention as player facing (yaw=0 looks
+    // toward -Z): π points +Z, -π/2 points +X.
+    { id: "b-pad-rescue-a", position: [-22, 0, 6], radius: 1.6, boost: 12, aimYaw: Math.PI },
+    { id: "b-pad-rescue-d", position: [3, 0, 4], radius: 1.8, boost: 16, aimYaw: -Math.PI / 2 },
   ],
   // Each "hop" waypoint stands on the island being launched from, clear of
   // the next one's footprint, so the declared height is the ground the

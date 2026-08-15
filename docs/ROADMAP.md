@@ -156,7 +156,19 @@ are available rather than building against a guessed protocol.
   this feature must not break
 - Speech-bubble pickups — ✅ coins are the TalkWise mark itself, extruded
   with its three dots and tail, bobbing in place and turning to face the
-  camera
+  camera. Two other gold, faceted, floating objects used to read as stray
+  coins next to the real ones — the checkpoint's marker gem and the
+  decorative "crystal" props scattered along every path. Checkpoints are now
+  a small flag planted on the plinth (waves in place, never floats); crystals
+  are a cluster of thin ground-planted spikes in each world's own accent
+  color (icy blue on the mountain and the bay, pink at the party stalls,
+  firefly-green in the woods) instead of a hardcoded gold octahedron
+- B Bay's two rescue pads (for a splash back onto the island chain) were
+  under-tuned — ✅ retuned by simulating the actual controller physics
+  (gravity, accel, jump math) to a boost and position that clears the target
+  island with margin, each along one approach direction, and a ground arrow
+  now marks that direction since height alone doesn't tell a child which way
+  to be running when they hit the pad
 - Seasonal content
 
 ---

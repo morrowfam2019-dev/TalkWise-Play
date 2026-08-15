@@ -60,6 +60,13 @@ export interface JumpPad {
   radius: number;
   /** Upward velocity to apply when player steps on it. */
   boost: number;
+  /**
+   * Yaw (radians) a player should be running toward when they hit the pad,
+   * for pads whose boost is tuned for one direction rather than "straight
+   * up." Purely visual — an arrow on the pad points this way — but without
+   * it a boosted jump can arc over the very ledge it was meant to clear.
+   */
+  aimYaw?: number;
 }
 
 /** Outer play-area edge. An invisible wall keeps the player inside it,

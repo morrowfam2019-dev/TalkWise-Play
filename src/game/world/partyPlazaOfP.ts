@@ -134,14 +134,14 @@ const decorations: Decoration[] = [
   { id: "pf8", kind: "flower", position: [-10, 0, -6], scale: 1, color: "#ffb347" },
 
   // Crystals flanking every banner, marking where to duck.
-  { id: "pc1", kind: "crystal", position: [-5, 0, 13], scale: 0.85 },
-  { id: "pc2", kind: "crystal", position: [5, 0, 13], scale: 0.85 },
-  { id: "pc3", kind: "crystal", position: [13, 0, -5], scale: 0.85 },
-  { id: "pc4", kind: "crystal", position: [13, 0, 5], scale: 0.85 },
-  { id: "pc5", kind: "crystal", position: [-5, 0, -13], scale: 0.85 },
-  { id: "pc6", kind: "crystal", position: [5, 0, -13], scale: 0.85 },
-  { id: "pc7", kind: "crystal", position: [-13, 0, -5], scale: 0.85 },
-  { id: "pc8", kind: "crystal", position: [-13, 0, 5], scale: 0.85 },
+  { id: "pc1", kind: "crystal", position: [-5, 0, 13], scale: 0.85, color: "#ffb3d1" },
+  { id: "pc2", kind: "crystal", position: [5, 0, 13], scale: 0.85, color: "#ffb3d1" },
+  { id: "pc3", kind: "crystal", position: [13, 0, -5], scale: 0.85, color: "#ffb3d1" },
+  { id: "pc4", kind: "crystal", position: [13, 0, 5], scale: 0.85, color: "#ffb3d1" },
+  { id: "pc5", kind: "crystal", position: [-5, 0, -13], scale: 0.85, color: "#ffb3d1" },
+  { id: "pc6", kind: "crystal", position: [5, 0, -13], scale: 0.85, color: "#ffb3d1" },
+  { id: "pc7", kind: "crystal", position: [-13, 0, -5], scale: 0.85, color: "#ffb3d1" },
+  { id: "pc8", kind: "crystal", position: [-13, 0, 5], scale: 0.85, color: "#ffb3d1" },
 
   // Stage dressing.
   { id: "pr1", kind: "rock", position: [-4.5, STAGE_TOP_Y, 4.5], scale: 0.6 },
