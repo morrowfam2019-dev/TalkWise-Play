@@ -92,7 +92,12 @@ The first phase where the microphone is used at all.
   per word, ElevenLabs via the Higgsfield connector's "Maya" preset — the
   brand's own ElevenLabs voice ID exists but isn't reachable through this
   connector, so this is the nearest available match) with a browser
-  text-to-speech fallback for any word that doesn't have a recorded clip yet
+  text-to-speech fallback for any word that doesn't have a recorded clip yet.
+  All 35 challenge words across the seven adventures are now recorded, so the
+  fallback is a safety net for future words rather than something a child
+  hits today. Clips are trimmed of leading and trailing silence and encoded
+  mono at 22.05 kHz — deliberately not lower, because /s/ and /f/ carry their
+  identity in high-frequency energy and this is the model a child imitates
 - Miss Maya's face — ✅ `public/characters/miss-maya.png`, the official
   AI-generated TalkWise headquarters portrait (cropped to a square avatar).
   A "🔊 Hear Miss Maya say it" button showing her photo is visible the
