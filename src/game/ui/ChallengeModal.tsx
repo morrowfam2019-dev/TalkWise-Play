@@ -9,6 +9,7 @@ import {
   requestMicPermission,
   type SpeechListenStatus,
 } from "@/game/core/speech-recognition";
+import { CoinIcon } from "@/ui/CoinIcon";
 
 interface ChallengeModalProps {
   challenge: SpeechChallenge;
@@ -219,8 +220,9 @@ export function ChallengeModal({
           <p className="mt-3 text-4xl font-black tracking-tight text-[#2ecc71]">
             {challenge.praise}
           </p>
-          <p className="mt-3 inline-block rounded-full bg-[#fff4d6] px-5 py-2 text-2xl font-black text-[#b8860b]">
-            +{challenge.reward} 🪙
+          <p className="mt-3 inline-flex items-center gap-2 rounded-full bg-[#fff4d6] px-5 py-2 text-2xl font-black text-[#b8860b]">
+            +{challenge.reward}
+            <CoinIcon className="h-6 w-6" />
           </p>
           <div className="mt-4 flex justify-center gap-3 text-3xl" aria-hidden>
             <span className="tw-star" style={{ animationDelay: "0ms" }}>

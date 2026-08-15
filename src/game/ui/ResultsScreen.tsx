@@ -1,5 +1,7 @@
 "use client";
 
+import { CoinIcon } from "@/ui/CoinIcon";
+
 interface ResultsScreenProps {
   levelTitle: string;
   completedCount: number;
@@ -60,7 +62,10 @@ export function ResultsScreen({
             </p>
           </div>
           <div className="rounded-2xl bg-[#fff8e6] p-4">
-            <p className="text-3xl font-black text-[#b8860b]">{coins}</p>
+            <p className="flex items-center gap-1.5 text-3xl font-black text-[#b8860b]">
+              <CoinIcon className="h-6 w-6" />
+              {coins}
+            </p>
             <p className="mt-1 text-xs font-bold tracking-wide text-[#6b6b80] uppercase">
               Coins earned
             </p>
