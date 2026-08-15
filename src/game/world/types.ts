@@ -62,6 +62,15 @@ export interface JumpPad {
   boost: number;
 }
 
+/** Outer play-area edge. An invisible wall keeps the player inside it,
+ * rather than letting them walk off into the void around the island. */
+export interface WorldBounds {
+  minX: number;
+  maxX: number;
+  minZ: number;
+  maxZ: number;
+}
+
 export interface WorldDefinition {
   id: string;
   /** Kid-facing world name. */
@@ -70,6 +79,9 @@ export interface WorldDefinition {
   spawn: Vec3;
   /** Initial camera yaw in radians, so the player faces the mountain. */
   spawnYaw: number;
+  /** Horizontal play-area limits — should match the outer edge of the base
+   * island so the barrier isn't visible as a hard stop mid-terrain. */
+  bounds: WorldBounds;
   solids: Solid[];
   decorations: Decoration[];
   collectibles: Collectible[];

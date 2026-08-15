@@ -147,6 +147,7 @@ export const bubbleBayOfB: WorldDefinition = {
   name: "Bubble Bay of B",
   spawn: [0, 0, 16],
   spawnYaw: 0,
+  bounds: { minX: -26, maxX: 26, minZ: -24, maxZ: 24 },
   solids,
   decorations,
   collectibles,

@@ -132,6 +132,7 @@ export function GameplayController({
         },
         boxes,
         world.killPlane,
+        world.bounds,
       );
 
       // Check for jump pads

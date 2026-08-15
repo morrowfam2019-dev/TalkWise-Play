@@ -8,6 +8,7 @@ import {
   STEP_HEIGHT,
   type CollisionBox,
 } from "./collision";
+import type { WorldBounds } from "../world/types";
 
 const MOVE_SPEED = 6.4;
 const ACCELERATION = 14;
@@ -75,6 +76,7 @@ export class PlayerController {
     input: ControllerInput,
     boxes: CollisionBox[],
     killPlane: number,
+    bounds?: WorldBounds,
   ) {
     const wasGrounded = this.grounded;
     this.landingImpact = 0;
@@ -117,6 +119,21 @@ export class PlayerController {
 
     this.position.x = resolved.x;
     this.position.z = resolved.z;
+
+    // Invisible wall at the island's outer edge — without this, running
+    // straight off the perimeter drops the player past the terrain and the
+    // water plane before the kill-plane catches them, which reads as a
+    // glitch rather than a fall.
+    if (bounds) {
+      this.position.x = Math.min(
+        Math.max(this.position.x, bounds.minX + PLAYER_RADIUS),
+        bounds.maxX - PLAYER_RADIUS,
+      );
+      this.position.z = Math.min(
+        Math.max(this.position.z, bounds.minZ + PLAYER_RADIUS),
+        bounds.maxZ - PLAYER_RADIUS,
+      );
+    }
 
     // --- Vertical movement --------------------------------------------------
     this.velocity.y = Math.max(TERMINAL_VELOCITY, this.velocity.y - GRAVITY * dt);

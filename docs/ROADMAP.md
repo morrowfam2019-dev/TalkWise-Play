@@ -35,6 +35,15 @@ Turn the one-off level into a content pipeline.
   the script now verifies every registered world in one run
 - Second sound built end-to-end to prove the pipeline (`/P/` or `/B/`) — ✅
   P Party: POP, PIG, PIZZA, PENGUIN, PANDA in the Party Plaza of P
+- Invisible edge barrier — ✅ every `WorldDefinition` now declares `bounds`
+  (`src/game/world/types.ts`), and the controller clamps the player inside
+  them every frame (`src/game/core/controller.ts`). Previously nothing
+  stopped a child from walking straight off the island's edge — they'd fall
+  past the terrain and through the water plane before the kill-plane caught
+  them several seconds later, which read as the game glitching rather than
+  a fall. Now the player is stopped right at the shoreline, tested by
+  scripting a sustained walk into the edge and confirming the position
+  holds exactly at the wall instead of drifting through it
 
 **Status: pipeline proven, pending founder review. Difficulty settings still open.**
 
