@@ -102,8 +102,14 @@ The first phase where the microphone is used at all.
   open; the attempt loop above confirms the right word was said, not how
   *well* it was said
 - Honest confidence reporting — never a fabricated score
-- Manual "I said it" confirmation remains available as a fallback — ✅
-  (shown automatically when microphone permission is denied)
+- Manual "I said it" confirmation remains available as a fallback — ✅ and
+  it is now always reachable, not just automatic. "Turn microphone off" sits
+  on screen the whole time a challenge is listening, and again on Miss
+  Maya's popup, and drops straight to the "I SAID IT!" button. The choice
+  persists on the profile (`micEnabled`), so a family whose microphone can't
+  hear their child answers it once instead of at every checkpoint. It is
+  still applied automatically when permission is denied or the browser has
+  no speech recognition
 
 ## Phase 5 — Parent + Child Profiles
 
@@ -134,8 +140,9 @@ are available rather than building against a guessed protocol.
 
 ## Phase 7 — Game Expansion
 
-- Additional worlds, mini-games, and formats — ✅ four adventures now, each
-  with its own shape and its own verb rather than one recoloured layout:
+- Additional worlds, mini-games, and formats — ✅ seven adventures now, each
+  with its own shape and its own verb rather than one recoloured layout,
+  alternating jump / slide as the chain unlocks:
   - **M Adventure** (jump) — a spiral climb. Four concentric terraces, each
     reachable only by a single stair block, and those stairs sit at rotating
     compass points so the climb winds around the mountain
@@ -145,6 +152,13 @@ are available rather than building against a guessed protocol.
     shallow lagoon, so a missed hop is a splash rather than a fall
   - **W Woods** (slide) — one long trail with alcoves cut into the hedges
     and five fallen logs across it
+  - **S Summit** (jump) — a switchback ridge. Five terraces too tall to
+    jump, each with one mid-height stair at an alternating end, so the climb
+    doubles back on itself like a mountain road
+  - **L Lagoon** (slide) — a closed ring corridor around an unclimbable
+    lagoon mound, cut into six stretches by six arches. One full lap
+  - **F Falls** (jump) — eight ledges corkscrewing around a waterfall
+    pillar, everything within a few strides of the centre
 - Avatar customization — ✅ four characters (Milo, Pip, Nova, Sprout), each a
   palette and a head crest over the same rig, bought and worn from the store
 - The store — ✅ `/shop`, spending coins on characters, auras, and movement

@@ -31,7 +31,7 @@ export function GameShell({ level, onExit }: GameShellProps) {
   const input = useMemo(() => new GameInput(), []);
   const lookRef = useRef<HTMLDivElement>(null);
 
-  const { profile, recordRun } = usePlayerProfile();
+  const { profile, recordRun, setMicEnabled } = usePlayerProfile();
   const boost = getBoost(profile.loadout.boostId);
 
   const total = level.challenges.length;
@@ -296,6 +296,8 @@ export function GameShell({ level, onExit }: GameShellProps) {
           <ChallengeModal
             key={activeChallenge.id}
             challenge={activeChallenge}
+            micEnabled={profile.micEnabled}
+            onMicEnabledChange={setMicEnabled}
             onConfirm={handleConfirmChallenge}
             onDismiss={closeChallenge}
             onClose={closeChallenge}

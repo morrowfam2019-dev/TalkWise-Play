@@ -42,6 +42,13 @@ export interface PlayerProfile {
   bestStreak: number;
   /** ISO date (YYYY-MM-DD, local) of the last day a run was played. */
   lastPlayedDate: string | null;
+  /**
+   * Whether speech challenges listen through the microphone. Turning this
+   * off falls back to the manual "I said it" button, which is the whole
+   * point: a bad microphone must never be able to block a child from
+   * moving on. Sticky, so it is answered once rather than every checkpoint.
+   */
+  micEnabled: boolean;
 }
 
 export const EMPTY_LEVEL_PROGRESS: LevelProgress = {
@@ -60,6 +67,7 @@ export const DEFAULT_PROFILE: PlayerProfile = {
   currentStreak: 0,
   bestStreak: 0,
   lastPlayedDate: null,
+  micEnabled: true,
 };
 
 /** Coins available to spend right now. */

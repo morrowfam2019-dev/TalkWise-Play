@@ -90,6 +90,14 @@ export function usePlayerProfile() {
     [],
   );
 
+  /** Turns the microphone path on or off for every future challenge. */
+  const setMicEnabled = useCallback(
+    (micEnabled: boolean) => {
+      updateActive((profile) => ({ ...profile, micEnabled }));
+    },
+    [updateActive],
+  );
+
   const equip = useCallback(
     (kind: "character" | "aura" | "boost", id: string | null) => {
       updateActive((p) => equipItem(p, kind, id));
@@ -120,6 +128,7 @@ export function usePlayerProfile() {
     recordRun,
     buyItem,
     equip,
+    setMicEnabled,
     children,
     activeChildId: household.activeChildId,
     switchChild,

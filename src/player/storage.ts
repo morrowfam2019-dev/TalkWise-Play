@@ -88,6 +88,7 @@ function sanitizeProfile(raw: unknown): PlayerProfile {
     bestStreak: Number(value.bestStreak) || 0,
     lastPlayedDate:
       typeof value.lastPlayedDate === "string" ? value.lastPlayedDate : null,
+    micEnabled: value.micEnabled !== false,
   };
 }
 

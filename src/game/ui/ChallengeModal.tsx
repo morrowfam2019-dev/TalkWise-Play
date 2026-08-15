@@ -12,6 +12,10 @@ import {
 
 interface ChallengeModalProps {
   challenge: SpeechChallenge;
+  /** Whether this player wants the microphone used at all. */
+  micEnabled: boolean;
+  /** Persists a change to that preference, so it holds for every checkpoint. */
+  onMicEnabledChange: (enabled: boolean) => void;
   /** Called when the child confirms they practiced the word. */
   onConfirm: () => void;
   /** Called when the child backs out without practicing. */
@@ -76,6 +80,8 @@ function playExampleWord(word: string) {
  */
 export function ChallengeModal({
   challenge,
+  micEnabled,
+  onMicEnabledChange,
   onConfirm,
   onDismiss,
   onClose,
@@ -165,6 +171,24 @@ export function ChallengeModal({
     if (celebrating) return;
     setCelebrating(true);
     onConfirm();
+  };
+
+  /**
+   * Switches this challenge — and every one after it — to the manual button.
+   * Any listening attempt in flight is dropped, so a half-finished recognition
+   * can't advance the challenge behind the child's back.
+   */
+  const handleMicOff = () => {
+    recognizerRef.current?.stop();
+    recognizerRef.current = null;
+    setListeningStatus("idle");
+    setShowExample(false);
+    onMicEnabledChange(false);
+  };
+
+  const handleMicOn = () => {
+    onMicEnabledChange(true);
+    void handleRequestMic();
   };
 
   useEffect(() => {
@@ -277,7 +301,49 @@ export function ChallengeModal({
                   Now you try!
                 </button>
               </div>
+              <button
+                type="button"
+                onClick={handleMicOff}
+                className="mt-2 w-full rounded-xl px-3 py-2 text-xs font-bold text-[#4a6b78] underline"
+              >
+                Microphone not hearing you? Use the button instead
+              </button>
             </div>
+          ) : !micEnabled || micPermission === "denied" ? (
+            /* Button mode. A microphone that can't hear — or one the family
+               turned off — must never be able to stop a child moving on. */
+            <>
+              <button
+                ref={confirmRef}
+                type="button"
+                onClick={handleConfirm}
+                className="mt-6 w-full rounded-2xl border-b-8 border-[#25a25a] bg-[#2ecc71] px-6 py-5 text-2xl font-black text-white shadow-lg transition-transform active:translate-y-1 active:border-b-4"
+              >
+                I SAID IT!
+              </button>
+              <p className="mt-2 text-xs text-[#8a8aa0]">
+                {micPermission === "denied"
+                  ? "Microphone is off — tap the button when you have said it"
+                  : "Tap the button when you have said it"}
+              </p>
+              {micPermission !== "denied" ? (
+                <button
+                  type="button"
+                  onClick={handleMicOn}
+                  className="mt-2 w-full rounded-xl px-4 py-2 text-sm font-bold text-[#2f7fd4] underline"
+                >
+                  🎤 Turn the microphone back on
+                </button>
+              ) : null}
+
+              <button
+                type="button"
+                onClick={onDismiss}
+                className="mt-3 w-full rounded-xl px-4 py-2 text-base font-bold text-[#8a8aa0] hover:text-[#141420]"
+              >
+                Not yet
+              </button>
+            </>
           ) : (
             <>
               {micPermission === "not-requested" && (
@@ -307,26 +373,21 @@ export function ChallengeModal({
                 </>
               )}
 
-              {micPermission === "denied" && (
-                <>
-                  <button
-                    ref={confirmRef}
-                    type="button"
-                    onClick={handleConfirm}
-                    className="mt-6 w-full rounded-2xl border-b-8 border-[#25a25a] bg-[#2ecc71] px-6 py-5 text-2xl font-black text-white shadow-lg transition-transform active:translate-y-1 active:border-b-4"
-                  >
-                    I SAID IT!
-                  </button>
-                  <p className="mt-2 text-xs text-[#8a8aa0]">
-                    Microphone access denied — using button mode
-                  </p>
-                </>
-              )}
+              {/* The way out of microphone mode, always reachable — including
+                  mid-listen, which is exactly when a child discovers the mic
+                  isn't picking them up. */}
+              <button
+                type="button"
+                onClick={handleMicOff}
+                className="mt-3 w-full rounded-xl border-2 border-[#e2e4ee] px-4 py-2.5 text-sm font-black text-[#4a4a60]"
+              >
+                🎤 Turn microphone off
+              </button>
 
               <button
                 type="button"
                 onClick={onDismiss}
-                className="mt-3 w-full rounded-xl px-4 py-2 text-base font-bold text-[#8a8aa0] hover:text-[#141420]"
+                className="mt-2 w-full rounded-xl px-4 py-2 text-base font-bold text-[#8a8aa0] hover:text-[#141420]"
               >
                 Not yet
               </button>
