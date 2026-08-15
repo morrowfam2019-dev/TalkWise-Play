@@ -35,6 +35,12 @@ export interface GameplayCallbacks {
 interface GameplayControllerProps extends GameplayCallbacks {
   world: WorldDefinition;
   input: GameInput;
+  /** Equipped character and aura — cosmetic. */
+  characterId: string;
+  auraId: string | null;
+  /** Movement multipliers from the equipped boost. Never affect speech. */
+  jumpBoost: number;
+  speedBoost: number;
   paused: boolean;
   completed: boolean[];
   collected: string[];
@@ -53,6 +59,10 @@ interface GameplayControllerProps extends GameplayCallbacks {
 export function GameplayController({
   world,
   input,
+  characterId,
+  auraId,
+  jumpBoost,
+  speedBoost,
   paused,
   completed,
   collected,
@@ -119,20 +129,21 @@ export function GameplayController({
       const rightX = -forwardZ;
       const rightZ = forwardX;
 
-      const jumping = input.isJumping();
-      if (jumping && !wasJumping.current && controller.grounded) onJump();
-      wasJumping.current = jumping;
+      const acting = input.isActionHeld();
+      if (acting && !wasJumping.current && controller.grounded) onJump();
+      wasJumping.current = acting;
 
       controller.update(
         delta,
         {
           moveX: forwardX * move.y + rightX * move.x,
           moveZ: forwardZ * move.y + rightZ * move.x,
-          jump: jumping,
+          action: acting,
+          jumpBoost,
+          speedBoost,
         },
         boxes,
-        world.killPlane,
-        world.bounds,
+        world,
       );
 
       // Check for jump pads
@@ -260,7 +271,11 @@ export function GameplayController({
         <meshBasicMaterial color="#123" transparent opacity={0.26} depthWrite={false} />
       </mesh>
       <group ref={playerGroup}>
-        <PlayerAvatar controller={controller} />
+        <PlayerAvatar
+          controller={controller}
+          characterId={characterId}
+          auraId={auraId}
+        />
       </group>
     </group>
   );

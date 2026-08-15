@@ -16,6 +16,10 @@ interface GameSceneProps extends GameplayCallbacks {
   world: WorldDefinition;
   challenges: SpeechChallenge[];
   input: GameInput;
+  characterId: string;
+  auraId: string | null;
+  jumpBoost: number;
+  speedBoost: number;
   paused: boolean;
   completed: boolean[];
   collected: string[];
@@ -34,6 +38,10 @@ export function GameScene({
   world,
   challenges,
   input,
+  characterId,
+  auraId,
+  jumpBoost,
+  speedBoost,
   paused,
   completed,
   collected,
@@ -78,6 +86,10 @@ export function GameScene({
       <GameplayController
         world={world}
         input={input}
+        characterId={characterId}
+        auraId={auraId}
+        jumpBoost={jumpBoost}
+        speedBoost={speedBoost}
         paused={paused}
         completed={completed}
         collected={collected}

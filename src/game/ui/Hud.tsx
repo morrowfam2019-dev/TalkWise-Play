@@ -1,12 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import type { WorldAction } from "../world/types";
 
 interface HudProps {
   completedCount: number;
   totalCheckpoints: number;
   coins: number;
   nearWord: string | null;
+  /** The level's one verb, so the hint names the button a child actually has. */
+  action: WorldAction;
   finishUnlocked: boolean;
   muted: boolean;
   onToggleMute: () => void;
@@ -22,6 +25,7 @@ export function Hud({
   totalCheckpoints,
   coins,
   nearWord,
+  action,
   finishUnlocked,
   muted,
   onToggleMute,
@@ -104,7 +108,8 @@ export function Hud({
         <div className="pointer-events-none absolute inset-x-0 bottom-48 flex justify-center px-4 sm:bottom-6">
           <p className="rounded-full bg-[#141420]/75 px-4 py-2 text-center text-xs font-bold text-white/90 backdrop-blur-sm sm:text-sm">
             <span className="hidden sm:inline">
-              WASD or arrows to move · drag to look · space to jump
+              WASD or arrows to move · drag to look · space to{" "}
+              {action === "jump" ? "jump" : "slide"}
             </span>
             <span className="sm:hidden">Left stick to move · drag to look</span>
           </p>

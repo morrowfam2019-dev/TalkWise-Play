@@ -8,7 +8,7 @@ import {
   STEP_HEIGHT,
   type CollisionBox,
 } from "./collision";
-import type { WorldBounds } from "../world/types";
+import type { WorldAction, WorldBounds } from "../world/types";
 
 const MOVE_SPEED = 6.4;
 const ACCELERATION = 14;
@@ -19,11 +19,37 @@ const COYOTE_TIME = 0.12;
 const JUMP_BUFFER = 0.14;
 const TURN_SPEED = 12;
 
+/** Standing height clears a barrier whose underside sits at 0.9; sliding
+ * height ducks beneath it. Slide worlds are authored against these numbers. */
+const SLIDE_HEIGHT = 0.62;
+const SLIDE_SPEED = 9.6;
+const SLIDE_DURATION = 0.6;
+const SLIDE_COOLDOWN = 0.22;
+/** A slide that ends under a low ceiling stays down rather than standing up
+ * inside the barrier — the player keeps gliding until there is headroom. */
+const SLIDE_EXTENSION = 0.12;
+
 export interface ControllerInput {
   /** Desired world-space direction, magnitude 0..1. */
   moveX: number;
   moveZ: number;
-  jump: boolean;
+  /** The level's one action button — jump or slide, per the world. */
+  action: boolean;
+  /**
+   * Movement multipliers from the player's equipped boost, defaulting to 1.
+   * They ride along with the frame's intent rather than living on the
+   * controller, because they are the player's loadout and not the
+   * controller's own state — and nothing here can reach the speech check.
+   */
+  jumpBoost?: number;
+  speedBoost?: number;
+}
+
+/** The slice of a world the controller needs to move a player through it. */
+export interface WorldRules {
+  action: WorldAction;
+  killPlane: number;
+  bounds?: WorldBounds;
 }
 
 /**
@@ -44,9 +70,14 @@ export class PlayerController {
   /** Seconds of continuous movement, used to drive the walk cycle. */
   strideTime = 0;
   speedRatio = 0;
+  /** True while a slide is in progress, so the avatar can take the pose. */
+  sliding = false;
 
   private coyote = 0;
   private jumpBuffer = 0;
+  private slideTimer = 0;
+  private slideCooldown = 0;
+  private actionWasHeld = false;
   private safeSpot = new THREE.Vector3();
   private safeTimer = 0;
   private spawn = new THREE.Vector3();
@@ -60,9 +91,19 @@ export class PlayerController {
     this.grounded = true;
     this.coyote = 0;
     this.jumpBuffer = 0;
+    this.slideTimer = 0;
+    this.slideCooldown = 0;
+    this.actionWasHeld = false;
+    this.sliding = false;
     this.strideTime = 0;
     this.speedRatio = 0;
     this.landingImpact = 0;
+  }
+
+  /** Collision height right now — reduced mid-slide so the player fits under
+   * barriers that block them standing up. */
+  get height(): number {
+    return this.sliding ? SLIDE_HEIGHT : PLAYER_HEIGHT;
   }
 
   /** Sets upward velocity directly — used by jump pads and similar triggers. */
@@ -75,11 +116,34 @@ export class PlayerController {
     dt: number,
     input: ControllerInput,
     boxes: CollisionBox[],
-    killPlane: number,
-    bounds?: WorldBounds,
+    rules: WorldRules,
   ) {
+    const { action: worldAction, killPlane, bounds } = rules;
     const wasGrounded = this.grounded;
     this.landingImpact = 0;
+
+    const actionPressed = input.action && !this.actionWasHeld;
+    this.actionWasHeld = input.action;
+
+    // --- Slide --------------------------------------------------------------
+    // Slide worlds spend the action button here; jump worlds never enter this
+    // branch, so a slide can never be triggered where nothing is duckable.
+    this.slideCooldown = Math.max(0, this.slideCooldown - dt);
+    if (worldAction === "slide") {
+      if (actionPressed && this.grounded && !this.sliding && this.slideCooldown <= 0) {
+        this.sliding = true;
+        this.slideTimer = SLIDE_DURATION;
+        // Slide along the way the player is already looking, so ducking under
+        // a barrier doesn't need the stick held perfectly straight.
+        const heading = Math.hypot(this.velocity.x, this.velocity.z) > 0.4
+          ? Math.atan2(this.velocity.x, this.velocity.z)
+          : this.facing;
+        this.velocity.x = Math.sin(heading) * SLIDE_SPEED;
+        this.velocity.z = Math.cos(heading) * SLIDE_SPEED;
+      }
+    } else if (this.sliding) {
+      this.sliding = false;
+    }
 
     // --- Horizontal velocity -------------------------------------------------
     let desiredX = input.moveX;
@@ -90,18 +154,28 @@ export class PlayerController {
       desiredZ /= desiredLength;
     }
 
-    const targetVX = desiredX * MOVE_SPEED;
-    const targetVZ = desiredZ * MOVE_SPEED;
-    const blend = Math.min(1, ACCELERATION * dt);
-    this.velocity.x += (targetVX - this.velocity.x) * blend;
-    this.velocity.z += (targetVZ - this.velocity.z) * blend;
+    if (this.sliding) {
+      // Steering is heavily damped mid-slide so it reads as a committed move
+      // rather than a speed buff the player can drive around corners.
+      const drag = Math.min(1, 1.6 * dt);
+      this.velocity.x += (desiredX * MOVE_SPEED - this.velocity.x) * drag;
+      this.velocity.z += (desiredZ * MOVE_SPEED - this.velocity.z) * drag;
+    } else {
+      const speed = MOVE_SPEED * (input.speedBoost ?? 1);
+      const targetVX = desiredX * speed;
+      const targetVZ = desiredZ * speed;
+      const blend = Math.min(1, ACCELERATION * dt);
+      this.velocity.x += (targetVX - this.velocity.x) * blend;
+      this.velocity.z += (targetVZ - this.velocity.z) * blend;
+    }
 
     // --- Jump ---------------------------------------------------------------
-    this.jumpBuffer = input.jump ? JUMP_BUFFER : Math.max(0, this.jumpBuffer - dt);
+    const wantsJump = worldAction === "jump" && input.action;
+    this.jumpBuffer = wantsJump ? JUMP_BUFFER : Math.max(0, this.jumpBuffer - dt);
     this.coyote = this.grounded ? COYOTE_TIME : Math.max(0, this.coyote - dt);
 
     if (this.jumpBuffer > 0 && this.coyote > 0) {
-      this.velocity.y = JUMP_SPEED;
+      this.velocity.y = JUMP_SPEED * (input.jumpBoost ?? 1);
       this.grounded = false;
       this.coyote = 0;
       this.jumpBuffer = 0;
@@ -111,7 +185,14 @@ export class PlayerController {
     const feetY = this.position.y;
     const proposedX = this.position.x + this.velocity.x * dt;
     const proposedZ = this.position.z + this.velocity.z * dt;
-    const resolved = resolveHorizontal(boxes, proposedX, proposedZ, feetY);
+    const resolved = resolveHorizontal(
+      boxes,
+      proposedX,
+      proposedZ,
+      feetY,
+      PLAYER_RADIUS,
+      this.height,
+    );
 
     // Kill residual speed into a wall so the player does not stick to it.
     if (Math.abs(resolved.x - proposedX) > 1e-4) this.velocity.x = 0;
@@ -156,13 +237,35 @@ export class PlayerController {
     // Head bump: stop upward motion under an overhang.
     if (this.velocity.y > 0) {
       const ceiling = ceilingHeightAt(boxes, this.position.x, this.position.z, this.position.y);
-      if (nextY + PLAYER_HEIGHT > ceiling) {
-        nextY = ceiling - PLAYER_HEIGHT;
+      if (nextY + this.height > ceiling) {
+        nextY = ceiling - this.height;
         this.velocity.y = 0;
       }
     }
 
     this.position.y = nextY;
+
+    // --- Slide timer --------------------------------------------------------
+    // Standing back up is only allowed with real headroom, so a slide that
+    // runs out mid-tunnel keeps going instead of wedging the player inside
+    // the barrier they just ducked under.
+    if (this.sliding) {
+      this.slideTimer -= dt;
+      if (this.slideTimer <= 0) {
+        const ceiling = ceilingHeightAt(
+          boxes,
+          this.position.x,
+          this.position.z,
+          this.position.y,
+        );
+        if (ceiling - this.position.y >= PLAYER_HEIGHT) {
+          this.sliding = false;
+          this.slideCooldown = SLIDE_COOLDOWN;
+        } else {
+          this.slideTimer = SLIDE_EXTENSION;
+        }
+      }
+    }
 
     // --- Facing -------------------------------------------------------------
     const planarSpeed = Math.hypot(this.velocity.x, this.velocity.z);
@@ -179,8 +282,10 @@ export class PlayerController {
     }
 
     // --- Safety net ---------------------------------------------------------
+    // Never bank a safe spot mid-slide: the player is somewhere a standing
+    // body doesn't fit, and respawning them there would wedge them in it.
     this.safeTimer += dt;
-    if (this.grounded && this.safeTimer > 0.3) {
+    if (this.grounded && !this.sliding && this.safeTimer > 0.3) {
       this.safeTimer = 0;
       this.safeSpot.copy(this.position);
     }
@@ -189,6 +294,8 @@ export class PlayerController {
       this.position.copy(this.safeSpot);
       this.position.y += 0.5;
       this.velocity.set(0, 0, 0);
+      this.sliding = false;
+      this.slideTimer = 0;
       return { respawned: true };
     }
 

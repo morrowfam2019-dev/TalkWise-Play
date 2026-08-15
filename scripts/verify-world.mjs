@@ -211,11 +211,32 @@ function verifyWorld(world, { PlayerController, buildCollisionBoxes, groundHeigh
         moveZ /= length;
       }
 
+      // Press the level's one action button the way a player would: when a
+      // step or a barrier stops forward progress, and — in jump worlds —
+      // when the ground ahead drops away within a stride.
+      let needsAction = stalledFor > 0.3;
+      if (!needsAction && world.action === "jump" && controller.grounded) {
+        const aheadX = controller.position.x + moveX * 1.5;
+        const aheadZ = controller.position.z + moveZ * 1.5;
+        const aheadGround = groundHeightAt(
+          boxes,
+          aheadX,
+          aheadZ,
+          controller.position.y + 0.02,
+        );
+        if (
+          !Number.isFinite(aheadGround) ||
+          aheadGround < controller.position.y - 0.6
+        ) {
+          needsAction = true;
+        }
+      }
+
       const result = controller.update(
         DT,
-        { moveX, moveZ, jump: false },
+        { moveX, moveZ, action: needsAction },
         boxes,
-        world.killPlane,
+        world,
       );
       if (result.respawned) respawns += 1;
 
@@ -236,9 +257,15 @@ function verifyWorld(world, { PlayerController, buildCollisionBoxes, groundHeigh
     if (!arrived) problems += 1;
 
     let note = "";
+    // Only judge standing height when the player is actually standing. In a
+    // jump world the sim hops continuously, so it routinely clips a
+    // waypoint's radius mid-arc — airborne by design, not a placement bug.
+    // Whether the anchor itself sits on solid ground is the placement
+    // audit's job, and it already ran above.
     if (
       arrived &&
       !leg.skipHeightCheck &&
+      controller.grounded &&
       ty !== undefined &&
       Math.abs(p.y - ty) > 0.9
     ) {
@@ -279,6 +306,16 @@ function buildRoute(world) {
   const cp = world.checkpoints;
   const pads = world.jumpPads ?? [];
   const route = [];
+
+  // An authored route wins: the level has stated the path it means, and a
+  // derived one would only second-guess it.
+  if (world.verifyRoute) {
+    for (const leg of world.verifyRoute) {
+      route.push({ name: leg.name, target: leg.target, goal: 1.6 });
+    }
+    route.push({ name: "FINISH portal", target: world.finish, goal: 2.3 });
+    return route;
+  }
 
   const usesPadPattern = cp.length === 5 && pads.length === 5;
 

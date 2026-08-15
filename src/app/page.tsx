@@ -6,6 +6,7 @@ import { COMING_SOON } from "@/content/comingSoon";
 import { getLevel, listLevels } from "@/content/speech";
 import { ACHIEVEMENTS, getUnlockedAchievements } from "@/player/achievements";
 import { getLevelProgress, isLevelUnlocked } from "@/player/storage";
+import { spendableCoins } from "@/player/types";
 import { usePlayerProfile } from "@/player/usePlayerProfile";
 
 /** TalkWise Play home — the hub the adventures live inside. */
@@ -67,7 +68,7 @@ export default function HomePage() {
                 Coins
               </p>
               <p className="text-xl font-black text-[#f5c33b] tabular-nums">
-                {profile.totalCoins}
+                {spendableCoins(profile)}
               </p>
             </div>
           </div>
@@ -168,6 +169,26 @@ export default function HomePage() {
             </div>
           </div>
         </section>
+
+        <Link
+          href="/shop"
+          className="mt-4 flex items-center gap-4 rounded-[1.5rem] border-4 border-white bg-white/85 p-4 shadow-lg backdrop-blur-sm transition-transform active:translate-y-0.5"
+        >
+          <span className="text-4xl" aria-hidden>
+            🛍️
+          </span>
+          <span className="flex-1 text-left">
+            <span className="block text-lg font-black tracking-tight text-[#141420]">
+              The Store
+            </span>
+            <span className="block text-sm font-semibold text-[#6b6b80]">
+              Spend your coins on characters, auras, and boosts.
+            </span>
+          </span>
+          <span className="rounded-full bg-[#fff4d6] px-3 py-1.5 text-sm font-black text-[#b8860b] tabular-nums">
+            🪙 {spendableCoins(profile)}
+          </span>
+        </Link>
 
         {/* Playable adventures */}
         <h3 className="mt-8 mb-3 text-xs font-black tracking-[0.22em] text-[#3c5a68] uppercase">
@@ -313,7 +334,13 @@ export default function HomePage() {
           })}
         </div>
 
-        <div className="mt-10 text-center">
+        <div className="mt-10 flex justify-center gap-5 text-center">
+          <Link
+            href="/shop"
+            className="text-xs font-bold text-[#4a6b78] underline"
+          >
+            🛍️ The Store
+          </Link>
           <Link
             href="/parent"
             className="text-xs font-bold text-[#4a6b78] underline"

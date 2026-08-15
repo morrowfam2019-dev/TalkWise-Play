@@ -31,10 +31,21 @@ Turn the one-off level into a content pipeline.
   `P Party` added as a level file plus a world file; zero engine changes
 - Multiple worlds sharing one engine; world/level binding by anchor index — ✅
 - Difficulty settings (checkpoint count, world size, movement assists)
+- One action verb per world — ✅ `WorldDefinition.action` is `"jump"` or
+  `"slide"`, and it is the only thing the action button does in that world.
+  Jump worlds raise ledges and never ask a child to duck; slide worlds are
+  flat underfoot and never ask for a jump. The on-screen button, the
+  keyboard hint, and the intro card all name the world's own verb, so a
+  child learns one move per adventure instead of a moveset
 - Authoring-time validation extended (`npm run verify:world` per level) — ✅
   the script now verifies every registered world in one run
 - Second sound built end-to-end to prove the pipeline (`/P/` or `/B/`) — ✅
   P Party: POP, PIG, PIZZA, PENGUIN, PANDA in the Party Plaza of P
+- Authored verification routes — ✅ a world can declare `verifyRoute`, the
+  path its design actually means. `npm run verify:world` walks that line and
+  presses the world's own action button (when a step blocks it, or when the
+  ground ahead drops away), instead of guessing a straight line between
+  checkpoints that cuts corners through geometry
 - Invisible edge barrier — ✅ every `WorldDefinition` now declares `bounds`
   (`src/game/world/types.ts`), and the controller clamps the player inside
   them every frame (`src/game/core/controller.ts`). Previously nothing
@@ -123,15 +134,29 @@ are available rather than building against a guessed protocol.
 
 ## Phase 7 — Game Expansion
 
-- Additional worlds, mini-games, and formats — ✅ third sound built
-  end-to-end: `B Bay` (Bubble Bay of B — `src/game/world/bubbleBayOfB.ts`),
-  practicing BALL, BUBBLE, BOAT, BANANA, BEAR, unlocked after P Party. Same
-  copy-and-recolor pipeline P Party proved for M Adventure, so nothing in
-  the engine changed — only two new data files plus two registry entries.
-  All 15 words across all three levels now have real recorded Miss Maya
-  clips (`public/audio/maya/*.mp3`); "W Woods" is still the one coming-soon
-  placeholder left
-- Avatar customization
+- Additional worlds, mini-games, and formats — ✅ four adventures now, each
+  with its own shape and its own verb rather than one recoloured layout:
+  - **M Adventure** (jump) — a spiral climb. Four concentric terraces, each
+    reachable only by a single stair block, and those stairs sit at rotating
+    compass points so the climb winds around the mountain
+  - **P Party** (slide) — a hub and four stalls. Flat throughout; each stall
+    is walled off with one entrance under a banner you can only duck beneath
+  - **B Bay** (jump) — a chain of six islands spiralling inward over a
+    shallow lagoon, so a missed hop is a splash rather than a fall
+  - **W Woods** (slide) — one long trail with alcoves cut into the hedges
+    and five fallen logs across it
+- Avatar customization — ✅ four characters (Milo, Pip, Nova, Sprout), each a
+  palette and a head crest over the same rig, bought and worn from the store
+- The store — ✅ `/shop`, spending coins on characters, auras, and movement
+  boosts. `totalCoins` stays the lifetime record and `spentCoins` tracks the
+  till, so buying something never erases an achievement already earned.
+  **Boosts only ever change movement** — Super Boots jump higher, Speed Shoes
+  run faster — and never the speech check; that line is stated in
+  `src/content/shop.ts` and on the store page itself, and is the one rule
+  this feature must not break
+- Speech-bubble pickups — ✅ coins are the TalkWise mark itself, extruded
+  with its three dots and tail, bobbing in place and turning to face the
+  camera
 - Seasonal content
 
 ---

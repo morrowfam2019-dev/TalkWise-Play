@@ -13,12 +13,27 @@ export interface LevelProgress {
   completed: boolean;
 }
 
+/** What a player is currently wearing and standing in. */
+export interface Loadout {
+  characterId: string;
+  auraId: string | null;
+  boostId: string | null;
+}
+
 /** Everything persisted about a player. */
 export interface PlayerProfile {
   /** Kid-facing display name. Empty until they choose one. */
   name: string;
-  /** Lifetime coin total across all runs. */
+  /** Lifetime coin total across all runs. Never decreases — it's the record
+   * of everything earned, and achievements are measured against it. */
   totalCoins: number;
+  /** Lifetime coins spent in the shop. Spendable balance is the difference,
+   * so buying something never erases the achievement of having earned it. */
+  spentCoins: number;
+  /** Shop item ids the player owns. */
+  owned: string[];
+  /** What they have equipped right now. */
+  loadout: Loadout;
   /** Per-level records, keyed by level id. */
   levels: Record<string, LevelProgress>;
   /** Consecutive calendar days (local time) with at least one run played. */
@@ -38,11 +53,19 @@ export const EMPTY_LEVEL_PROGRESS: LevelProgress = {
 export const DEFAULT_PROFILE: PlayerProfile = {
   name: "",
   totalCoins: 0,
+  spentCoins: 0,
+  owned: ["milo"],
+  loadout: { characterId: "milo", auraId: null, boostId: null },
   levels: {},
   currentStreak: 0,
   bestStreak: 0,
   lastPlayedDate: null,
 };
+
+/** Coins available to spend right now. */
+export function spendableCoins(profile: PlayerProfile): number {
+  return Math.max(0, profile.totalCoins - profile.spentCoins);
+}
 
 /**
  * Multiple named child profiles sharing one household, with one active at a

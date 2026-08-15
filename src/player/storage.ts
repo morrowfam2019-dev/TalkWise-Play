@@ -1,8 +1,11 @@
+import { DEFAULT_CHARACTER_ID } from "@/content/shop";
 import {
   DEFAULT_PROFILE,
   EMPTY_LEVEL_PROGRESS,
+  spendableCoins,
   type Household,
   type LevelProgress,
+  type Loadout,
   type PlayerProfile,
 } from "./types";
 
@@ -56,9 +59,30 @@ function sanitizeProfile(raw: unknown): PlayerProfile {
     }
   }
 
+  const owned = Array.isArray(value.owned)
+    ? value.owned.filter((id): id is string => typeof id === "string")
+    : [];
+  if (!owned.includes(DEFAULT_CHARACTER_ID)) owned.push(DEFAULT_CHARACTER_ID);
+
+  const rawLoadout =
+    typeof value.loadout === "object" && value.loadout !== null
+      ? (value.loadout as Partial<Loadout>)
+      : {};
+  // Only ever equip something the player actually owns — a hand-edited save
+  // or a retired item can't leave them wearing something that isn't theirs.
+  const equipped = (id: unknown): string | null =>
+    typeof id === "string" && owned.includes(id) ? id : null;
+
   return {
     name: typeof value.name === "string" ? value.name.slice(0, 20) : "",
     totalCoins: Number(value.totalCoins) || 0,
+    spentCoins: Number(value.spentCoins) || 0,
+    owned,
+    loadout: {
+      characterId: equipped(rawLoadout.characterId) ?? DEFAULT_CHARACTER_ID,
+      auraId: equipped(rawLoadout.auraId),
+      boostId: equipped(rawLoadout.boostId),
+    },
     levels,
     currentStreak: Number(value.currentStreak) || 0,
     bestStreak: Number(value.bestStreak) || 0,
@@ -229,6 +253,60 @@ export function mergeRunResult(
       },
     },
   };
+}
+
+/**
+ * Buys a shop item for a profile, if it's affordable and not already owned.
+ * Returns the profile unchanged when it isn't — callers show the reason, and
+ * nothing here can put a wallet below zero.
+ */
+export function purchaseItem(
+  profile: PlayerProfile,
+  item: { id: string; price: number; kind: "character" | "aura" | "boost" },
+): { profile: PlayerProfile; bought: boolean } {
+  if (profile.owned.includes(item.id)) return { profile, bought: false };
+  if (spendableCoins(profile) < item.price) return { profile, bought: false };
+
+  const owned = [...profile.owned, item.id];
+  // Buying something equips it immediately — a child who just spent their
+  // coins should see the thing they bought, not hunt for an Equip button.
+  const loadout: Loadout = { ...profile.loadout };
+  if (item.kind === "character") loadout.characterId = item.id;
+  else if (item.kind === "aura") loadout.auraId = item.id;
+  else loadout.boostId = item.id;
+
+  return {
+    profile: {
+      ...profile,
+      spentCoins: profile.spentCoins + item.price,
+      owned,
+      loadout,
+    },
+    bought: true,
+  };
+}
+
+/**
+ * Equips an owned item. Passing null for an aura or boost takes it off;
+ * a character can only ever be swapped, never removed.
+ */
+export function equipItem(
+  profile: PlayerProfile,
+  kind: "character" | "aura" | "boost",
+  id: string | null,
+): PlayerProfile {
+  if (id !== null && !profile.owned.includes(id)) return profile;
+
+  const loadout: Loadout = { ...profile.loadout };
+  if (kind === "character") {
+    if (id === null) return profile;
+    loadout.characterId = id;
+  } else if (kind === "aura") {
+    loadout.auraId = id;
+  } else {
+    loadout.boostId = id;
+  }
+  return { ...profile, loadout };
 }
 
 /** Adds a new child profile to the household and makes it the active one. */

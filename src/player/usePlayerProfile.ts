@@ -3,11 +3,13 @@
 import { useCallback, useSyncExternalStore } from "react";
 import {
   addChild as addChildToHousehold,
+  equipItem,
   householdStore,
   mergeRunResult,
+  purchaseItem,
   setActiveChild,
 } from "./storage";
-import { DEFAULT_PROFILE } from "./types";
+import { DEFAULT_PROFILE, type PlayerProfile } from "./types";
 
 /**
  * Reads and writes the active child's profile through the storage
@@ -55,6 +57,46 @@ export function usePlayerProfile() {
     [],
   );
 
+  /** Applies a change to whichever child is active right now. */
+  const updateActive = useCallback(
+    (change: (profile: PlayerProfile) => PlayerProfile) => {
+      const current = householdStore.getSnapshot();
+      const activeProfile = current.children[current.activeChildId] ?? DEFAULT_PROFILE;
+      householdStore.save({
+        ...current,
+        children: {
+          ...current.children,
+          [current.activeChildId]: change(activeProfile),
+        },
+      });
+    },
+    [],
+  );
+
+  /** Buys a shop item and equips it. Returns false if it wasn't affordable. */
+  const buyItem = useCallback(
+    (item: { id: string; price: number; kind: "character" | "aura" | "boost" }) => {
+      const current = householdStore.getSnapshot();
+      const activeProfile = current.children[current.activeChildId] ?? DEFAULT_PROFILE;
+      const { profile: next, bought } = purchaseItem(activeProfile, item);
+      if (bought) {
+        householdStore.save({
+          ...current,
+          children: { ...current.children, [current.activeChildId]: next },
+        });
+      }
+      return bought;
+    },
+    [],
+  );
+
+  const equip = useCallback(
+    (kind: "character" | "aura" | "boost", id: string | null) => {
+      updateActive((p) => equipItem(p, kind, id));
+    },
+    [updateActive],
+  );
+
   const switchChild = useCallback((id: string) => {
     householdStore.save(setActiveChild(householdStore.getSnapshot(), id));
   }, []);
@@ -76,6 +118,8 @@ export function usePlayerProfile() {
     profile,
     setName,
     recordRun,
+    buyItem,
+    equip,
     children,
     activeChildId: household.activeChildId,
     switchChild,

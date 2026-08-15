@@ -71,6 +71,17 @@ export interface WorldBounds {
   maxZ: number;
 }
 
+/**
+ * The one traversal verb a world is built around.
+ *
+ * A world commits to exactly one: a "jump" world asks for height (raised
+ * ledges, gaps, boost pads) and never asks the player to duck; a "slide"
+ * world is flat underfoot and asks them to duck under low barriers, never to
+ * jump. One button, one meaning, per adventure — a child learns a single
+ * verb per world instead of juggling a moveset.
+ */
+export type WorldAction = "jump" | "slide";
+
 export interface WorldDefinition {
   id: string;
   /** Kid-facing world name. */
@@ -79,6 +90,8 @@ export interface WorldDefinition {
   spawn: Vec3;
   /** Initial camera yaw in radians, so the player faces the mountain. */
   spawnYaw: number;
+  /** The single traversal verb this world is built around. */
+  action: WorldAction;
   /** Horizontal play-area limits — should match the outer edge of the base
    * island so the barrier isn't visible as a hard stop mid-terrain. */
   bounds: WorldBounds;
@@ -91,6 +104,15 @@ export interface WorldDefinition {
   finish: Vec3;
   /** Jump pad boost zones. */
   jumpPads?: JumpPad[];
+  /**
+   * The intended path through the world, as ordered waypoints between spawn
+   * and finish. `npm run verify:world` walks exactly this line, so authoring
+   * it is how a level says "this is the route I mean" — a straight
+   * checkpoint-to-checkpoint line would cut corners through geometry the
+   * design never meant a player to cross. Omit it and the verifier falls
+   * back to walking the checkpoints in order.
+   */
+  verifyRoute?: { name: string; target: Vec3 }[];
   /** Sky and fog colours. */
   skyColor: string;
   fogColor: string;

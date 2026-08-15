@@ -6,22 +6,26 @@ import type {
 } from "./types";
 
 /**
- * BUBBLE BAY OF B — the third sound, proving the pipeline scales past two.
+ * BUBBLE BAY OF B — a chain of islands. Action: JUMP.
  *
- * Same flat-base-plus-jump-pads shape as Mountain of M and Party Plaza of P
- * (all five checkpoints, coins, and the finish sit on the base level so a
- * child can walk the whole route with no precision jumping; the elevated
- * platforms are optional detours reached by jump pad). Only the palette and
- * theming are new — the shore/platform/pad geometry is copied from Party
- * Plaza of P, whose jump-pad boosts are already verified to clear their
- * gaps, so nothing here needed re-tuning.
+ * Six sandbars spiralling inward around a lagoon, each one 0.95 above the
+ * last and overlapping its neighbour at a corner, so the whole world is a
+ * sequence of hops rather than a climb up one hill. Unlike the Mountain, the
+ * route never doubles back — it's a single loop inward to the lighthouse.
+ *
+ * A shallow lagoon floor runs under everything at y=0, so a missed jump is a
+ * splash and a walk back, never a fall out of the world. Two rescue pads sit
+ * on that floor to launch a player back up the chain without retracing the
+ * whole loop.
  */
 
 const SAND = "#f5e2b8";
 const SAND_HIGH = "#ffe9c2";
 const DOCK = "#8bd4e0";
 const DOCK_DARK = "#5fb8c9";
-const SUMMIT_STONE = "#d6f6ff";
+const LIGHTHOUSE = "#d6f6ff";
+
+const RISE = 0.95;
 
 let solidSeq = 0;
 function slab(
@@ -48,130 +52,123 @@ function slab(
   };
 }
 
+const A = RISE; // 0.95
+const B = RISE * 2;
+const C = RISE * 3;
+const D = RISE * 4;
+const E = RISE * 5;
+const F = RISE * 6; // 5.70 — the lighthouse
+
 const solids: Solid[] = [
-  // Base beach.
-  slab(-26, 26, -24, 24, 0, -9, DOCK, SAND),
+  // Lagoon floor — the safety net under the whole chain.
+  slab(-26, 26, -26, 26, 0, -9, DOCK_DARK, SAND),
 
-  // West dock (elevated).
-  slab(-20, -4, -10, 7, 1.4, -1, DOCK, SAND),
-
-  // East dock (elevated higher).
-  slab(4, 20, -6, 5.6, 2.8, -1, DOCK, SAND),
-
-  // Mid boardwalk (highest of the lower tiers).
-  slab(-9, 9, -17, -7, 4.4, -1, DOCK_DARK, SAND_HIGH),
-
-  // Walkable ramps up to the mid boardwalk. Footprints stop exactly at the
-  // lower platforms' edges (z=-10 and z=-6) rather than overlapping them.
-  slab(-20, -9, -17, -10, 4.4, -1, DOCK_DARK, SAND_HIGH),
-  slab(4, 14, -17, -6, 4.4, -1, DOCK_DARK, SAND_HIGH),
-
-  // Summit — the B Lighthouse platform.
-  slab(-5, 5, -22, -15.3, 6.4, -1, DOCK, SUMMIT_STONE),
+  // The chain, each island overlapping the previous at one corner.
+  slab(-23, -12, 11, 23, A, -1, DOCK, SAND_HIGH),
+  slab(-13, -2, 12, 24, B, -1, DOCK, SAND_HIGH),
+  slab(-3, 9, 7, 18, C, -1, DOCK, SAND_HIGH),
+  slab(8, 20, 1, 12, D, -1, DOCK, SAND_HIGH),
+  slab(7, 19, -11, 2, E, -1, DOCK, SAND_HIGH),
+  slab(-9, 8, -21, -10, F, -1, DOCK, LIGHTHOUSE),
 ];
 
 const decorations: Decoration[] = [
-  // Shoreline trees, reused kinds — the world is only distinguished by
-  // color and layout, same as Party Plaza of P.
-  { id: "bt1", kind: "tree", position: [-23, 0, 20], scale: 1.05 },
-  { id: "bt2", kind: "pine", position: [-18, 0, 15.5], scale: 0.95 },
-  { id: "bt3", kind: "tree", position: [-10, 0, 19.5], scale: 0.9 },
-  { id: "bt4", kind: "pine", position: [2.5, 0, 20.5], scale: 1.1 },
-  { id: "bt5", kind: "tree", position: [11, 0, 19], scale: 1 },
-  { id: "bt6", kind: "pine", position: [22, 0, 17.5], scale: 1 },
-  { id: "bt7", kind: "tree", position: [24, 0, 6], scale: 0.9 },
-  { id: "bt8", kind: "pine", position: [-24, 0, -2], scale: 1.05 },
-  { id: "bt9", kind: "tree", position: [-23, 0, -14], scale: 0.95 },
-  { id: "bt10", kind: "pine", position: [-15, 0, -18.5], scale: 1.15 },
-  { id: "bt11", kind: "tree", position: [-11, 0, -21], scale: 0.85 },
-  { id: "bt12", kind: "pine", position: [14, 0, -16], scale: 1.05 },
-  { id: "bt13", kind: "tree", position: [20.5, 0, -10], scale: 0.95 },
-  { id: "bt14", kind: "pine", position: [22, 0, -20], scale: 1.1 },
+  // Palms and pines around the lagoon shore.
+  { id: "bt1", kind: "pine", position: [-24, 0, 3], scale: 1.05 },
+  { id: "bt2", kind: "tree", position: [-24, 0, -8], scale: 0.95 },
+  { id: "bt3", kind: "pine", position: [-18, 0, -20], scale: 1.1 },
+  { id: "bt4", kind: "tree", position: [-4, 0, -24], scale: 0.9 },
+  { id: "bt5", kind: "pine", position: [14, 0, -22], scale: 1 },
+  { id: "bt6", kind: "tree", position: [23, 0, -18], scale: 0.95 },
+  { id: "bt7", kind: "pine", position: [24, 0, 16], scale: 1.05 },
+  { id: "bt8", kind: "tree", position: [16, 0, 22], scale: 0.9 },
+  { id: "bt9", kind: "pine", position: [2, 0, 24], scale: 1 },
 
-  // Trees on the docks.
-  { id: "bt15", kind: "pine", position: [-18, 1.4, -7.5], scale: 0.9 },
-  { id: "bt16", kind: "tree", position: [-6.5, 1.4, 5], scale: 0.8 },
-  { id: "bt17", kind: "pine", position: [17.5, 2.8, -4.5], scale: 0.85 },
-  { id: "bt18", kind: "tree", position: [5.5, 2.8, 4], scale: 0.75 },
-  { id: "bt19", kind: "pine", position: [-7.5, 4.4, -15.5], scale: 0.85 },
-  { id: "bt20", kind: "pine", position: [7.5, 4.4, -15], scale: 0.8 },
+  // Island plantings.
+  { id: "bt10", kind: "pine", position: [-20, A, 20], scale: 0.9 },
+  { id: "bt11", kind: "tree", position: [-10, B, 21], scale: 0.85 },
+  { id: "bt12", kind: "pine", position: [6, C, 15], scale: 0.8 },
+  { id: "bt13", kind: "tree", position: [17, D, 9], scale: 0.8 },
+  { id: "bt14", kind: "pine", position: [16, E, -8], scale: 0.75 },
 
   // Rocks.
-  { id: "br1", kind: "rock", position: [-20, 0, 11], scale: 1.05 },
-  { id: "br2", kind: "rock", position: [7, 0, 8.5], scale: 0.75 },
-  { id: "br3", kind: "rock", position: [18, 0, -14], scale: 1.25 },
-  { id: "br4", kind: "rock", position: [-21, 0, -19], scale: 0.95 },
-  { id: "br5", kind: "rock", position: [-12, 1.4, 3], scale: 0.65 },
-  { id: "br6", kind: "rock", position: [16, 2.8, 3], scale: 0.7 },
+  { id: "br1", kind: "rock", position: [-21, 0, -2], scale: 1.05 },
+  { id: "br2", kind: "rock", position: [21, 0, 18], scale: 0.75 },
+  { id: "br3", kind: "rock", position: [-16, 0, -14], scale: 1.25 },
+  { id: "br4", kind: "rock", position: [-21, A, 13], scale: 0.7 },
+  { id: "br5", kind: "rock", position: [-4, C, 9], scale: 0.65 },
 
-  // Bubble-blue flowers — a bay palette instead of M's meadow or P's party
-  // colors.
-  { id: "bf1", kind: "flower", position: [-5, 0, 15], scale: 1, color: "#5ecbe8" },
-  { id: "bf2", kind: "flower", position: [4, 0, 17], scale: 1, color: "#8fe3f0" },
-  { id: "bf3", kind: "flower", position: [-16, 0, 19], scale: 1, color: "#bff2ff" },
-  { id: "bf4", kind: "flower", position: [14, 0, 10], scale: 1, color: "#5ecbe8" },
-  { id: "bf5", kind: "flower", position: [-19, 1.4, 0], scale: 1, color: "#8fe3f0" },
-  { id: "bf6", kind: "flower", position: [12, 2.8, 1], scale: 1, color: "#bff2ff" },
+  // Bubble-blue blooms.
+  { id: "bf1", kind: "flower", position: [-8, 0, 6], scale: 1, color: "#5ecbe8" },
+  { id: "bf2", kind: "flower", position: [4, 0, -6], scale: 1, color: "#8fe3f0" },
+  { id: "bf3", kind: "flower", position: [-14, 0, 2], scale: 1, color: "#bff2ff" },
+  { id: "bf4", kind: "flower", position: [-18, A, 16], scale: 1, color: "#5ecbe8" },
+  { id: "bf5", kind: "flower", position: [12, D, 4], scale: 1, color: "#8fe3f0" },
 
-  // Aqua crystals marking the summit approach.
-  { id: "bc1", kind: "crystal", position: [-3.6, 5.2, -13], scale: 1 },
-  { id: "bc2", kind: "crystal", position: [3.6, 5.2, -13], scale: 1 },
-  { id: "bc3", kind: "crystal", position: [-3.8, 7.2, -20.5], scale: 1.2 },
-  { id: "bc4", kind: "crystal", position: [3.8, 7.2, -20.5], scale: 1.2 },
+  // Crystals marking the lighthouse.
+  { id: "bc1", kind: "crystal", position: [-4, F, -19], scale: 1.1 },
+  { id: "bc2", kind: "crystal", position: [3, F, -19], scale: 1.1 },
 
-  // Clouds.
-  { id: "bcl1", kind: "cloud", position: [-18, 14, 6], scale: 2.4 },
-  { id: "bcl2", kind: "cloud", position: [16, 16, -6], scale: 3 },
-  { id: "bcl3", kind: "cloud", position: [-8, 18, -22], scale: 2.6 },
-  { id: "bcl4", kind: "cloud", position: [24, 13, 14], scale: 2.2 },
-  { id: "bcl5", kind: "cloud", position: [0, 20, 20], scale: 2.8 },
+  { id: "bcl1", kind: "cloud", position: [-18, 15, 6], scale: 2.4 },
+  { id: "bcl2", kind: "cloud", position: [16, 17, -6], scale: 3 },
+  { id: "bcl3", kind: "cloud", position: [-8, 19, -22], scale: 2.6 },
+  { id: "bcl4", kind: "cloud", position: [24, 14, 14], scale: 2.2 },
+  { id: "bcl5", kind: "cloud", position: [0, 21, 20], scale: 2.8 },
 ];
 
 const collectibles: Collectible[] = [
-  { id: "b-coin-1", position: [-24, 1, 20], value: 2 },
-  { id: "b-coin-2", position: [0, 1, 20], value: 2 },
-  { id: "b-coin-3", position: [24, 1, 18], value: 2 },
-  { id: "b-coin-4", position: [-25, 1, 10], value: 2 },
-  { id: "b-coin-5", position: [-2, 1, 22], value: 2 },
-  { id: "b-coin-6", position: [2, 1, 22], value: 2 },
-  { id: "b-coin-7", position: [-25, 1, 5], value: 2 },
-  { id: "b-coin-8", position: [25, 1, 0], value: 2 },
-  { id: "b-coin-9", position: [-22, 1, -15], value: 2 },
-  { id: "b-coin-10", position: [20, 1, -18], value: 2 },
-  { id: "b-coin-11", position: [-22, 1, -12], value: 2 },
-  { id: "b-coin-12", position: [20, 1, -10], value: 2 },
+  { id: "b-coin-1", position: [-20, A + 1, 15], value: 2 },
+  { id: "b-coin-2", position: [-16, A + 1, 20], value: 2 },
+  { id: "b-coin-3", position: [-11, B + 1, 22], value: 2 },
+  { id: "b-coin-4", position: [-5, B + 1, 16], value: 2 },
+  { id: "b-coin-5", position: [0, C + 1, 11], value: 2 },
+  { id: "b-coin-6", position: [6, C + 1, 16], value: 2 },
+  { id: "b-coin-7", position: [12, D + 1, 10], value: 2 },
+  { id: "b-coin-8", position: [18, D + 1, 4], value: 2 },
+  { id: "b-coin-9", position: [16, E + 1, -3], value: 2 },
+  { id: "b-coin-10", position: [10, E + 1, -8], value: 2 },
+  { id: "b-coin-11", position: [-6, F + 1, -13], value: 2 },
+  { id: "b-coin-12", position: [5, F + 1, -18], value: 2 },
 ];
 
 export const bubbleBayOfB: WorldDefinition = {
   id: "bubble-bay-of-b",
   name: "Bubble Bay of B",
-  spawn: [0, 0, 16],
-  spawnYaw: 0,
-  bounds: { minX: -26, maxX: 26, minZ: -24, maxZ: 24 },
+  spawn: [-19, 0, 5],
+  spawnYaw: Math.PI,
+  action: "jump",
+  bounds: { minX: -26, maxX: 26, minZ: -26, maxZ: 26 },
   solids,
   decorations,
   collectibles,
   checkpoints: [
-    { id: "b-cp-1", position: [-9, 0, 13] },
-    { id: "b-cp-2", position: [18, 0, 9] },
-    { id: "b-cp-3", position: [-14, 1.4, 2] },
-    { id: "b-cp-4", position: [15, 2.8, 0] },
-    { id: "b-cp-5", position: [0, 4.4, -11.5] },
+    { id: "b-cp-1", position: [-18, A, 17] },
+    { id: "b-cp-2", position: [-8, B, 19] },
+    { id: "b-cp-3", position: [3, C, 12] },
+    { id: "b-cp-4", position: [15, D, 6] },
+    { id: "b-cp-5", position: [12, E, -6] },
   ],
-  finish: [0, 6.4, -20],
-  // Ordered shore → west → east → mid → summit; verify-world.mjs relies on
-  // this order to route the traversal check through each pad in turn.
+  finish: [0, F, -16],
+  // Rescue launches back onto the middle of the chain, so a splash costs a
+  // short swim rather than the whole loop over again.
   jumpPads: [
-    // Boost from shore to west dock (1.4 gap; needs ~7.9 to clear)
-    { id: "b-pad-west", position: [-12, 0, 10], radius: 2.5, boost: 12 },
-    // Boost from shore to east dock (2.8 gap; needs ~11.1 to clear)
-    { id: "b-pad-east", position: [11, 0, 10], radius: 2.5, boost: 13 },
-    // Boost from west dock to mid boardwalk (3.0 gap; needs ~11.5 to clear)
-    { id: "b-pad-west-mid", position: [-12, 1.4, -8], radius: 2, boost: 14 },
-    // Boost from east dock to mid boardwalk (1.6 gap; needs ~8.4 to clear)
-    { id: "b-pad-east-mid", position: [11, 2.8, -4], radius: 2, boost: 11 },
-    // Boost from mid boardwalk to summit (2.0 gap; needs ~9.4 to clear)
-    { id: "b-pad-summit", position: [0, 4.4, -15], radius: 2, boost: 12 },
+    { id: "b-pad-mid", position: [3, 0, 3], radius: 2.4, boost: 13 },
+    { id: "b-pad-late", position: [-3, 0, -6], radius: 2.4, boost: 15 },
+  ],
+  // Each "hop" waypoint stands on the island being launched from, clear of
+  // the next one's footprint, so the declared height is the ground the
+  // player is actually on when they line the jump up.
+  verifyRoute: [
+    { name: "CP1 b-cp-1", target: [-18, A, 17] },
+    { name: "line up hop B", target: [-14.5, A, 18] },
+    { name: "CP2 b-cp-2", target: [-8, B, 19] },
+    { name: "line up hop C", target: [-4.5, B, 15] },
+    { name: "CP3 b-cp-3", target: [3, C, 12] },
+    { name: "line up hop D", target: [6.5, C, 10] },
+    { name: "CP4 b-cp-4", target: [15, D, 6] },
+    { name: "line up hop E", target: [14, D, 3.5] },
+    { name: "CP5 b-cp-5", target: [12, E, -6] },
+    { name: "line up lighthouse", target: [10, E, -9] },
   ],
   skyColor: "#bdeeff",
   fogColor: "#d6f6ff",

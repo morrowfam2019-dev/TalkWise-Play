@@ -10,7 +10,9 @@ const FORWARD_KEYS = ["KeyW", "ArrowUp"];
 const BACK_KEYS = ["KeyS", "ArrowDown"];
 const LEFT_KEYS = ["KeyA", "ArrowLeft"];
 const RIGHT_KEYS = ["KeyD", "ArrowRight"];
-const JUMP_KEYS = ["Space"];
+/** One action button, whatever the level calls it. Shift joins Space so a
+ * slide level has a key that already feels like "duck" on a keyboard. */
+const ACTION_KEYS = ["Space", "ShiftLeft", "ShiftRight"];
 const YAW_LEFT_KEYS = ["KeyQ"];
 const YAW_RIGHT_KEYS = ["KeyE"];
 
@@ -19,7 +21,7 @@ const PREVENT_DEFAULT = new Set([
   ...BACK_KEYS,
   ...LEFT_KEYS,
   ...RIGHT_KEYS,
-  ...JUMP_KEYS,
+  ...ACTION_KEYS,
 ]);
 
 export interface MoveIntent {
@@ -33,7 +35,7 @@ export class GameInput {
   private keys = new Set<string>();
   private stickX = 0;
   private stickY = 0;
-  private touchJump = false;
+  private touchAction = false;
 
   private lookDeltaX = 0;
   private lookDeltaY = 0;
@@ -56,7 +58,7 @@ export class GameInput {
     this.keys.clear();
     this.stickX = 0;
     this.stickY = 0;
-    this.touchJump = false;
+    this.touchAction = false;
     this.lookPointerId = null;
   };
 
@@ -108,9 +110,9 @@ export class GameInput {
     this.stickY = y;
   }
 
-  /** Touch jump button state. */
-  setTouchJump(held: boolean) {
-    this.touchJump = held;
+  /** On-screen action button state — jump or slide, per the level. */
+  setTouchAction(held: boolean) {
+    this.touchAction = held;
   }
 
   /** Suspends movement input while a modal is open. */
@@ -140,9 +142,10 @@ export class GameInput {
     return { x, y };
   }
 
-  isJumping(): boolean {
+  /** Whether the level's action button is held this frame. */
+  isActionHeld(): boolean {
     if (!this.enabled) return false;
-    return this.touchJump || this.held(JUMP_KEYS);
+    return this.touchAction || this.held(ACTION_KEYS);
   }
 
   /** Keyboard camera nudge, in radians per second. */

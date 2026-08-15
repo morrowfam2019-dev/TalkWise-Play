@@ -9,6 +9,7 @@ import {
   type PointerEvent as ReactPointerEvent,
 } from "react";
 import type { GameInput } from "../core/input";
+import type { WorldAction } from "../world/types";
 
 const STICK_RADIUS = 54;
 const COARSE_QUERY = "(pointer: coarse)";
@@ -24,13 +25,20 @@ function getCoarsePointer(): boolean {
 }
 
 /**
- * On-screen joystick and jump button.
+ * On-screen joystick and action button.
  *
  * Rendered only for coarse pointers so a desktop player never sees them. They
  * write straight into GameInput, so the gameplay loop treats a thumb exactly
- * like a keyboard.
+ * like a keyboard. The action button is labelled by the world's own verb —
+ * a child in a slide world never sees a JUMP button they can't use.
  */
-export function TouchControls({ input }: { input: GameInput }) {
+export function TouchControls({
+  input,
+  action,
+}: {
+  input: GameInput;
+  action: WorldAction;
+}) {
   const isTouch = useSyncExternalStore(
     subscribeCoarsePointer,
     getCoarsePointer,
@@ -38,7 +46,7 @@ export function TouchControls({ input }: { input: GameInput }) {
   );
 
   const [knob, setKnob] = useState({ x: 0, y: 0 });
-  const [jumpHeld, setJumpHeld] = useState(false);
+  const [actionHeld, setActionHeld] = useState(false);
 
   const baseRef = useRef<HTMLDivElement>(null);
   const pointerId = useRef<number | null>(null);
@@ -86,23 +94,26 @@ export function TouchControls({ input }: { input: GameInput }) {
     [release],
   );
 
-  const pressJump = useCallback(
+  const pressAction = useCallback(
     (event: ReactPointerEvent<HTMLButtonElement>) => {
       event.currentTarget.setPointerCapture(event.pointerId);
-      input.setTouchJump(true);
-      setJumpHeld(true);
+      input.setTouchAction(true);
+      setActionHeld(true);
     },
     [input],
   );
 
-  const releaseJump = useCallback(() => {
-    input.setTouchJump(false);
-    setJumpHeld(false);
+  const releaseAction = useCallback(() => {
+    input.setTouchAction(false);
+    setActionHeld(false);
   }, [input]);
 
   useEffect(() => () => release(), [release]);
 
   if (!isTouch) return null;
+
+  const isJumpWorld = action === "jump";
+  const label = isJumpWorld ? "JUMP" : "SLIDE";
 
   return (
     <>
@@ -123,15 +134,21 @@ export function TouchControls({ input }: { input: GameInput }) {
 
       <button
         type="button"
-        onPointerDown={pressJump}
-        onPointerUp={releaseJump}
-        onPointerCancel={releaseJump}
+        onPointerDown={pressAction}
+        onPointerUp={releaseAction}
+        onPointerCancel={releaseAction}
         className={`pointer-events-auto absolute right-6 bottom-8 h-24 w-24 touch-none rounded-full border-4 border-white/80 text-lg font-extrabold text-[#141420] shadow-xl transition-transform select-none ${
-          jumpHeld ? "scale-90 bg-[#ffd76a]" : "bg-[#f5c33b]"
+          actionHeld
+            ? isJumpWorld
+              ? "scale-90 bg-[#ffd76a]"
+              : "scale-90 bg-[#8fd8f5]"
+            : isJumpWorld
+              ? "bg-[#f5c33b]"
+              : "bg-[#5ecbe8]"
         }`}
-        aria-label="Jump"
+        aria-label={label}
       >
-        JUMP
+        {label}
       </button>
     </>
   );

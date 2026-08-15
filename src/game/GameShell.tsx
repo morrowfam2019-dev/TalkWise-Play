@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { SpeechLevel } from "@/content/speech";
+import { getBoost } from "@/content/shop";
 import { usePlayerProfile } from "@/player/usePlayerProfile";
 import { getLevelProgress } from "@/player/storage";
 import { gameAudio } from "./core/audio";
@@ -31,6 +32,7 @@ export function GameShell({ level, onExit }: GameShellProps) {
   const lookRef = useRef<HTMLDivElement>(null);
 
   const { profile, recordRun } = usePlayerProfile();
+  const boost = getBoost(profile.loadout.boostId);
 
   const total = level.challenges.length;
   const [phase, setPhase] = useState<Phase>("intro");
@@ -214,6 +216,10 @@ export function GameShell({ level, onExit }: GameShellProps) {
           world={world}
           challenges={level.challenges}
           input={input}
+          characterId={profile.loadout.characterId}
+          auraId={profile.loadout.auraId}
+          jumpBoost={boost?.jump ?? 1}
+          speedBoost={boost?.speed ?? 1}
           paused={paused}
           completed={completed}
           collected={collected}
@@ -236,13 +242,14 @@ export function GameShell({ level, onExit }: GameShellProps) {
           nearWord={
             nearIndex === null ? null : (level.challenges[nearIndex]?.word ?? null)
           }
+          action={world.action}
           finishUnlocked={completedCount === total}
           muted={muted}
           onToggleMute={toggleMute}
           onExit={onExit}
         />
 
-        <TouchControls input={input} />
+        <TouchControls input={input} action={world.action} />
 
         {debugEnabled ? (
           <p
@@ -266,8 +273,13 @@ export function GameShell({ level, onExit }: GameShellProps) {
                 Target sound: {level.sound.label}
               </p>
               <p className="mt-4 text-base font-semibold text-[#4a4a60]">
-                Explore the mountain and find {total} speech challenges. Say each
-                word out loud to earn coins, then reach the portal at the top!
+                Explore {world.name} and find {total} speech challenges. Say
+                each word out loud to earn coins, then reach the portal!
+              </p>
+              <p className="mt-3 inline-block rounded-full bg-[#eaf4ff] px-4 py-2 text-sm font-black text-[#2f7fd4]">
+                {world.action === "jump"
+                  ? "🦘 This adventure uses JUMP"
+                  : "🛝 This adventure uses SLIDE"}
               </p>
               <button
                 type="button"
