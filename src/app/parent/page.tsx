@@ -5,6 +5,7 @@ import { useSyncExternalStore } from "react";
 import { listLevels } from "@/content/speech";
 import { ACHIEVEMENTS, getUnlockedAchievements } from "@/player/achievements";
 import { getLevelProgress, householdStore, setAssistMode } from "@/player/storage";
+import { CoinIcon } from "@/ui/CoinIcon";
 
 /**
  * Read-only history for a parent to check in on practice — total coins,
@@ -86,8 +87,9 @@ export default function ParentPage() {
                     {profile.name || "Player"}
                   </h2>
                   <div className="flex gap-2 text-xs font-black">
-                    <span className="rounded-full bg-[#fff4d6] px-3 py-1.5 text-[#b8860b]">
-                      🪙 {profile.totalCoins} coins
+                    <span className="flex items-center gap-1.5 rounded-full bg-[#fff4d6] px-3 py-1.5 text-[#b8860b]">
+                      <CoinIcon className="h-4 w-4" />
+                      {profile.totalCoins} coins
                     </span>
                     <span className="rounded-full bg-[#ffe9dc] px-3 py-1.5 text-[#ff8a3d]">
                       🔥 {profile.currentStreak} day streak

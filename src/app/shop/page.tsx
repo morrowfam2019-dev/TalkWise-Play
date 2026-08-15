@@ -13,6 +13,7 @@ import {
   type ShopKind,
 } from "@/content/shop";
 import { usePlayerProfile } from "@/player/usePlayerProfile";
+import { CoinIcon } from "@/ui/CoinIcon";
 import { spendableCoins } from "@/player/types";
 
 const TABS: { kind: ShopKind; label: string; items: ShopItem[] }[] = [
@@ -224,7 +225,8 @@ export default function ShopPage() {
               <p className="text-[0.6rem] font-bold tracking-widest text-white/60 uppercase">
                 Coins
               </p>
-              <p className="text-xl font-black text-[#f5c33b] tabular-nums">
+              <p className="flex items-center justify-end gap-1.5 text-xl font-black text-[#f5c33b] tabular-nums">
+                <CoinIcon className="h-5 w-5" />
                 {balance}
               </p>
             </div>
@@ -319,7 +321,10 @@ export default function ShopPage() {
                         : "cursor-not-allowed bg-[#eef0f5] text-[#8a8aa0]"
                     }`}
                   >
-                    🪙 {item.price}
+                    <span className="inline-flex items-center gap-1.5 align-middle">
+                      <CoinIcon className="h-4 w-4" />
+                      {item.price}
+                    </span>
                     {affordable ? "" : " — keep playing!"}
                   </button>
                 )}

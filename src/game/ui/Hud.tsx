@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { CoinIcon } from "@/ui/CoinIcon";
 import type { WorldAction } from "../world/types";
 
 interface HudProps {
@@ -62,8 +63,8 @@ export function Hud({
         </div>
 
         <div className="flex flex-col items-end gap-2">
-          <div className="pointer-events-auto rounded-2xl border-4 border-white/70 bg-[#141420]/85 px-3 py-2 text-base font-extrabold text-[#f5c33b] shadow-lg backdrop-blur-sm sm:px-4 sm:text-lg">
-            <span aria-hidden>🪙</span>{" "}
+          <div className="pointer-events-auto flex items-center gap-1.5 rounded-2xl border-4 border-white/70 bg-[#141420]/85 px-3 py-2 text-base font-extrabold text-[#f5c33b] shadow-lg backdrop-blur-sm sm:px-4 sm:text-lg">
+            <CoinIcon className="h-5 w-5 sm:h-6 sm:w-6" />
             <span className="tabular-nums text-white" data-testid="hud-coins">
               {coins}
             </span>

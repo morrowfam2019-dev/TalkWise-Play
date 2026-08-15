@@ -8,6 +8,7 @@ import { ACHIEVEMENTS, getUnlockedAchievements } from "@/player/achievements";
 import { getLevelProgress, isLevelUnlocked } from "@/player/storage";
 import { spendableCoins } from "@/player/types";
 import { usePlayerProfile } from "@/player/usePlayerProfile";
+import { CoinIcon } from "@/ui/CoinIcon";
 
 /** TalkWise Play home — the hub the adventures live inside. */
 export default function HomePage() {
@@ -185,8 +186,9 @@ export default function HomePage() {
               Spend your coins on characters, auras, and boosts.
             </span>
           </span>
-          <span className="rounded-full bg-[#fff4d6] px-3 py-1.5 text-sm font-black text-[#b8860b] tabular-nums">
-            🪙 {spendableCoins(profile)}
+          <span className="flex items-center gap-1 rounded-full bg-[#fff4d6] px-3 py-1.5 text-sm font-black text-[#b8860b] tabular-nums">
+            <CoinIcon className="h-4 w-4" />
+            {spendableCoins(profile)}
           </span>
         </Link>
 
