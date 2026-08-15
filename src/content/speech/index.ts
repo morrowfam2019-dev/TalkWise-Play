@@ -1,4 +1,5 @@
 import type { SpeechLevel } from "./types";
+import { bBay } from "./levels/bBay";
 import { mAdventure } from "./levels/mAdventure";
 import { pParty } from "./levels/pParty";
 
@@ -6,7 +7,7 @@ import { pParty } from "./levels/pParty";
  * Registry of playable speech levels. Adding a new sound means adding its
  * level file and registering it here.
  */
-const LEVELS: SpeechLevel[] = [mAdventure, pParty];
+const LEVELS: SpeechLevel[] = [mAdventure, pParty, bBay];
 
 export function listLevels(): SpeechLevel[] {
   return LEVELS;

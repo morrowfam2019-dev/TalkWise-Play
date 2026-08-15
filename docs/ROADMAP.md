@@ -104,13 +104,24 @@ The first phase where the microphone is used at all.
 
 ## Phase 6 — Whop Integration
 
+Deliberately skipped for now — real entitlement checks need a Whop
+account/API key and product setup that don't exist yet. Revisit when those
+are available rather than building against a guessed protocol.
+
 - Membership-gated access via the platform boundary in `src/platform/`
 - Embedded (iframe) hosting alongside continued standalone operation
 - Entitlement checks gate *content*, never the ability to run the app
 
 ## Phase 7 — Game Expansion
 
-- Additional worlds, mini-games, and formats
+- Additional worlds, mini-games, and formats — ✅ third sound built
+  end-to-end: `B Bay` (Bubble Bay of B — `src/game/world/bubbleBayOfB.ts`),
+  practicing BALL, BUBBLE, BOAT, BANANA, BEAR, unlocked after P Party. Same
+  copy-and-recolor pipeline P Party proved for M Adventure, so nothing in
+  the engine changed — only two new data files plus two registry entries.
+  All 15 words across all three levels now have real recorded Miss Maya
+  clips (`public/audio/maya/*.mp3`); "W Woods" is still the one coming-soon
+  placeholder left
 - Avatar customization
 - Seasonal content
 
