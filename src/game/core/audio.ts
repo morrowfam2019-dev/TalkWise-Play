@@ -77,6 +77,12 @@ class MusicLoop {
     const gain = this.masterGain;
     if (!ctx || !gain) return;
 
+    // Safari aggressively auto-suspends an AudioContext that's gone quiet
+    // for a moment — and a stepped melody of short notes does exactly that
+    // between beats. Left unchecked, that reads as the music cutting in and
+    // out. Nudging it awake before every scheduled step keeps it running.
+    if (ctx.state === "suspended") void ctx.resume();
+
     const start = ctx.currentTime + 0.02;
     const step = this.stepSeconds;
 
@@ -118,6 +124,8 @@ class GameAudio {
   private muted = false;
   private readonly music = new MusicLoop();
 
+  private visibilityListenerAttached = false;
+
   /** Must be called from a user gesture before the first sound. */
   unlock() {
     if (this.muted) return;
@@ -132,9 +140,24 @@ class GameAudio {
         this.music.attach(this.ctx);
       }
       if (this.ctx.state === "suspended") void this.ctx.resume();
+      this.attachVisibilityResume();
     } catch {
       this.muted = true;
     }
+  }
+
+  /** A tab switch, an incoming call banner, or the OS briefly stealing
+   * audio focus can all leave the context suspended after the page comes
+   * back — resume it the moment the page is visible/foregrounded again. */
+  private attachVisibilityResume() {
+    if (this.visibilityListenerAttached || typeof document === "undefined") return;
+    this.visibilityListenerAttached = true;
+    const resume = () => {
+      if (!this.muted && this.ctx?.state === "suspended") void this.ctx.resume();
+    };
+    document.addEventListener("visibilitychange", resume);
+    window.addEventListener("focus", resume);
+    window.addEventListener("pageshow", resume);
   }
 
   setMuted(muted: boolean) {
@@ -157,6 +180,7 @@ class GameAudio {
   private tone({ freq, duration, type = "sine", gain = 0.12, delay = 0, sweepTo }: ToneOptions) {
     if (this.muted || !this.ctx) return;
     const ctx = this.ctx;
+    if (ctx.state === "suspended") void ctx.resume();
     const start = ctx.currentTime + delay;
 
     const osc = ctx.createOscillator();

@@ -123,7 +123,7 @@ export function TouchControls({
         onPointerMove={handleMove}
         onPointerUp={handleUp}
         onPointerCancel={handleUp}
-        className="pointer-events-auto absolute bottom-6 left-5 grid h-36 w-36 touch-none place-items-center rounded-full border-4 border-white/60 bg-[#141420]/35 backdrop-blur-sm select-none"
+        className="pointer-events-auto absolute bottom-6 left-10 grid h-36 w-36 touch-none place-items-center rounded-full border-4 border-white/60 bg-[#141420]/35 backdrop-blur-sm select-none"
         aria-label="Move"
       >
         <div
