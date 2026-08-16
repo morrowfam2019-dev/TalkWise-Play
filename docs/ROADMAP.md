@@ -152,13 +152,38 @@ deferred to Phase 6 rather than blocking the rest of the phase.**
 
 ## Phase 6 — Whop Integration
 
-Deliberately skipped for now — real entitlement checks need a Whop
-account/API key and product setup that don't exist yet. Revisit when those
-are available rather than building against a guessed protocol.
-
-- Membership-gated access via the platform boundary in `src/platform/`
-- Embedded (iframe) hosting alongside continued standalone operation
-- Entitlement checks gate *content*, never the ability to run the app
+- Whop-side setup — ✅ a dedicated **TalkWise Play** app (`app_E0XGYI9jXmkeq1`,
+  `base_url` = `https://talkwise-play.vercel.app`, `experience_path` = `/`,
+  so Whop iframes the game's existing standalone entry point directly — no
+  new routes) and a **TalkWise Play** experience (`exp_cwSF9XGG5iigBQ`)
+  attached to the TalkWise Academy product, alongside the pre-existing
+  **Kid Zone** Courses experience (`exp_hH2SNAotBP2luR`, 8 lessons),
+  deliberately left untouched rather than repurposed
+- Membership-gated access via the platform boundary in `src/platform/` — ✅
+  wired for real. `src/platform/whop.ts` verifies the signed user token Whop
+  forwards to the embedded page (`@whop/sdk`'s `verifyUserToken`) and checks
+  entitlement against the experience above (`users.checkAccess`).
+  `RootLayout` resolves this once per request (`headers()` — the reason
+  every route is now server-rendered on demand instead of statically
+  prerendered, the unavoidable cost of per-request Whop verification) and
+  hands it down through `PlatformSessionProvider` /
+  `usePlatformSession()`. Configured entirely by three env vars
+  (`WHOP_API_KEY`, `NEXT_PUBLIC_WHOP_APP_ID`, `WHOP_EXPERIENCE_ID`) — absent
+  any of them, `resolveWhopSession` returns null and the app falls straight
+  back to the standalone session, so nothing here can break a deploy that
+  isn't configured yet
+- Embedded (iframe) hosting alongside continued standalone operation — ✅
+  the same build serves both; `getPlatformSession()`'s client-side iframe
+  detection remains as a fallback for anywhere `usePlatformSession()` is
+  read outside the provider
+- Entitlement checks gate *content*, never the ability to run the app — ✅
+  `PlatformSession.entitled` defaults `true` for standalone and is only
+  ever computed from a real Whop check when embedded; nothing currently
+  reads it to block anything, so today it's plumbing, not enforcement —
+  gating specific content on it is a deliberate future step, not implied by
+  this wiring
+- Server-backed progress (deferred from Phase 5) — still open; this phase's
+  auth wiring answers "who is the player," not "where their save lives"
 - Backend/auth decision for member identity — this is also where Phase 5's
   deferred server-backed progress gets designed, so household progress and
   Whop entitlement share one auth system instead of two

@@ -1,4 +1,8 @@
 import type { Metadata, Viewport } from "next";
+import { headers } from "next/headers";
+import { PlatformSessionProvider } from "@/platform/PlatformSessionProvider";
+import { toPlatformSession } from "@/platform/session";
+import { resolveWhopSession } from "@/platform/whop";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -16,14 +20,21 @@ export const viewport: Viewport = {
   viewportFit: "cover",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const verified = await resolveWhopSession(await headers());
+  const session = toPlatformSession(verified);
+
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <PlatformSessionProvider session={session}>
+          {children}
+        </PlatformSessionProvider>
+      </body>
     </html>
   );
 }
