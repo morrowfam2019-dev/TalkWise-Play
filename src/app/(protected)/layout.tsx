@@ -3,6 +3,7 @@ import { resolveAccess } from "@/platform/access";
 import { LaunchScreen } from "@/platform/LaunchScreen";
 import { PlatformSessionProvider } from "@/platform/PlatformSessionProvider";
 import { toPlatformSession } from "@/platform/session";
+import { ProgressSync } from "@/player/ProgressSync";
 
 /**
  * The membership gate.
@@ -37,6 +38,9 @@ export default async function ProtectedLayout({
 
   return (
     <PlatformSessionProvider session={toPlatformSession(access)}>
+      {/* Server-backed progress, for members whose identity we know. Inert
+          when there is no verified member or no configured store. */}
+      <ProgressSync />
       {children}
     </PlatformSessionProvider>
   );
