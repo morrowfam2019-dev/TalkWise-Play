@@ -1,14 +1,10 @@
 import type { Metadata, Viewport } from "next";
-import { headers } from "next/headers";
-import { PlatformSessionProvider } from "@/platform/PlatformSessionProvider";
-import { toPlatformSession } from "@/platform/session";
-import { resolveWhopSession } from "@/platform/whop";
 import "./globals.css";
 
 export const metadata: Metadata = {
   title: "TalkWise Play",
   description:
-    "Speech-learning adventure games for kids from TalkWise Academy. Explore, play, and practice your sounds.",
+    "Speech-learning games for kids from TalkWise Academy. Explore, play, and practice your sounds.",
 };
 
 export const viewport: Viewport = {
@@ -20,21 +16,21 @@ export const viewport: Viewport = {
   viewportFit: "cover",
 };
 
-export default async function RootLayout({
+/**
+ * Document shell only.
+ *
+ * Membership resolution deliberately lives in the `(protected)` layout
+ * rather than here, so the locked screen and the launch exchange can render
+ * without paying for — or being blocked by — an entitlement check.
+ */
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const verified = await resolveWhopSession(await headers());
-  const session = toPlatformSession(verified);
-
   return (
     <html lang="en">
-      <body>
-        <PlatformSessionProvider session={session}>
-          {children}
-        </PlatformSessionProvider>
-      </body>
+      <body>{children}</body>
     </html>
   );
 }

@@ -54,3 +54,37 @@ export async function resolveWhopSession(
     return { externalUserId: payload.userId, entitled: false };
   }
 }
+
+/**
+ * Re-checks entitlement for a member we already identified earlier.
+ *
+ * Used by the external-browser session, where there is no Whop token on the
+ * request at all — only our own signed cookie saying "this is Whop user X,
+ * last confirmed at time T". Without this, a cancelled membership would keep
+ * working for as long as the cookie lived; with it, access lapses on the
+ * next revalidation window.
+ *
+ * Returns null when there is nothing to check against (no Whop credentials
+ * configured), which callers read as "not integrated", never as "denied".
+ */
+export async function checkWhopEntitlement(
+  whopUserId: string,
+): Promise<boolean | null> {
+  const client = getWhopClient();
+  if (!client) return null;
+
+  const experienceId = process.env.WHOP_EXPERIENCE_ID;
+  if (!experienceId) return null;
+
+  try {
+    const access = await client.users.checkAccess(experienceId, {
+      id: whopUserId,
+    });
+    return access.has_access;
+  } catch {
+    // A transient Whop outage must not eject a paying family mid-practice.
+    // Returning null means "couldn't tell"; the caller keeps the existing
+    // session and tries again at the next revalidation window.
+    return null;
+  }
+}

@@ -53,17 +53,20 @@ export function getPlatformSession(): PlatformSession {
 }
 
 /**
- * Converts a server-verified Whop session (or null, when there was nothing
- * to verify) into the shape the rest of the app reads. This is the one place
- * that decides what "entitled" means from real Whop data.
+ * Converts a resolved access decision (see `platform/access.ts`) into the
+ * shape client components read. Structurally typed rather than importing
+ * `AccessDecision`, because that module is server-only and this one is
+ * shared with the client provider.
  */
-export function toPlatformSession(
-  verified: { externalUserId: string; entitled: boolean } | null,
-): PlatformSession {
-  if (!verified) return STANDALONE_SESSION;
+export function toPlatformSession(access: {
+  whopUserId: string | null;
+  embedded: boolean;
+  allowed: boolean;
+}): PlatformSession {
+  if (!access.whopUserId) return STANDALONE_SESSION;
   return {
-    kind: "embedded",
-    externalUserId: verified.externalUserId,
-    entitled: verified.entitled,
+    kind: access.embedded ? "embedded" : "standalone",
+    externalUserId: access.whopUserId,
+    entitled: access.allowed,
   };
 }
