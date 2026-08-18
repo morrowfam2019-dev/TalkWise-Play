@@ -1,43 +1,58 @@
 /**
- * Player data model. Kept independent of both the game engine and the speech
- * content so it can later be backed by a server without touching gameplay.
+ * Player data model.
+ *
+ * Two levels, deliberately:
+ *
+ * - **Platform-wide** fields live directly on `PlayerProfile`: the child's
+ *   name, the coin wallet, the practice streak, and the accessibility
+ *   settings (microphone, assist). These belong to the child, not to any one
+ *   game.
+ * - **Per-game** state lives under `games[GAME_ID]`, one isolated slice per
+ *   registered TalkWise Play game. Inventory, shop ownership, equipped
+ *   loadout, progress, and records are all namespaced this way, so a
+ *   basketball jersey can never appear in the Adventures wardrobe and
+ *   finishing an adventure can never touch a basketball high score.
+ *
+ * ## The coin decision (documented deliberately)
+ *
+ * Coins are a **universal TalkWise Play wallet**, not per-game currency.
+ * That is the behaviour the game already shipped with, and this refactor
+ * preserves it exactly rather than silently redenominating anyone's savings:
+ * coins earned in Adventures can be spent in the Basketball shop and vice
+ * versa. What is *not* shared is what those coins buy — every purchase lands
+ * in the buying game's own inventory. If per-game currency is ever wanted,
+ * that is a product decision and an explicit migration, not a refactor.
+ *
+ * Kept free of both the game engines and the speech content so it can be
+ * backed by a server without touching gameplay.
  */
 
-/** Saved result for a single level. */
-export interface LevelProgress {
-  /** Highest number of checkpoints completed in any single run. */
-  bestCheckpoints: number;
-  /** Highest coin total earned in any single run. */
-  bestCoins: number;
-  /** True once the level has been finished at least once. */
-  completed: boolean;
+import { GAME_ADVENTURES, GAME_BASKETBALL, type GameId } from "@/platform/games/registry";
+import {
+  DEFAULT_ADVENTURES_STATE,
+  type AdventuresState,
+} from "./games/adventures";
+import {
+  DEFAULT_BASKETBALL_STATE,
+  type BasketballState,
+} from "./games/basketball";
+
+/** Every registered game's slice, keyed by permanent game id. */
+export interface GameStates {
+  [GAME_ADVENTURES]: AdventuresState;
+  [GAME_BASKETBALL]: BasketballState;
 }
 
-/** What a player is currently wearing and standing in. */
-export interface Loadout {
-  characterId: string;
-  auraId: string | null;
-  boostId: string | null;
-  /** Cosmetic hat, layered on top of whichever character is equipped. */
-  hatId: string | null;
-}
-
-/** Everything persisted about a player. */
+/** Everything persisted about one child. */
 export interface PlayerProfile {
   /** Kid-facing display name. Empty until they choose one. */
   name: string;
-  /** Lifetime coin total across all runs. Never decreases — it's the record
-   * of everything earned, and achievements are measured against it. */
+  /** Lifetime coin total across every game. Never decreases — it's the
+   * record of everything earned, and achievements measure against it. */
   totalCoins: number;
-  /** Lifetime coins spent in the shop. Spendable balance is the difference,
+  /** Lifetime coins spent in any shop. Spendable balance is the difference,
    * so buying something never erases the achievement of having earned it. */
   spentCoins: number;
-  /** Shop item ids the player owns. */
-  owned: string[];
-  /** What they have equipped right now. */
-  loadout: Loadout;
-  /** Per-level records, keyed by level id. */
-  levels: Record<string, LevelProgress>;
   /** Consecutive calendar days (local time) with at least one run played. */
   currentStreak: number;
   /** Longest currentStreak ever reached. */
@@ -49,6 +64,7 @@ export interface PlayerProfile {
    * off falls back to the manual "I said it" button, which is the whole
    * point: a bad microphone must never be able to block a child from
    * moving on. Sticky, so it is answered once rather than every checkpoint.
+   * Platform-wide — it describes the child's device and voice, not a game.
    */
   micEnabled: boolean;
   /**
@@ -58,31 +74,36 @@ export interface PlayerProfile {
    * not something a difficulty setting can shorten.
    */
   assistMode: boolean;
+  /** Per-game isolated state. */
+  games: GameStates;
 }
-
-export const EMPTY_LEVEL_PROGRESS: LevelProgress = {
-  bestCheckpoints: 0,
-  bestCoins: 0,
-  completed: false,
-};
 
 export const DEFAULT_PROFILE: PlayerProfile = {
   name: "",
   totalCoins: 0,
   spentCoins: 0,
-  owned: ["milo"],
-  loadout: { characterId: "milo", auraId: null, boostId: null, hatId: null },
-  levels: {},
   currentStreak: 0,
   bestStreak: 0,
   lastPlayedDate: null,
   micEnabled: true,
   assistMode: false,
+  games: {
+    [GAME_ADVENTURES]: DEFAULT_ADVENTURES_STATE,
+    [GAME_BASKETBALL]: DEFAULT_BASKETBALL_STATE,
+  },
 };
 
-/** Coins available to spend right now. */
+/** Coins available to spend right now, in any game's shop. */
 export function spendableCoins(profile: PlayerProfile): number {
   return Math.max(0, profile.totalCoins - profile.spentCoins);
+}
+
+/** Typed accessor for one game's slice. */
+export function gameState<K extends GameId>(
+  profile: PlayerProfile,
+  gameId: K,
+): GameStates[K] {
+  return profile.games[gameId];
 }
 
 /**
@@ -97,3 +118,5 @@ export interface Household {
   order: string[];
   children: Record<string, PlayerProfile>;
 }
+
+export type { AdventuresState, BasketballState };

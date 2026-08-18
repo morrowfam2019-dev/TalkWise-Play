@@ -1,5 +1,7 @@
+import type { ShopItem as BaseShopItem } from "@/content/shop-item";
+
 /**
- * Shop catalogue.
+ * GAME-001 Speech Adventures shop catalogue.
  *
  * Pure data, like the speech content — adding an item is a new entry here,
  * never new rendering or economy code.
@@ -13,14 +15,8 @@
 
 export type ShopKind = "character" | "aura" | "boost" | "hat";
 
-export interface ShopItem {
-  id: string;
+export interface ShopItem extends BaseShopItem {
   kind: ShopKind;
-  name: string;
-  /** One line a child can read, describing what they get. */
-  blurb: string;
-  /** Cost in coins. Zero means it's owned from the start. */
-  price: number;
 }
 
 /** Palette and silhouette for a playable character. */

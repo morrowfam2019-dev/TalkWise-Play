@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { SpeechLevel } from "@/content/speech";
-import { getBoost } from "@/content/shop";
+import { getBoost } from "@/content/adventures/shop";
 import { usePlayerProfile } from "@/player/usePlayerProfile";
 import { getLevelProgress } from "@/player/storage";
 import { gameAudio } from "./core/audio";
@@ -31,8 +31,10 @@ export function GameShell({ level, onExit }: GameShellProps) {
   const input = useMemo(() => new GameInput(), []);
   const lookRef = useRef<HTMLDivElement>(null);
 
-  const { profile, recordRun, setMicEnabled } = usePlayerProfile();
-  const boost = getBoost(profile.loadout.boostId);
+  // `adventures` is GAME-001's own isolated slice — characters, hats,
+  // auras, boosts and level records. Basketball data is not reachable here.
+  const { profile, adventures, recordRun, setMicEnabled } = usePlayerProfile();
+  const boost = getBoost(adventures.loadout.boostId);
 
   const total = level.challenges.length;
   const [phase, setPhase] = useState<Phase>("intro");
@@ -216,9 +218,9 @@ export function GameShell({ level, onExit }: GameShellProps) {
           world={world}
           challenges={level.challenges}
           input={input}
-          characterId={profile.loadout.characterId}
-          auraId={profile.loadout.auraId}
-          hatId={profile.loadout.hatId}
+          characterId={adventures.loadout.characterId}
+          auraId={adventures.loadout.auraId}
+          hatId={adventures.loadout.hatId}
           jumpBoost={boost?.jump ?? 1}
           speedBoost={boost?.speed ?? 1}
           assist={profile.assistMode}

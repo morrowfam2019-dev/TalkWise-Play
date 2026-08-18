@@ -3,7 +3,7 @@
 import { useFrame } from "@react-three/fiber";
 import { useRef } from "react";
 import * as THREE from "three";
-import { getAura, getCharacter, getHat, type CharacterLook } from "@/content/shop";
+import { getAura, getCharacter, getHat, type CharacterLook } from "@/content/adventures/shop";
 import type { PlayerController } from "../core/controller";
 
 const GOLD = "#f5c33b";

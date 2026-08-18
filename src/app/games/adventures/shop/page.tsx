@@ -11,7 +11,8 @@ import {
   type HatItem,
   type ShopItem,
   type ShopKind,
-} from "@/content/shop";
+} from "@/content/adventures/shop";
+import { GAME_ADVENTURES } from "@/platform/games/registry";
 import { usePlayerProfile } from "@/player/usePlayerProfile";
 import { CoinIcon } from "@/ui/CoinIcon";
 import { spendableCoins } from "@/player/types";
@@ -175,14 +176,23 @@ function ItemGlyph({ item }: { item: ShopItem }) {
 }
 
 /**
- * The store.
+ * GAME-001's own store.
+ *
+ * Characters, hats, auras and boosts are **Adventures items**: they are
+ * bought into the Adventures inventory and can only ever be worn in an
+ * adventure. Speech Basketball has its own store at
+ * `/games/basketball/shop` selling its own ballers and jerseys. The two
+ * share exactly one thing — the platform coin wallet.
  *
  * Everything here is bought with coins earned by finishing speech
  * challenges, and nothing here touches the speech check — boosts change how
  * a player moves through a world, never how their talking is judged.
  */
 export default function ShopPage() {
-  const { profile, buyItem, equip } = usePlayerProfile();
+  // Reads and writes GAME-001's namespace only. Every purchase here lands
+  // in the Adventures inventory; the Basketball shop is a separate screen
+  // writing to a separate namespace, sharing only the coin wallet.
+  const { profile, adventures, buyItem, equip } = usePlayerProfile();
   const [tab, setTab] = useState<ShopKind>("character");
   const [flash, setFlash] = useState<string | null>(null);
 
@@ -191,15 +201,19 @@ export default function ShopPage() {
 
   const equippedId = (kind: ShopKind) =>
     kind === "character"
-      ? profile.loadout.characterId
+      ? adventures.loadout.characterId
       : kind === "aura"
-        ? profile.loadout.auraId
+        ? adventures.loadout.auraId
         : kind === "hat"
-          ? profile.loadout.hatId
-          : profile.loadout.boostId;
+          ? adventures.loadout.hatId
+          : adventures.loadout.boostId;
 
   const handleBuy = (item: ShopItem) => {
-    const bought = buyItem({ id: item.id, price: item.price, kind: item.kind });
+    const bought = buyItem(GAME_ADVENTURES, {
+      id: item.id,
+      price: item.price,
+      kind: item.kind,
+    });
     setFlash(
       bought
         ? `${item.name} is yours!`
@@ -214,10 +228,10 @@ export default function ShopPage() {
         <div className="mx-auto flex max-w-3xl items-center justify-between gap-3">
           <div>
             <p className="text-[0.65rem] font-black tracking-[0.28em] text-[#f5c33b] uppercase">
-              TalkWise Academy
+              Speech Adventures
             </p>
             <h1 className="text-2xl font-black tracking-tight text-white sm:text-3xl">
-              The <span className="text-[#f5c33b]">Store</span>
+              Adventure <span className="text-[#f5c33b]">Store</span>
             </h1>
           </div>
           <div className="flex items-center gap-2">
@@ -231,7 +245,7 @@ export default function ShopPage() {
               </p>
             </div>
             <Link
-              href="/"
+              href="/games/adventures"
               className="rounded-xl border-2 border-white/30 px-4 py-2 text-sm font-black text-white"
             >
               ← Back
@@ -279,7 +293,7 @@ export default function ShopPage() {
 
         <div className="mt-5 grid gap-4 sm:grid-cols-2">
           {active.items.map((item) => {
-            const owned = profile.owned.includes(item.id);
+            const owned = adventures.owned.includes(item.id);
             const isEquipped = equippedId(item.kind) === item.id;
             const affordable = balance >= item.price;
 
@@ -305,7 +319,7 @@ export default function ShopPage() {
                 ) : owned ? (
                   <button
                     type="button"
-                    onClick={() => equip(item.kind, item.id)}
+                    onClick={() => equip(GAME_ADVENTURES, item.kind, item.id)}
                     className="mt-3 w-full rounded-2xl border-b-8 border-[#25a25a] bg-[#2ecc71] px-4 py-3 text-base font-black text-white transition-transform active:translate-y-1 active:border-b-4"
                   >
                     Wear it
@@ -333,7 +347,7 @@ export default function ShopPage() {
                 {isEquipped && item.kind !== "character" ? (
                   <button
                     type="button"
-                    onClick={() => equip(item.kind, null)}
+                    onClick={() => equip(GAME_ADVENTURES, item.kind, null)}
                     className="mt-2 w-full rounded-xl px-4 py-2 text-sm font-bold text-[#8a8aa0] hover:text-[#141420]"
                   >
                     Take it off

@@ -1,11 +1,23 @@
-import { DEFAULT_CHARACTER_ID } from "@/content/shop";
+import {
+  GAME_ADVENTURES,
+  GAME_BASKETBALL,
+  type GameId,
+} from "@/platform/games/registry";
+import {
+  getLevelProgressFrom,
+  sanitizeAdventuresState,
+  type AdventuresLoadout,
+  type LevelProgress,
+} from "./games/adventures";
+import {
+  mergeBasketballRound,
+  sanitizeBasketballState,
+  type BasketballLoadout,
+} from "./games/basketball";
 import {
   DEFAULT_PROFILE,
-  EMPTY_LEVEL_PROGRESS,
   spendableCoins,
   type Household,
-  type LevelProgress,
-  type Loadout,
   type PlayerProfile,
 } from "./types";
 
@@ -14,8 +26,8 @@ import {
  *
  * Modelled as an observable external store so React can read it with
  * `useSyncExternalStore` — no load-on-mount effect, and no hydration mismatch.
- * A future server-backed store only has to satisfy this interface; no gameplay
- * code touches persistence directly.
+ * The server-backed sync layer in `sync.ts` writes through this same store;
+ * no gameplay code touches persistence directly.
  */
 export interface HouseholdStore {
   subscribe(listener: () => void): () => void;
@@ -26,9 +38,13 @@ export interface HouseholdStore {
   save(household: Household): void;
 }
 
-const HOUSEHOLD_STORAGE_KEY = "talkwise-play/household/v1";
-/** Pre-multi-profile storage key, read once to migrate existing players'
- * progress into their first child profile instead of losing it. */
+/**
+ * v2 introduced per-game namespacing (`profile.games[GAME_ID]`). v1 and the
+ * even older single-profile key are still read once, so an existing player's
+ * progress migrates forward instead of being lost — see `sanitizeProfile`.
+ */
+const HOUSEHOLD_STORAGE_KEY = "talkwise-play/household/v2";
+const LEGACY_HOUSEHOLD_STORAGE_KEY = "talkwise-play/household/v1";
 const LEGACY_PROFILE_STORAGE_KEY = "talkwise-play/profile/v1";
 
 const DEFAULT_CHILD_ID = "child-1";
@@ -42,59 +58,58 @@ function makeChildId(): string {
   return `child-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
-function sanitizeProfile(raw: unknown): PlayerProfile {
-  if (typeof raw !== "object" || raw === null) return { ...DEFAULT_PROFILE };
-  const value = raw as Partial<PlayerProfile>;
-
-  const levels: Record<string, LevelProgress> = {};
-  if (typeof value.levels === "object" && value.levels !== null) {
-    for (const [id, entry] of Object.entries(value.levels)) {
-      if (typeof entry !== "object" || entry === null) continue;
-      const record = entry as Partial<LevelProgress>;
-      levels[id] = {
-        bestCheckpoints: Number(record.bestCheckpoints) || 0,
-        bestCoins: Number(record.bestCoins) || 0,
-        completed: Boolean(record.completed),
-      };
-    }
+/**
+ * Rebuilds a trustworthy profile from whatever was in storage.
+ *
+ * Handles both shapes:
+ * - **v2 (current)** — per-game state under `games`.
+ * - **v1 (legacy)** — a flat profile whose `owned`/`loadout`/`levels` were
+ *   all Adventures data, because Adventures was the only game. Those fields
+ *   are fed straight into the Adventures namespace, which is exactly where
+ *   they belonged all along. Nothing is duplicated and no coins are minted:
+ *   the wallet, streak and settings are platform-level in both shapes and
+ *   carry across untouched.
+ */
+export function sanitizeProfile(raw: unknown): PlayerProfile {
+  if (typeof raw !== "object" || raw === null) {
+    return {
+      ...DEFAULT_PROFILE,
+      games: {
+        [GAME_ADVENTURES]: sanitizeAdventuresState(null),
+        [GAME_BASKETBALL]: sanitizeBasketballState(null),
+      },
+    };
   }
+  const value = raw as Partial<PlayerProfile> & Record<string, unknown>;
 
-  const owned = Array.isArray(value.owned)
-    ? value.owned.filter((id): id is string => typeof id === "string")
-    : [];
-  if (!owned.includes(DEFAULT_CHARACTER_ID)) owned.push(DEFAULT_CHARACTER_ID);
+  const namespaced =
+    typeof value.games === "object" && value.games !== null
+      ? (value.games as unknown as Record<string, unknown>)
+      : null;
 
-  const rawLoadout =
-    typeof value.loadout === "object" && value.loadout !== null
-      ? (value.loadout as Partial<Loadout>)
-      : {};
-  // Only ever equip something the player actually owns — a hand-edited save
-  // or a retired item can't leave them wearing something that isn't theirs.
-  const equipped = (id: unknown): string | null =>
-    typeof id === "string" && owned.includes(id) ? id : null;
+  // v1 profiles have no `games` key; the whole object *is* the Adventures
+  // state as far as owned/loadout/levels are concerned.
+  const adventuresRaw = namespaced ? namespaced[GAME_ADVENTURES] : value;
+  const basketballRaw = namespaced ? namespaced[GAME_BASKETBALL] : null;
 
   return {
     name: typeof value.name === "string" ? value.name.slice(0, 20) : "",
     totalCoins: Number(value.totalCoins) || 0,
     spentCoins: Number(value.spentCoins) || 0,
-    owned,
-    loadout: {
-      characterId: equipped(rawLoadout.characterId) ?? DEFAULT_CHARACTER_ID,
-      auraId: equipped(rawLoadout.auraId),
-      boostId: equipped(rawLoadout.boostId),
-      hatId: equipped(rawLoadout.hatId),
-    },
-    levels,
     currentStreak: Number(value.currentStreak) || 0,
     bestStreak: Number(value.bestStreak) || 0,
     lastPlayedDate:
       typeof value.lastPlayedDate === "string" ? value.lastPlayedDate : null,
     micEnabled: value.micEnabled !== false,
     assistMode: value.assistMode === true,
+    games: {
+      [GAME_ADVENTURES]: sanitizeAdventuresState(adventuresRaw),
+      [GAME_BASKETBALL]: sanitizeBasketballState(basketballRaw),
+    },
   };
 }
 
-function sanitizeHousehold(raw: unknown): Household | null {
+export function sanitizeHousehold(raw: unknown): Household | null {
   if (typeof raw !== "object" || raw === null) return null;
   const value = raw as Partial<Household>;
   if (typeof value.children !== "object" || value.children === null) return null;
@@ -124,7 +139,11 @@ function sanitizeHousehold(raw: unknown): Household | null {
 
 function freshHousehold(): Household {
   const id = makeChildId();
-  return { activeChildId: id, order: [id], children: { [id]: { ...DEFAULT_PROFILE } } };
+  return {
+    activeChildId: id,
+    order: [id],
+    children: { [id]: sanitizeProfile(null) },
+  };
 }
 
 /** YYYY-MM-DD in the player's local timezone — calendar days, not UTC ones. */
@@ -139,6 +158,7 @@ function localDateKey(date: Date): string {
  * Advances the daily streak for a run played right now. A second run on the
  * same calendar day is a no-op; a run on the day right after the last one
  * extends the streak; any bigger gap (or a first-ever run) restarts it at 1.
+ * Platform-level: practising in either game keeps the streak alive.
  */
 function advanceStreak(
   profile: Pick<PlayerProfile, "currentStreak" | "bestStreak" | "lastPlayedDate">,
@@ -148,7 +168,8 @@ function advanceStreak(
   if (profile.lastPlayedDate === today) return profile;
 
   const yesterday = localDateKey(new Date(now.getTime() - 24 * 60 * 60 * 1000));
-  const currentStreak = profile.lastPlayedDate === yesterday ? profile.currentStreak + 1 : 1;
+  const currentStreak =
+    profile.lastPlayedDate === yesterday ? profile.currentStreak + 1 : 1;
 
   return {
     currentStreak,
@@ -167,6 +188,18 @@ class LocalHouseholdStore implements HouseholdStore {
       const raw = window.localStorage.getItem(HOUSEHOLD_STORAGE_KEY);
       if (raw) {
         const sanitized = sanitizeHousehold(JSON.parse(raw));
+        if (sanitized) return sanitized;
+      }
+
+      // Migration path: read the older keys once. `sanitizeProfile` turns
+      // their flat shape into the namespaced one; the next `save` writes it
+      // back under the v2 key. The old keys are left in place, so rolling
+      // this deploy back does not strand anybody's progress.
+      const legacyHousehold = window.localStorage.getItem(
+        LEGACY_HOUSEHOLD_STORAGE_KEY,
+      );
+      if (legacyHousehold) {
+        const sanitized = sanitizeHousehold(JSON.parse(legacyHousehold));
         if (sanitized) return sanitized;
       }
 
@@ -200,7 +233,10 @@ class LocalHouseholdStore implements HouseholdStore {
     this.cache = household;
     if (typeof window !== "undefined") {
       try {
-        window.localStorage.setItem(HOUSEHOLD_STORAGE_KEY, JSON.stringify(household));
+        window.localStorage.setItem(
+          HOUSEHOLD_STORAGE_KEY,
+          JSON.stringify(household),
+        );
       } catch {
         // Private browsing or quota exhausted — the in-memory cache still
         // serves the rest of this session.
@@ -212,11 +248,15 @@ class LocalHouseholdStore implements HouseholdStore {
 
 export const householdStore: HouseholdStore = new LocalHouseholdStore();
 
+// ---------------------------------------------------------------------------
+// GAME-001 Speech Adventures
+// ---------------------------------------------------------------------------
+
 export function getLevelProgress(
   profile: PlayerProfile,
   levelId: string,
 ): LevelProgress {
-  return profile.levels[levelId] ?? EMPTY_LEVEL_PROGRESS;
+  return getLevelProgressFrom(profile.games[GAME_ADVENTURES], levelId);
 }
 
 /**
@@ -233,8 +273,10 @@ export function isLevelUnlocked(
 }
 
 /**
- * Folds a finished run into a profile, keeping personal bests and advancing
- * the daily streak. `now` is injectable for tests; real callers omit it.
+ * Folds a finished adventure run into a profile, keeping personal bests and
+ * advancing the daily streak. Coins land in the shared platform wallet;
+ * level records land in the Adventures namespace only. `now` is injectable
+ * for tests; real callers omit it.
  */
 export function mergeRunResult(
   profile: PlayerProfile,
@@ -242,77 +284,156 @@ export function mergeRunResult(
   run: { checkpoints: number; coins: number; completed: boolean },
   now: Date = new Date(),
 ): PlayerProfile {
-  const previous = getLevelProgress(profile, levelId);
+  const adventures = profile.games[GAME_ADVENTURES];
+  const previous = getLevelProgressFrom(adventures, levelId);
   return {
     ...profile,
     ...advanceStreak(profile, now),
     totalCoins: profile.totalCoins + run.coins,
-    levels: {
-      ...profile.levels,
-      [levelId]: {
-        bestCheckpoints: Math.max(previous.bestCheckpoints, run.checkpoints),
-        bestCoins: Math.max(previous.bestCoins, run.coins),
-        completed: previous.completed || run.completed,
+    games: {
+      ...profile.games,
+      [GAME_ADVENTURES]: {
+        ...adventures,
+        levels: {
+          ...adventures.levels,
+          [levelId]: {
+            bestCheckpoints: Math.max(previous.bestCheckpoints, run.checkpoints),
+            bestCoins: Math.max(previous.bestCoins, run.coins),
+            completed: previous.completed || run.completed,
+          },
+        },
       },
     },
   };
 }
 
+// ---------------------------------------------------------------------------
+// GAME-002 Speech Basketball
+// ---------------------------------------------------------------------------
+
 /**
- * Buys a shop item for a profile, if it's affordable and not already owned.
- * Returns the profile unchanged when it isn't — callers show the reason, and
+ * Folds a finished basketball round into a profile. Same split as an
+ * adventure run: coins to the shared wallet and the streak to the platform,
+ * records into the Basketball namespace only.
+ */
+export function mergeBasketballResult(
+  profile: PlayerProfile,
+  soundId: string,
+  round: {
+    basketballScore: number;
+    basketsMade: number;
+    bestStreak: number;
+    coinsEarned: number;
+  },
+  now: Date = new Date(),
+): PlayerProfile {
+  return {
+    ...profile,
+    ...advanceStreak(profile, now),
+    totalCoins: profile.totalCoins + round.coinsEarned,
+    games: {
+      ...profile.games,
+      [GAME_BASKETBALL]: mergeBasketballRound(
+        profile.games[GAME_BASKETBALL],
+        soundId,
+        round,
+      ),
+    },
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Shops — one shared wallet, strictly per-game ownership
+// ---------------------------------------------------------------------------
+
+/** Which loadout slot a purchased item auto-equips into, per game. */
+function equipSlotFor(gameId: GameId, kind: string): string | null {
+  if (gameId === GAME_ADVENTURES) {
+    if (kind === "character") return "characterId";
+    if (kind === "aura") return "auraId";
+    if (kind === "hat") return "hatId";
+    if (kind === "boost") return "boostId";
+    return null;
+  }
+  if (kind === "baller") return "ballerId";
+  if (kind === "jersey") return "jerseyId";
+  return null;
+}
+
+/** Slots a child must always have filled, so a game is never unplayable. */
+function isRequiredSlot(gameId: GameId, slot: string): boolean {
+  return (
+    (gameId === GAME_ADVENTURES && slot === "characterId") ||
+    (gameId === GAME_BASKETBALL && slot === "ballerId")
+  );
+}
+
+/**
+ * Buys a shop item **into one game's inventory**, if it's affordable and not
+ * already owned there. Coins come out of the shared platform wallet; the
+ * item itself is recorded only under `gameId`, which is what keeps an
+ * Adventure hat out of the basketball wardrobe. Returns the profile
+ * unchanged when the purchase can't happen — callers show the reason, and
  * nothing here can put a wallet below zero.
  */
 export function purchaseItem(
   profile: PlayerProfile,
-  item: { id: string; price: number; kind: "character" | "aura" | "boost" | "hat" },
+  gameId: GameId,
+  item: { id: string; price: number; kind: string },
 ): { profile: PlayerProfile; bought: boolean } {
-  if (profile.owned.includes(item.id)) return { profile, bought: false };
+  const state = profile.games[gameId];
+  if (state.owned.includes(item.id)) return { profile, bought: false };
   if (spendableCoins(profile) < item.price) return { profile, bought: false };
 
-  const owned = [...profile.owned, item.id];
+  const owned = [...state.owned, item.id];
   // Buying something equips it immediately — a child who just spent their
   // coins should see the thing they bought, not hunt for an Equip button.
-  const loadout: Loadout = { ...profile.loadout };
-  if (item.kind === "character") loadout.characterId = item.id;
-  else if (item.kind === "aura") loadout.auraId = item.id;
-  else if (item.kind === "hat") loadout.hatId = item.id;
-  else loadout.boostId = item.id;
+  const slot = equipSlotFor(gameId, item.kind);
+  const loadout = slot
+    ? { ...state.loadout, [slot]: item.id }
+    : { ...state.loadout };
 
   return {
     profile: {
       ...profile,
       spentCoins: profile.spentCoins + item.price,
-      owned,
-      loadout,
-    },
+      games: {
+        ...profile.games,
+        [gameId]: { ...state, owned, loadout },
+      },
+    } as PlayerProfile,
     bought: true,
   };
 }
 
 /**
- * Equips an owned item. Passing null for an aura or boost takes it off;
- * a character can only ever be swapped, never removed.
+ * Equips an item a child owns **in that game**. Passing null clears an
+ * optional slot; the required slots (Adventures character, Basketball
+ * baller) can only ever be swapped, never emptied.
  */
 export function equipItem(
   profile: PlayerProfile,
-  kind: "character" | "aura" | "boost" | "hat",
+  gameId: GameId,
+  kind: string,
   id: string | null,
 ): PlayerProfile {
-  if (id !== null && !profile.owned.includes(id)) return profile;
+  const state = profile.games[gameId];
+  if (id !== null && !state.owned.includes(id)) return profile;
 
-  const loadout: Loadout = { ...profile.loadout };
-  if (kind === "character") {
-    if (id === null) return profile;
-    loadout.characterId = id;
-  } else if (kind === "aura") {
-    loadout.auraId = id;
-  } else if (kind === "hat") {
-    loadout.hatId = id;
-  } else {
-    loadout.boostId = id;
-  }
-  return { ...profile, loadout };
+  const slot = equipSlotFor(gameId, kind);
+  if (!slot) return profile;
+  if (id === null && isRequiredSlot(gameId, slot)) return profile;
+
+  return {
+    ...profile,
+    games: {
+      ...profile.games,
+      [gameId]: {
+        ...state,
+        loadout: { ...state.loadout, [slot]: id },
+      },
+    },
+  } as PlayerProfile;
 }
 
 /** Turns the movement/listening assist setting on or off for a profile. */
@@ -323,15 +444,23 @@ export function setAssistMode(
   return { ...profile, assistMode };
 }
 
+// ---------------------------------------------------------------------------
+// Household
+// ---------------------------------------------------------------------------
+
 /** Adds a new child profile to the household and makes it the active one. */
-export function addChild(household: Household, name: string): { household: Household; id: string } {
+export function addChild(
+  household: Household,
+  name: string,
+): { household: Household; id: string } {
   const id = makeChildId();
+  const fresh = sanitizeProfile(null);
   const next: Household = {
     activeChildId: id,
     order: [...household.order, id],
     children: {
       ...household.children,
-      [id]: { ...DEFAULT_PROFILE, name: name.slice(0, 20) },
+      [id]: { ...fresh, name: name.slice(0, 20) },
     },
   };
   return { household: next, id };
@@ -342,3 +471,5 @@ export function setActiveChild(household: Household, id: string): Household {
   if (!(id in household.children)) return household;
   return { ...household, activeChildId: id };
 }
+
+export type { AdventuresLoadout, BasketballLoadout, LevelProgress };

@@ -1,8 +1,15 @@
+import { GAME_ADVENTURES } from "@/platform/games/registry";
 import type { PlayerProfile } from "./types";
 
 /** Everything an achievement's check needs, supplied by the caller so this
  * module never imports the speech-content layer (same reasoning as
- * `isLevelUnlocked`'s structural typing in storage.ts). */
+ * `isLevelUnlocked`'s structural typing in storage.ts).
+ *
+ * These are **platform** achievements: the coin and streak ones are earned
+ * by playing any TalkWise Play game, since both the wallet and the streak
+ * are platform-wide. The adventure-completion ones read GAME-001's namespace
+ * explicitly. A future game wanting its own badges should define them in its
+ * own module rather than extending this list. */
 export interface AchievementContext {
   profile: PlayerProfile;
   /** Total number of levels currently registered. */
@@ -25,7 +32,7 @@ export const ACHIEVEMENTS: Achievement[] = [
     title: "First Steps",
     description: "Finish your first adventure.",
     glyph: "🎉",
-    check: ({ profile }) => Object.values(profile.levels).some((level) => level.completed),
+    check: ({ profile }) => Object.values(profile.games[GAME_ADVENTURES].levels).some((level) => level.completed),
   },
   {
     id: "world-tour",
@@ -34,7 +41,7 @@ export const ACHIEVEMENTS: Achievement[] = [
     glyph: "🌍",
     check: ({ profile, totalLevels }) =>
       totalLevels > 0 &&
-      Object.values(profile.levels).filter((level) => level.completed).length >= totalLevels,
+      Object.values(profile.games[GAME_ADVENTURES].levels).filter((level) => level.completed).length >= totalLevels,
   },
   {
     id: "word-wizard",
@@ -42,7 +49,7 @@ export const ACHIEVEMENTS: Achievement[] = [
     description: "Find every checkpoint in one run.",
     glyph: "⭐",
     check: ({ profile, levelChallengeCounts }) =>
-      Object.entries(profile.levels).some(([levelId, progress]) => {
+      Object.entries(profile.games[GAME_ADVENTURES].levels).some(([levelId, progress]) => {
         const total = levelChallengeCounts[levelId];
         return total !== undefined && total > 0 && progress.bestCheckpoints >= total;
       }),

@@ -2,9 +2,15 @@
 
 import { useCallback, useSyncExternalStore } from "react";
 import {
+  GAME_ADVENTURES,
+  GAME_BASKETBALL,
+  type GameId,
+} from "@/platform/games/registry";
+import {
   addChild as addChildToHousehold,
   equipItem,
   householdStore,
+  mergeBasketballResult,
   mergeRunResult,
   purchaseItem,
   setActiveChild,
@@ -15,6 +21,11 @@ import { DEFAULT_PROFILE, type PlayerProfile } from "./types";
 /**
  * Reads and writes the active child's profile through the storage
  * abstraction, and exposes household-level child switching.
+ *
+ * Every game-scoped mutation takes an explicit `gameId`, so a call site
+ * physically cannot write into a game it didn't name — that is what keeps
+ * GAME-001 and GAME-002 inventories isolated at the type level rather than
+ * by convention.
  *
  * Backed by `useSyncExternalStore`, so saved progress appears as soon as the
  * client takes over and every consumer of the profile stays in sync.
@@ -28,41 +39,12 @@ export function usePlayerProfile() {
 
   const profile = household.children[household.activeChildId] ?? DEFAULT_PROFILE;
 
-  const setName = useCallback((name: string) => {
-    const current = householdStore.getSnapshot();
-    const activeProfile = current.children[current.activeChildId] ?? DEFAULT_PROFILE;
-    householdStore.save({
-      ...current,
-      children: {
-        ...current.children,
-        [current.activeChildId]: { ...activeProfile, name: name.slice(0, 20) },
-      },
-    });
-  }, []);
-
-  const recordRun = useCallback(
-    (
-      levelId: string,
-      run: { checkpoints: number; coins: number; completed: boolean },
-    ) => {
-      const current = householdStore.getSnapshot();
-      const activeProfile = current.children[current.activeChildId] ?? DEFAULT_PROFILE;
-      householdStore.save({
-        ...current,
-        children: {
-          ...current.children,
-          [current.activeChildId]: mergeRunResult(activeProfile, levelId, run),
-        },
-      });
-    },
-    [],
-  );
-
   /** Applies a change to whichever child is active right now. */
   const updateActive = useCallback(
     (change: (profile: PlayerProfile) => PlayerProfile) => {
       const current = householdStore.getSnapshot();
-      const activeProfile = current.children[current.activeChildId] ?? DEFAULT_PROFILE;
+      const activeProfile =
+        current.children[current.activeChildId] ?? DEFAULT_PROFILE;
       householdStore.save({
         ...current,
         children: {
@@ -74,12 +56,50 @@ export function usePlayerProfile() {
     [],
   );
 
-  /** Buys a shop item and equips it. Returns false if it wasn't affordable. */
+  const setName = useCallback(
+    (name: string) => {
+      updateActive((p) => ({ ...p, name: name.slice(0, 20) }));
+    },
+    [updateActive],
+  );
+
+  /** Records a finished GAME-001 adventure run. */
+  const recordRun = useCallback(
+    (
+      levelId: string,
+      run: { checkpoints: number; coins: number; completed: boolean },
+    ) => {
+      updateActive((p) => mergeRunResult(p, levelId, run));
+    },
+    [updateActive],
+  );
+
+  /** Records a finished GAME-002 basketball round. */
+  const recordBasketballRound = useCallback(
+    (
+      soundId: string,
+      round: {
+        basketballScore: number;
+        basketsMade: number;
+        bestStreak: number;
+        coinsEarned: number;
+      },
+    ) => {
+      updateActive((p) => mergeBasketballResult(p, soundId, round));
+    },
+    [updateActive],
+  );
+
+  /**
+   * Buys a shop item into `gameId`'s inventory and equips it. Returns false
+   * if it wasn't affordable or was already owned in that game.
+   */
   const buyItem = useCallback(
-    (item: { id: string; price: number; kind: "character" | "aura" | "boost" | "hat" }) => {
+    (gameId: GameId, item: { id: string; price: number; kind: string }) => {
       const current = householdStore.getSnapshot();
-      const activeProfile = current.children[current.activeChildId] ?? DEFAULT_PROFILE;
-      const { profile: next, bought } = purchaseItem(activeProfile, item);
+      const activeProfile =
+        current.children[current.activeChildId] ?? DEFAULT_PROFILE;
+      const { profile: next, bought } = purchaseItem(activeProfile, gameId, item);
       if (bought) {
         householdStore.save({
           ...current,
@@ -91,17 +111,18 @@ export function usePlayerProfile() {
     [],
   );
 
-  /** Turns the microphone path on or off for every future challenge. */
-  const setMicEnabled = useCallback(
-    (micEnabled: boolean) => {
-      updateActive((profile) => ({ ...profile, micEnabled }));
+  /** Equips an owned item within one game. */
+  const equip = useCallback(
+    (gameId: GameId, kind: string, id: string | null) => {
+      updateActive((p) => equipItem(p, gameId, kind, id));
     },
     [updateActive],
   );
 
-  const equip = useCallback(
-    (kind: "character" | "aura" | "boost" | "hat", id: string | null) => {
-      updateActive((p) => equipItem(p, kind, id));
+  /** Turns the microphone path on or off for every future challenge. */
+  const setMicEnabled = useCallback(
+    (micEnabled: boolean) => {
+      updateActive((p) => ({ ...p, micEnabled }));
     },
     [updateActive],
   );
@@ -133,8 +154,13 @@ export function usePlayerProfile() {
 
   return {
     profile,
+    /** GAME-001's isolated slice, for convenience at Adventure call sites. */
+    adventures: profile.games[GAME_ADVENTURES],
+    /** GAME-002's isolated slice, for convenience at Basketball call sites. */
+    basketball: profile.games[GAME_BASKETBALL],
     setName,
     recordRun,
+    recordBasketballRound,
     buyItem,
     equip,
     setMicEnabled,

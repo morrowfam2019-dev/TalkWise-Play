@@ -13,7 +13,7 @@ import { usePlayerProfile } from "@/player/usePlayerProfile";
  * and an AudioContext, none of which exist during server rendering.
  */
 const GameShell = dynamic(
-  () => import("@/game/GameShell").then((module) => module.GameShell),
+  () => import("@/games/adventures/GameShell").then((module) => module.GameShell),
   {
     ssr: false,
     loading: () => (
@@ -35,7 +35,7 @@ export function LevelRunner({ levelId }: { levelId: string }) {
   const level = getLevel(levelId);
 
   const handleExit = useCallback(() => {
-    router.push("/");
+    router.push("/games/adventures");
   }, [router]);
 
   if (!level) return null;
@@ -53,10 +53,10 @@ export function LevelRunner({ levelId }: { levelId: string }) {
             Complete {requiredTitle} first.
           </p>
           <Link
-            href="/"
+            href="/games/adventures"
             className="mt-6 inline-block rounded-2xl bg-[#f5c33b] px-6 py-3 font-black text-[#141420]"
           >
-            Back to TalkWise Play
+            Back to Speech Adventures
           </Link>
         </div>
       </div>

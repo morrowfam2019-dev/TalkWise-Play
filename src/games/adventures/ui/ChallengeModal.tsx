@@ -8,7 +8,8 @@ import {
   isSpeechRecognitionSupported,
   requestMicPermission,
   type SpeechListenStatus,
-} from "@/game/core/speech-recognition";
+} from "@/speech/recognition";
+import { playExampleWord } from "@/speech/maya-voice";
 import { CoinIcon } from "@/ui/CoinIcon";
 
 interface ChallengeModalProps {
@@ -33,41 +34,6 @@ const MAX_ATTEMPTS = 3;
 const EXAMPLE_AFTER_ATTEMPT = 2;
 /** Assist mode gives a child longer to speak before an attempt times out. */
 const ASSIST_LISTEN_TIMEOUT_MS = 7000;
-
-/** Browser text-to-speech fallback, used only when no recorded clip exists
- * for a word — picks a best-effort female voice. */
-function speakExampleWord(word: string) {
-  if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
-  try {
-    const utterance = new SpeechSynthesisUtterance(word);
-    utterance.rate = 0.85;
-    utterance.pitch = 1.15;
-    const voices = window.speechSynthesis.getVoices();
-    const preferred = voices.find((voice) =>
-      /female|samantha|victoria|zira|karen|moira|tessa|susan/i.test(voice.name),
-    );
-    if (preferred) utterance.voice = preferred;
-    window.speechSynthesis.cancel();
-    window.speechSynthesis.speak(utterance);
-  } catch {
-    // Speech synthesis is best-effort — the face popup still shows the word.
-  }
-}
-
-/** Plays the recorded "Miss Maya" clip for a word; falls back to browser
- * text-to-speech if that word hasn't been recorded yet. */
-function playExampleWord(word: string) {
-  if (typeof window === "undefined") return;
-  const clip = new Audio(`/audio/maya/${word.toLowerCase()}.mp3`);
-  let fellBack = false;
-  const fallback = () => {
-    if (fellBack) return;
-    fellBack = true;
-    speakExampleWord(word);
-  };
-  clip.addEventListener("error", fallback);
-  clip.play().catch(fallback);
-}
 
 /**
  * The speech challenge.

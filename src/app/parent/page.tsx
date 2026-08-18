@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useSyncExternalStore } from "react";
 import { listLevels } from "@/content/speech";
 import { ACHIEVEMENTS, getUnlockedAchievements } from "@/player/achievements";
+import { GAME_BASKETBALL } from "@/platform/games/registry";
 import { getLevelProgress, householdStore, setAssistMode } from "@/player/storage";
 import { CoinIcon } from "@/ui/CoinIcon";
 
@@ -116,7 +117,7 @@ export default function ParentPage() {
                 <table className="mt-4 w-full text-left text-sm">
                   <thead>
                     <tr className="text-[0.65rem] font-black tracking-wide text-[#8a8aa0] uppercase">
-                      <th className="pb-1.5">Adventure</th>
+                      <th className="pb-1.5">Speech Adventures</th>
                       <th className="pb-1.5">Checkpoints</th>
                       <th className="pb-1.5">Best coins</th>
                       <th className="pb-1.5">Finished</th>
@@ -146,6 +147,42 @@ export default function ParentPage() {
                                 Not yet
                               </span>
                             )}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+
+                {/* GAME-002's records, read from its own namespace. Each
+                    game reports separately — that is the Member -> Child ->
+                    Game hierarchy made visible to a parent. */}
+                <table className="mt-5 w-full text-left text-sm">
+                  <thead>
+                    <tr className="text-[0.65rem] font-black tracking-wide text-[#8a8aa0] uppercase">
+                      <th className="pb-1.5">Speech Basketball</th>
+                      <th className="pb-1.5">Best score</th>
+                      <th className="pb-1.5">Baskets</th>
+                      <th className="pb-1.5">Best streak</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {levels.map((level) => {
+                      const best =
+                        profile.games[GAME_BASKETBALL].highScores[level.sound.id];
+                      return (
+                        <tr key={level.id} className="border-t border-[#eef0f5]">
+                          <td className="py-2 font-bold text-[#141420]">
+                            {level.sound.label} Shootout
+                          </td>
+                          <td className="py-2 font-semibold text-[#4a4a60]">
+                            {best?.bestScore ?? 0}
+                          </td>
+                          <td className="py-2 font-semibold text-[#4a4a60]">
+                            {best?.bestBaskets ?? 0}/10
+                          </td>
+                          <td className="py-2 font-semibold text-[#4a4a60]">
+                            {best?.bestStreak ?? 0}
                           </td>
                         </tr>
                       );
