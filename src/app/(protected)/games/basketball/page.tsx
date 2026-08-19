@@ -101,23 +101,19 @@ export default function BasketballHome() {
               </>
             );
 
-            if (comingSoon) {
-              return (
-                <div
-                  key={mode.id}
-                  aria-disabled
-                  className="flex items-center gap-4 rounded-[1.5rem] border-4 border-white/60 bg-white/50 p-4 opacity-80 shadow"
-                >
-                  {card}
-                </div>
-              );
-            }
-
+            // Coming-soon modes still link: the card is visibly muted and
+            // badged, and the page it opens says plainly that the mode is not
+            // ready. A dead card that does nothing when tapped reads as a bug
+            // to a child, not as a promise.
             return (
               <Link
                 key={mode.id}
                 href={`/games/basketball/${mode.slug}`}
-                className="flex items-center gap-4 rounded-[1.5rem] border-4 border-white bg-white/90 p-4 shadow-lg transition-transform active:translate-y-0.5"
+                className={`flex items-center gap-4 rounded-[1.5rem] border-4 p-4 transition-transform active:translate-y-0.5 ${
+                  comingSoon
+                    ? "border-white/60 bg-white/55 opacity-80 shadow"
+                    : "border-white bg-white/90 shadow-lg"
+                }`}
               >
                 {card}
               </Link>

@@ -113,6 +113,51 @@ class HoopAudio {
   buzzer() {
     this.tone({ freq: 220, duration: 0.6, type: "sawtooth", gain: 0.08 });
   }
+
+  // --- Time Attack additions ---------------------------------------------
+  //
+  // All synthesised the same way as the originals — nothing sampled, so
+  // nothing can resemble a commercial arcade or broadcast cue. Gains are kept
+  // at or below the existing levels: this mode fires many more sounds per
+  // second than Shootout and must not become the loud mode.
+
+  /** Ball meeting the floor. Quiet — this one repeats constantly. */
+  bounce() {
+    this.tone({ freq: 150, duration: 0.09, type: "sine", gain: 0.045, sweepTo: 95 });
+  }
+
+  /** Ball off the backboard: duller and woodier than the rim clank. */
+  backboard() {
+    this.tone({ freq: 210, duration: 0.12, type: "triangle", gain: 0.055, sweepTo: 160 });
+  }
+
+  /** One tick of the 3-2-1 lead-in. */
+  countdownTick() {
+    this.tone({ freq: 520, duration: 0.13, type: "square", gain: 0.06 });
+  }
+
+  /** The "GO!" that starts the clock. */
+  countdownGo() {
+    this.tone({ freq: 784, duration: 0.16, type: "triangle", gain: 0.09 });
+    this.tone({ freq: 1047, duration: 0.22, type: "triangle", gain: 0.08, delay: 0.1 });
+  }
+
+  /** Urgency pip for each of the final five seconds. */
+  urgentTick() {
+    this.tone({ freq: 660, duration: 0.1, type: "square", gain: 0.07 });
+  }
+
+  /** A basket dropping in during the arcade round. */
+  score() {
+    this.tone({ freq: 988, duration: 0.11, type: "triangle", gain: 0.075 });
+    this.tone({ freq: 1319, duration: 0.14, type: "triangle", gain: 0.06, delay: 0.06 });
+  }
+
+  /** End of the 30 seconds — longer and lower than the Shootout buzzer. */
+  finalBuzzer() {
+    this.tone({ freq: 180, duration: 0.9, type: "sawtooth", gain: 0.085 });
+    this.tone({ freq: 120, duration: 0.9, type: "sawtooth", gain: 0.06, delay: 0.02 });
+  }
 }
 
 export const hoopAudio = new HoopAudio();
