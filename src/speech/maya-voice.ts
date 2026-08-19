@@ -39,9 +39,3 @@ export function playExampleWord(word: string) {
   clip.addEventListener("error", fallback);
   clip.play().catch(fallback);
 }
-
-/** Speaks a short coaching line ("Nice speaking!", "You're on fire!") that
- * has no recorded clip — always text-to-speech, never falls silent. */
-export function speakCoachLine(line: string) {
-  speakExampleWord(line);
-}

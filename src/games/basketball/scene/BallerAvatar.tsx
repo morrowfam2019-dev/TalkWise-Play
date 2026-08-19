@@ -157,7 +157,7 @@ function BallerModel({ ballerId, phase }: { ballerId: string; phase: ShotPhase }
       {/* No hand bone to track (see stripSkinning), so the held ball sits
           at a fixed offset roughly at hip/chest height, held forward. */}
       <mesh ref={ball} position={[0.22, 0.8, 0.18]}>
-        <sphereGeometry args={[0.1, 12, 10]} />
+        <sphereGeometry args={[0.12, 12, 10]} />
         <meshLambertMaterial color="#e0742a" />
       </mesh>
     </group>

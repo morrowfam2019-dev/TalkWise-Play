@@ -9,7 +9,6 @@ import {
 import { GAME_BASKETBALL } from "@/platform/games/registry";
 import { getModeRecord, getPlaysToday } from "@/player/games/basketball";
 import { usePlayerProfile } from "@/player/usePlayerProfile";
-import { speakCoachLine } from "@/speech/maya-voice";
 import {
   BALL_POOL_SIZE,
   BALL_RETURN_MS,
@@ -162,6 +161,8 @@ export function TimeAttackMode({
 
   useEffect(() => {
     hoopAudio.unlock();
+    hoopAudio.startMusic();
+    return () => hoopAudio.stopMusic();
   }, []);
 
   useEffect(() => {
@@ -371,7 +372,6 @@ export function TimeAttackMode({
   // --- Gate, results, replay ---------------------------------------------
 
   const handleUnlock = useCallback(() => {
-    speakCoachLine("Great talking! Ready — set — shoot!");
     setCountdownValue(3);
     setPhase("countdown");
   }, []);

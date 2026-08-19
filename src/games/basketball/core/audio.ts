@@ -19,6 +19,8 @@ interface ToneOptions {
 class HoopAudio {
   private ctx: AudioContext | null = null;
   private muted = false;
+  private musicTimer: number | null = null;
+  private musicGen = 0;
 
   unlock() {
     if (this.muted) return;
@@ -157,6 +159,54 @@ class HoopAudio {
   finalBuzzer() {
     this.tone({ freq: 180, duration: 0.9, type: "sawtooth", gain: 0.085 });
     this.tone({ freq: 120, duration: 0.9, type: "sawtooth", gain: 0.06, delay: 0.02 });
+  }
+
+  // --- Background music ----------------------------------------------------
+  //
+  // A soft, looping instrumental chord bed — synthesised the same way as
+  // every other cue here, no shipped audio file. Replaces the old
+  // browser-TTS "coach" lines: no voice, just music under the gameplay.
+  // Self-schedules one chord at a time so it can be stopped cleanly
+  // (`musicGen` invalidates any chord already queued via setTimeout).
+
+  private readonly musicChords: number[][] = [
+    [261.63, 329.63, 392.0], // C major
+    [220.0, 261.63, 329.63], // A minor
+    [174.61, 220.0, 261.63], // F major
+    [196.0, 246.94, 293.66], // G major
+  ];
+
+  startMusic() {
+    if (this.muted || !this.ctx || this.musicTimer !== null) return;
+    const gen = (this.musicGen += 1);
+    const chordSeconds = 2.4;
+    let chordIndex = 0;
+
+    const scheduleNext = () => {
+      if (gen !== this.musicGen || !this.ctx) return;
+      const chord = this.musicChords[chordIndex % this.musicChords.length];
+      chord.forEach((freq, i) => {
+        this.tone({
+          freq,
+          duration: chordSeconds * 0.95,
+          type: "sine",
+          gain: 0.02,
+          delay: i * 0.02,
+        });
+      });
+      chordIndex += 1;
+      this.musicTimer = window.setTimeout(scheduleNext, chordSeconds * 1000);
+    };
+
+    scheduleNext();
+  }
+
+  stopMusic() {
+    this.musicGen += 1;
+    if (this.musicTimer !== null) {
+      window.clearTimeout(this.musicTimer);
+      this.musicTimer = null;
+    }
   }
 }
 

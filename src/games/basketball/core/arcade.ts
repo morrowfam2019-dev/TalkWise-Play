@@ -40,17 +40,17 @@ export const RIM_Y = 2.6;
 /** Rim centre in the horizontal plane. Matches `scene/Hoop.tsx`. */
 export const RIM_X = 0;
 export const RIM_Z = 0.02;
-/** The modelled rim's own radius — what is drawn. */
-export const RIM_RADIUS = 0.23;
+/** The modelled rim's own radius — what is drawn. Matches `scene/Hoop.tsx`. */
+export const RIM_RADIUS = 0.28;
 /** Generous scoring radius. See the forgiveness note above. */
-export const SCORE_RADIUS = 0.42;
+export const SCORE_RADIUS = 0.48;
 /** Outside this, a descending ball is nowhere near the hoop and just falls. */
-export const RIM_CONTACT_RADIUS = 0.62;
+export const RIM_CONTACT_RADIUS = 0.68;
 
 /** Where a ready ball sits, waiting to be flicked. */
 export const RACK_POSITION: readonly [number, number, number] = [0, 1.0, 6.0];
 
-export const BALL_RADIUS = 0.12;
+export const BALL_RADIUS = 0.14;
 export const GRAVITY = 9.8;
 export const FLOOR_Y = BALL_RADIUS;
 

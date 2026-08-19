@@ -74,8 +74,8 @@ export const DIFFICULTIES: DifficultyConfig[] = [
   {
     id: "rookie",
     label: "Rookie",
-    greenZone: 0.16,
-    yellowZone: 0.32,
+    greenZone: 0.21,
+    yellowZone: 0.4,
     sweepSeconds: 1.1,
     movingZone: false,
     unlocked: true,

@@ -58,7 +58,7 @@ export function Ball({
 
   return (
     <mesh ref={mesh}>
-      <sphereGeometry args={[0.12, 14, 12]} />
+      <sphereGeometry args={[0.14, 14, 12]} />
       <meshLambertMaterial color="#e0742a" />
     </mesh>
   );

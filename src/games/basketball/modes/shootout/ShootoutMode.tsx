@@ -8,7 +8,6 @@ import {
 } from "@/content/speech/engine";
 import { getDifficulty, SHOTS_PER_ROUND } from "@/content/basketball/types";
 import { GAME_BASKETBALL } from "@/platform/games/registry";
-import { speakCoachLine } from "@/speech/maya-voice";
 import { usePlayerProfile } from "@/player/usePlayerProfile";
 import { hoopAudio } from "../../core/audio";
 import {
@@ -103,17 +102,20 @@ export function ShootoutMode({
 
   useEffect(() => {
     hoopAudio.unlock();
-    speakCoachLine(
-      `Ready? Let's practice our ${level?.sound.label ?? "sound"} sound and sink some shots!`,
-    );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    hoopAudio.startMusic();
   }, [runId]);
+
+  // Background music runs for the whole time this mode is mounted, not just
+  // per-round — stop it once, on the way out, rather than restarting it every
+  // "Play Again".
+  useEffect(() => {
+    return () => hoopAudio.stopMusic();
+  }, []);
 
   const currentPlan = plan[shotIndex];
   const currentStreak = computeCurrentStreak(results);
 
   const handleUnlock = useCallback(() => {
-    speakCoachLine("Nice speaking!");
     setAvatarPhase("aiming");
     setPhase("meter");
   }, []);
@@ -146,10 +148,8 @@ export function ShootoutMode({
     setAvatarPhase(lastResult.made ? "made" : "missed");
     if (lastResult.made) {
       hoopAudio.swish();
-      speakCoachLine("Great shot!");
     } else {
       hoopAudio.clank();
-      speakCoachLine("Almost! Try the next one!");
     }
 
     setResults((current) => {
@@ -158,7 +158,6 @@ export function ShootoutMode({
       if (streak === 3 || streak === 5) {
         window.setTimeout(() => {
           hoopAudio.streak();
-          speakCoachLine("You're on fire!");
         }, 300);
       }
       return next;
