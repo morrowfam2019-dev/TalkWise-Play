@@ -177,6 +177,71 @@ that cannot verify its own tokens would lock members out rather than let
 them in. Until it is set, TalkWise Play behaves exactly as it did before the
 bridge existed.
 
+## GAME-002's mode system
+
+Speech Basketball is one game with several ways to play it. It applies the
+same discipline to its modes that the platform applies to its games.
+
+```
+src/games/basketball/
+  modes/
+    registry.ts               which modes exist — the single source of truth
+    shootout/ShootoutMode.tsx    MODE 01, speech before every shot
+    timeattack/TimeAttackMode.tsx MODE 02, one speech gate then 30s of arcade
+    clutch/                      MODE 03, Coming Soon (rules in core/clutch.ts)
+  core/      round.ts (Shootout rules) · arcade.ts (Time Attack physics)
+             rewards.ts (coin formulas) · clutch.ts · audio.ts
+  scene/     Court · Hoop · BallerAvatar · Ball · CourtScene · ArcadeScene
+  ui/        SpeechGate (shared) · ModeSetup (shared) · per-mode HUD/results
+```
+
+**Shared by every mode:** the court, hoop and ball geometry, the selected
+baller, the speech gate, the sound/difficulty picker, the audio, and the
+save layer. **Owned by each mode:** its rules, its timer, its scoring, its
+speech cadence, and its result shape. A mode is a component plus a registry
+entry plus a record slot — nothing else in Basketball needs editing to add
+one, which is the same promise `Adding GAME-003` makes at the platform level.
+
+Routes: `/games/basketball` (mode select) → `/games/basketball/<slug>`
+(sound + difficulty) → the mode's play route. Shootout's original
+`/games/basketball/play/[soundId]` is unchanged and still works, with
+difficulty as an optional query parameter.
+
+### Speech difficulty is not game difficulty
+
+`content/speech/engine.ts` answers `gameId + mode + practiceTrack +
+languageBackground + soundId + difficulty + targetCount → SpeechTarget[]`.
+Easy/Intermediate/Hard describe how hard the **talking** is — sound-builder
+syllables, whole words and phrases, full sentences. Basketball's shot-meter
+tuning in `content/basketball/types.ts` is a separate axis and was left
+alone. Games never own word lists; ladders live in `content/speech/tiers.ts`.
+
+`practiceTrack` and `languageBackground` are in the signature but default to
+Speech Development today. That is deliberate: adding an English-Pronunciation
+track with language-background pools later must be a data change here, not a
+second basketball engine per language.
+
+### GAME-002 save shape
+
+```
+games["GAME-002"]
+  ├── owned, loadout            unchanged
+  ├── highScores                unchanged — Shootout, keyed by sound id alone
+  ├── modes                     shootout | timeAttack | clutch,
+  │                             each keyed `${soundId}:${difficulty}`
+  ├── difficultyProgress        keyed `${soundId}:${difficulty}`
+  ├── achievements
+  └── dailyPlays                today's per-mode counts, for coin caps
+```
+
+`highScores` is the original map and every production profile has it, so it
+is left exactly as it was and Shootout keeps writing it. Everything new lives
+alongside. A profile saved before the expansion has no `modes` key,
+`sanitizeBasketballState` supplies the empty default, and nothing is lost or
+recomputed — the same additive pattern as the v1→v2 household migration.
+Legacy scores are deliberately **not** back-filled into mode records, because
+that would invent a difficulty the child never played at.
+
 ## Adding GAME-003
 
 1. Register it in `src/platform/games/registry.ts` (new permanent id).
