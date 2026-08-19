@@ -1,7 +1,7 @@
 "use client";
 
 import { Canvas, useFrame } from "@react-three/fiber";
-import { useRef } from "react";
+import { Suspense, useRef } from "react";
 import * as THREE from "three";
 import {
   BALL_RADIUS,
@@ -152,12 +152,14 @@ export function ArcadeScene({
           than shooting — in Time Attack the child's own hand is the shooter.
           Uses the same selected baller as every other Basketball mode. */}
       <group position={[2.1, 0, RACK_POSITION[2] + 0.2]}>
-        <BallerAvatar
-          ballerId={ballerId}
-          jerseyId={jerseyId}
-          phase="idle"
-          facing={Math.PI + 0.35}
-        />
+        <Suspense fallback={null}>
+          <BallerAvatar
+            ballerId={ballerId}
+            jerseyId={jerseyId}
+            phase="idle"
+            facing={Math.PI + 0.35}
+          />
+        </Suspense>
       </group>
 
       <ReadyBall visible={ballReady} />

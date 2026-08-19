@@ -1,7 +1,7 @@
 "use client";
 
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { useRef } from "react";
+import { Suspense, useRef } from "react";
 import * as THREE from "three";
 import type { CourtSpot } from "@/content/basketball/types";
 import { Ball, type BallFlight } from "./Ball";
@@ -75,12 +75,14 @@ export function CourtScene({
       <Hoop />
 
       <group position={[x, 0, z]}>
-        <BallerAvatar
-          ballerId={ballerId}
-          jerseyId={jerseyId}
-          phase={phase}
-          facing={facing}
-        />
+        <Suspense fallback={null}>
+          <BallerAvatar
+            ballerId={ballerId}
+            jerseyId={jerseyId}
+            phase={phase}
+            facing={facing}
+          />
+        </Suspense>
       </group>
 
       <Ball flight={ballFlight} onArrive={onBallArrive} />

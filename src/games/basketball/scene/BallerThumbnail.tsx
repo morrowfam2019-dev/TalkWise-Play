@@ -1,6 +1,7 @@
 "use client";
 
 import { Canvas } from "@react-three/fiber";
+import { Suspense } from "react";
 import { BallerAvatar } from "./BallerAvatar";
 
 /**
@@ -31,7 +32,9 @@ export function BallerThumbnail({
         <ambientLight intensity={1.2} />
         <directionalLight position={[2, 3, 2]} intensity={1.1} />
         <directionalLight position={[-2, 2, -1]} intensity={0.4} color="#ffe6bd" />
-        <BallerAvatar ballerId={ballerId} jerseyId={jerseyId} phase="idle" facing={0} />
+        <Suspense fallback={null}>
+          <BallerAvatar ballerId={ballerId} jerseyId={jerseyId} phase="idle" facing={0} />
+        </Suspense>
       </Canvas>
     </div>
   );
