@@ -12,11 +12,89 @@ const SNEAKER_SOLE = "#e3402a";
 
 export type ShotPhase = "idle" | "aiming" | "releasing" | "made" | "missed";
 
+/** Skin/head material — matte by default, metallic (chrome) for the one
+ * baller that asks for it. Kept as a single switch point so every mesh that
+ * shows skin tone (legs, arms, head) stays visually consistent. */
+function SkinMat({ color, metallic }: { color: string; metallic?: boolean }) {
+  return metallic ? (
+    <meshStandardMaterial color={color} metalness={0.85} roughness={0.25} />
+  ) : (
+    <meshLambertMaterial color={color} />
+  );
+}
+
+const BASKETBALL_ORANGE = "#e0742a";
+const BASKETBALL_SEAM = "#1b2233";
+
+/** The knit baller's head: a basketball instead of a face — orange sphere,
+ * a couple of seam lines, small embroidered-dot eyes. Swapped in wherever
+ * `look.headStyle === "basketball"` instead of the usual skin-tone head. */
+function BasketballHead() {
+  return (
+    <>
+      <mesh>
+        <sphereGeometry args={[0.22, 16, 14]} />
+        <meshLambertMaterial color={BASKETBALL_ORANGE} />
+      </mesh>
+      <mesh rotation={[0, 0, Math.PI / 2]}>
+        <torusGeometry args={[0.221, 0.006, 6, 24]} />
+        <meshLambertMaterial color={BASKETBALL_SEAM} />
+      </mesh>
+      <mesh rotation={[Math.PI / 2, 0, 0]}>
+        <torusGeometry args={[0.221, 0.006, 6, 24]} />
+        <meshLambertMaterial color={BASKETBALL_SEAM} />
+      </mesh>
+      <mesh position={[-0.08, 0.01, 0.19]}>
+        <sphereGeometry args={[0.035, 8, 6]} />
+        <meshLambertMaterial color={EYE_DARK} />
+      </mesh>
+      <mesh position={[0.08, 0.01, 0.19]}>
+        <sphereGeometry args={[0.035, 8, 6]} />
+        <meshLambertMaterial color={EYE_DARK} />
+      </mesh>
+      <mesh position={[0, -0.06, 0.2]} scale={[1.3, 0.6, 0.5]}>
+        <sphereGeometry args={[0.04, 8, 6]} />
+        <meshLambertMaterial color={EYE_DARK} />
+      </mesh>
+    </>
+  );
+}
+
 /** Hair geometry on top of the head — a human-proportioned equivalent of
  * the adventure engine's crest, built from the same shop-preview shapes so
  * a baller in 3D matches its shop-card preview. */
 function Hair({ look }: { look: BallerLook }) {
   switch (look.hairStyle) {
+    case "bald":
+      return null;
+    case "spiky": {
+      const colors = [look.hair, look.hairAccent ?? look.hair, look.hairAccent2 ?? look.hair];
+      const spikes: Array<[number, number, number, number]> = [
+        [0, 0.14, 0, 0],
+        [-0.09, 0.1, 0.05, -0.35],
+        [0.09, 0.1, 0.05, 0.35],
+        [-0.06, 0.09, -0.12, -0.6],
+        [0.06, 0.09, -0.12, 0.6],
+        [0, 0.13, -0.14, 0],
+      ];
+      return (
+        <group position={[0, 0.24, -0.02]}>
+          {spikes.map(([x, y, z, tilt], i) => (
+            <mesh key={i} position={[x, y, z]} rotation={[0.15, 0, tilt]}>
+              <coneGeometry args={[0.055, 0.22, 8]} />
+              <meshLambertMaterial color={colors[i % colors.length]} />
+            </mesh>
+          ))}
+        </group>
+      );
+    }
+    case "visor":
+      return (
+        <mesh position={[0, 0.02, 0.19]} scale={[1, 0.32, 0.4]}>
+          <sphereGeometry args={[0.19, 14, 10]} />
+          <meshStandardMaterial color={look.hair} metalness={0.6} roughness={0.15} />
+        </mesh>
+      );
     case "puff":
       return (
         <mesh position={[0, 0.3, -0.02]}>
@@ -157,7 +235,7 @@ export function BallerAvatar({
       <group position={[-0.11, 0.5, 0]}>
         <mesh position={[0, -0.22, 0]}>
           <capsuleGeometry args={[0.075, 0.32, 4, 8]} />
-          <meshLambertMaterial color={look.skin} />
+          <SkinMat color={look.skin} metallic={look.metallic} />
         </mesh>
         <mesh position={[0, -0.44, 0.05]}>
           <boxGeometry args={[0.15, 0.09, 0.22]} />
@@ -171,7 +249,7 @@ export function BallerAvatar({
       <group position={[0.11, 0.5, 0]}>
         <mesh position={[0, -0.22, 0]}>
           <capsuleGeometry args={[0.075, 0.32, 4, 8]} />
-          <meshLambertMaterial color={look.skin} />
+          <SkinMat color={look.skin} metallic={look.metallic} />
         </mesh>
         <mesh position={[0, -0.44, 0.05]}>
           <boxGeometry args={[0.15, 0.09, 0.22]} />
@@ -203,13 +281,13 @@ export function BallerAvatar({
       <group ref={leftArm} position={[-0.26, 1.12, 0]}>
         <mesh position={[0, -0.18, 0]} rotation={[0, 0, 0.12]}>
           <capsuleGeometry args={[0.06, 0.3, 4, 8]} />
-          <meshLambertMaterial color={look.skin} />
+          <SkinMat color={look.skin} metallic={look.metallic} />
         </mesh>
       </group>
       <group ref={rightArm} position={[0.26, 1.12, 0]}>
         <mesh position={[0, -0.18, 0]} rotation={[0, 0, -0.12]}>
           <capsuleGeometry args={[0.06, 0.3, 4, 8]} />
-          <meshLambertMaterial color={look.skin} />
+          <SkinMat color={look.skin} metallic={look.metallic} />
         </mesh>
         <mesh ref={ball} position={[0, -0.36, 0.05]}>
           <sphereGeometry args={[0.1, 12, 10]} />
@@ -219,31 +297,37 @@ export function BallerAvatar({
 
       {/* Head */}
       <group position={[0, 1.32, 0]}>
-        <mesh>
-          <sphereGeometry args={[0.22, 16, 14]} />
-          <meshLambertMaterial color={look.skin} />
-        </mesh>
-        <Hair look={look} />
-        <mesh position={[-0.08, 0.01, 0.17]}>
-          <sphereGeometry args={[0.065, 10, 8]} />
-          <meshLambertMaterial color={EYE_WHITE} />
-        </mesh>
-        <mesh position={[0.08, 0.01, 0.17]}>
-          <sphereGeometry args={[0.065, 10, 8]} />
-          <meshLambertMaterial color={EYE_WHITE} />
-        </mesh>
-        <mesh position={[-0.08, 0.01, 0.21]}>
-          <sphereGeometry args={[0.03, 8, 6]} />
-          <meshLambertMaterial color={EYE_DARK} />
-        </mesh>
-        <mesh position={[0.08, 0.01, 0.21]}>
-          <sphereGeometry args={[0.03, 8, 6]} />
-          <meshLambertMaterial color={EYE_DARK} />
-        </mesh>
-        <mesh position={[0, -0.08, 0.18]} scale={[1.4, 0.7, 0.5]}>
-          <sphereGeometry args={[0.045, 10, 8]} />
-          <meshLambertMaterial color={EYE_DARK} />
-        </mesh>
+        {look.headStyle === "basketball" ? (
+          <BasketballHead />
+        ) : (
+          <>
+            <mesh>
+              <sphereGeometry args={[0.22, 16, 14]} />
+              <SkinMat color={look.skin} metallic={look.metallic} />
+            </mesh>
+            <Hair look={look} />
+            <mesh position={[-0.08, 0.01, 0.17]}>
+              <sphereGeometry args={[0.065, 10, 8]} />
+              <meshLambertMaterial color={EYE_WHITE} />
+            </mesh>
+            <mesh position={[0.08, 0.01, 0.17]}>
+              <sphereGeometry args={[0.065, 10, 8]} />
+              <meshLambertMaterial color={EYE_WHITE} />
+            </mesh>
+            <mesh position={[-0.08, 0.01, 0.21]}>
+              <sphereGeometry args={[0.03, 8, 6]} />
+              <meshLambertMaterial color={EYE_DARK} />
+            </mesh>
+            <mesh position={[0.08, 0.01, 0.21]}>
+              <sphereGeometry args={[0.03, 8, 6]} />
+              <meshLambertMaterial color={EYE_DARK} />
+            </mesh>
+            <mesh position={[0, -0.08, 0.18]} scale={[1.4, 0.7, 0.5]}>
+              <sphereGeometry args={[0.045, 10, 8]} />
+              <meshLambertMaterial color={EYE_DARK} />
+            </mesh>
+          </>
+        )}
       </group>
     </group>
   );

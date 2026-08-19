@@ -33,23 +33,67 @@ const TABS: { kind: BasketballTab; label: string }[] = [
 
 function BallerPreview({ baller }: { baller: BallerItem }) {
   const { look } = baller;
+
+  if (look.headStyle === "basketball") {
+    return (
+      <div className="relative mx-auto h-16 w-16" aria-hidden>
+        <div
+          className="relative grid h-16 w-16 place-items-center rounded-full bg-[#e0742a]"
+          style={{
+            backgroundImage:
+              "linear-gradient(#1b2233 2px, transparent 2px), linear-gradient(90deg, #1b2233 2px, transparent 2px)",
+            backgroundSize: "100% 2px, 2px 100%",
+            backgroundPosition: "center",
+            backgroundRepeat: "no-repeat",
+          }}
+        >
+          <div className="flex gap-1.5">
+            <span className="block h-1.5 w-1.5 rounded-full bg-[#1b2233]" />
+            <span className="block h-1.5 w-1.5 rounded-full bg-[#1b2233]" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const hairClassName =
+    look.hairStyle === "puff"
+      ? "-top-2 h-5 w-14 rounded-full"
+      : look.hairStyle === "braids"
+        ? "-top-1 h-4 w-12 rounded-t-full"
+        : look.hairStyle === "bun"
+          ? "-top-3 h-4 w-4 rounded-full"
+          : look.hairStyle === "curly"
+            ? "-top-2 h-5 w-13 rounded-full"
+            : look.hairStyle === "bald"
+              ? "hidden"
+              : look.hairStyle === "spiky"
+                ? "-top-3 h-6 w-14"
+                : look.hairStyle === "visor"
+                  ? "top-3 h-2.5 w-13 rounded-full"
+                  : "-top-1 h-3 w-12 rounded-t-full";
+
   return (
     <div className="relative mx-auto h-16 w-16" aria-hidden>
       {/* Hair silhouette, matching what the 3D baller actually wears. */}
-      <span
-        className={`absolute left-1/2 -translate-x-1/2 ${
-          look.hairStyle === "puff"
-            ? "-top-2 h-5 w-14 rounded-full"
-            : look.hairStyle === "braids"
-              ? "-top-1 h-4 w-12 rounded-t-full"
-              : look.hairStyle === "bun"
-                ? "-top-3 h-4 w-4 rounded-full"
-                : look.hairStyle === "curly"
-                  ? "-top-2 h-5 w-13 rounded-full"
-                  : "-top-1 h-3 w-12 rounded-t-full"
-        }`}
-        style={{ background: look.hair }}
-      />
+      {look.hairStyle === "spiky" ? (
+        <span className="absolute -top-3 left-1/2 flex -translate-x-1/2 gap-0.5">
+          {[look.hair, look.hairAccent ?? look.hair, look.hairAccent2 ?? look.hair].map(
+            (color, i) => (
+              <span
+                key={i}
+                className="block h-5 w-2 rounded-t-full"
+                style={{ background: color }}
+              />
+            ),
+          )}
+        </span>
+      ) : (
+        <span
+          className={`absolute left-1/2 -translate-x-1/2 ${hairClassName}`}
+          style={{ background: look.hair }}
+        />
+      )}
       <div
         className="relative grid h-16 w-16 place-items-center rounded-full"
         style={{ background: look.skin }}

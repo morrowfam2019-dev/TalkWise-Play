@@ -18,7 +18,16 @@ export interface BallerLook {
   skin: string;
   skinDark: string;
   hair: string;
-  hairStyle: "fade" | "puff" | "braids" | "bun" | "curly" | "short";
+  hairStyle: "fade" | "puff" | "braids" | "bun" | "curly" | "short" | "bald" | "spiky" | "visor";
+  /** Second and third hair tones — only read by multi-tone styles ("spiky"). */
+  hairAccent?: string;
+  hairAccent2?: string;
+  /** Swaps the head mesh for a themed shape instead of a plain skin-tone
+   * sphere. Currently only "basketball" (the knit baller's head). */
+  headStyle?: "basketball";
+  /** Renders skin/head materials with metalness instead of a matte finish —
+   * the chrome/sci-fi baller's look. */
+  metallic?: boolean;
 }
 
 export interface BallerItem extends ShopItem {
@@ -103,6 +112,79 @@ export const BALLERS: BallerItem[] = [
       skinDark: "#dcb98f",
       hair: "#8a5a2b",
       hairStyle: "curly",
+    },
+  },
+  // --- Founder-approved style pack ------------------------------------
+  // Five distinct art directions the founder picked from concept art.
+  // Same rendering pipeline as every other baller — no external meshes,
+  // no separate code path — just new look values.
+  {
+    id: "cosmo",
+    kind: "baller",
+    name: "Cosmo",
+    blurb: "Pastel and round, never stops smiling.",
+    price: 260,
+    look: {
+      skin: "#f6e4f2",
+      skinDark: "#e0c7ea",
+      hair: "#f6e4f2",
+      hairStyle: "bald",
+    },
+  },
+  {
+    id: "nova",
+    kind: "baller",
+    name: "Nova",
+    blurb: "Hair like a firework, game like one too.",
+    price: 260,
+    look: {
+      skin: "#f2c9a0",
+      skinDark: "#d9a877",
+      hair: "#ff3b6e",
+      hairAccent: "#ffcf3b",
+      hairAccent2: "#3bd6ff",
+      hairStyle: "spiky",
+    },
+  },
+  {
+    id: "yarnie",
+    kind: "baller",
+    name: "Yarnie",
+    blurb: "Stitched with love, shoots with heart.",
+    price: 240,
+    look: {
+      skin: "#c9793b",
+      skinDark: "#a85f2a",
+      hair: "#c9793b",
+      hairStyle: "bald",
+      headStyle: "basketball",
+    },
+  },
+  {
+    id: "volt",
+    kind: "baller",
+    name: "Volt",
+    blurb: "Built different. Powered up.",
+    price: 300,
+    look: {
+      skin: "#c7ccd6",
+      skinDark: "#9aa1b0",
+      hair: "#2ecfe0",
+      hairStyle: "visor",
+      metallic: true,
+    },
+  },
+  {
+    id: "cocoa",
+    kind: "baller",
+    name: "Cocoa",
+    blurb: "Smooth, sweet, and clutch in the fourth.",
+    price: 220,
+    look: {
+      skin: "#5a3420",
+      skinDark: "#402412",
+      hair: "#5a3420",
+      hairStyle: "bald",
     },
   },
 ];

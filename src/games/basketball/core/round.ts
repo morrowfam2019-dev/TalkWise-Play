@@ -67,13 +67,13 @@ export function buildRoundPlan(challenges: SpeechChallenge[]): ShotPlan[] {
   });
 }
 
-/** Make-chance per timing tier. Green is "best chance", yellow is "harder",
- * outside is "likely miss" — never impossible, never guaranteed, so a lucky
- * or unlucky bounce still feels fair either way. */
+/** Make-chance per timing tier. Landing in the green zone is a guaranteed
+ * make — that's the whole point of nailing the timing. Yellow is a coin
+ * flip. Missing the bar entirely is a guaranteed miss. */
 const MAKE_CHANCE: Record<TimingTier, number> = {
-  perfect: 0.9,
-  good: 0.55,
-  miss: 0.15,
+  perfect: 1,
+  good: 0.5,
+  miss: 0,
 };
 
 /**
