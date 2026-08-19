@@ -68,13 +68,16 @@ const DRAG_REFERENCE_FRACTION = 0.35;
 /**
  * Power multiplier range across the whole drag.
  *
- * Wide enough that over- and under-flicking are genuinely different shots —
- * a narrower range plus the assist below made essentially every gesture go
- * in, which reads as broken rather than generous, and made the accuracy stat
- * meaningless.
+ * `POWER_MAX` is deliberately 1.0, not >1: because `vy` and `vz` are both
+ * scaled by the same power figure, the ball's horizontal miss distance at
+ * the rim blows up fast for *any* power above perfect (a 5% overshoot
+ * already misses the whole scoring radius) — so a real swipe that reaches or
+ * exceeds the reference distance, which is most of them, must land on
+ * "perfect" rather than sail long. Only a short, gentle flick is
+ * underpowered and falls short; you cannot swipe "too hard".
  */
-const POWER_MIN = 0.8;
-const POWER_MAX = 1.2;
+const POWER_MIN = 0.92;
+const POWER_MAX = 1.0;
 /** Sideways velocity at a full half-width drag. */
 const LATERAL_SCALE = 1.3;
 
@@ -96,8 +99,8 @@ export interface ArcadeAssist {
  * varies only mildly, and never enough to make Expert feel punishing.
  */
 const ASSISTS: Record<SpeechDifficulty, ArcadeAssist> = {
-  beginner: { band: 0.05, strength: 0.6 },
-  expert: { band: 0.05, strength: 0.45 },
+  beginner: { band: 0.1, strength: 0.85 },
+  expert: { band: 0.08, strength: 0.7 },
 };
 
 export function getArcadeAssist(difficulty: SpeechDifficulty): ArcadeAssist {
