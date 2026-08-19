@@ -469,6 +469,7 @@ export function TimeAttackMode({
           ballerId={basketball.loadout.ballerId}
           jerseyId={basketball.loadout.jerseyId}
           ballReady={ballReady}
+          secondsRemaining={secondsRemaining}
           onBallEvent={handleBallEvent}
         />
       </div>

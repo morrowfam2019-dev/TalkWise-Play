@@ -2,10 +2,12 @@
 
 /** Backboard, rim, net and support pole — a simple original hoop, no real
  * team or arena branding, centered at the world origin every court spot
- * shoots toward. */
-export function Hoop() {
+ * shoots toward. `x` slides the whole assembly sideways — Time Attack uses
+ * this in the closing seconds; every other caller leaves it at its default
+ * and gets the original static hoop. */
+export function Hoop({ x = 0 }: { x?: number }) {
   return (
-    <group position={[0, 0, 0]}>
+    <group position={[x, 0, 0]}>
       {/* Pole */}
       <mesh position={[0, 1.3, -0.5]}>
         <cylinderGeometry args={[0.09, 0.11, 2.6, 10]} />

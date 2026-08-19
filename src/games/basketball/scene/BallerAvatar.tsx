@@ -9,6 +9,13 @@ import type { GLTF } from "three/examples/jsm/loaders/GLTFLoader.js";
 
 export type ShotPhase = "idle" | "aiming" | "releasing" | "made" | "missed";
 
+/** How long the post-shot jump-and-spin celebration takes, in seconds.
+ * Comfortably inside `ShootoutMode`'s `RESULT_BANNER_MS` (1.3s) window, so
+ * the spin always lands before the next shot's setup begins. */
+const CELEBRATION_SECONDS = 0.95;
+/** Peak height of the celebration jump, in world units. */
+const CELEBRATION_JUMP_HEIGHT = 0.42;
+
 /** GAME-002's ballers are real 3D scans (Meshy image-to-3D from the
  * founder-approved concept art), one GLB per character — not the earlier
  * procedural placeholder rig. Every baller ships at a wildly different
@@ -84,6 +91,40 @@ function stripSkinning(root: THREE.Object3D) {
     skinned.parent?.add(plain);
     skinned.parent?.remove(skinned);
   }
+}
+
+/** A small, procedurally-drawn smiley — no emoji font or external asset, so
+ * it renders identically everywhere. Drawn once and cached, then reused as a
+ * canvas texture on every celebrating baller. */
+let smileyTexture: THREE.CanvasTexture | null = null;
+function getSmileyTexture(): THREE.CanvasTexture {
+  if (smileyTexture) return smileyTexture;
+  const canvas = document.createElement("canvas");
+  canvas.width = 128;
+  canvas.height = 128;
+  const ctx = canvas.getContext("2d")!;
+  ctx.fillStyle = "#ffd23f";
+  ctx.beginPath();
+  ctx.arc(64, 64, 58, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.lineWidth = 5;
+  ctx.strokeStyle = "#e0a400";
+  ctx.stroke();
+  ctx.fillStyle = "#3a2a12";
+  ctx.beginPath();
+  ctx.arc(44, 54, 7, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(84, 54, 7, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = "#3a2a12";
+  ctx.lineWidth = 7;
+  ctx.lineCap = "round";
+  ctx.beginPath();
+  ctx.arc(64, 56, 27, 0.15 * Math.PI, 0.85 * Math.PI);
+  ctx.stroke();
+  smileyTexture = new THREE.CanvasTexture(canvas);
+  return smileyTexture;
 }
 
 /** Normalizes a loaded GLTF scene to stand `TARGET_HEIGHT` tall, feet at
@@ -189,16 +230,64 @@ export function BallerAvatar({
   const root = useRef<THREE.Group>(null);
   const lean = useRef<THREE.Group>(null);
   const bob = useRef(0);
+  const prevPhase = useRef<ShotPhase>(phase);
+  const celebrateStart = useRef<number | null>(null);
+  const face = useRef<THREE.Sprite>(null);
+  const faceMaterial = useRef<THREE.SpriteMaterial>(null);
 
   useFrame((state, rawDelta) => {
     const delta = Math.min(rawDelta, 0.05);
     const lerp = Math.min(1, delta * 10);
     bob.current += delta;
+    const t = state.clock.elapsedTime;
+
+    // A shot resolving into "made" or "missed" starts one celebration; it
+    // always plays out in full even if the phase moves on to "idle" before
+    // it finishes, so a quick shot cadence can never truncate the spin.
+    if (
+      (phase === "made" || phase === "missed") &&
+      prevPhase.current !== "made" &&
+      prevPhase.current !== "missed"
+    ) {
+      celebrateStart.current = t;
+    }
+    prevPhase.current = phase;
+
+    const elapsed = celebrateStart.current === null ? Infinity : t - celebrateStart.current;
+    const celebrating = elapsed < CELEBRATION_SECONDS;
+    const progress = celebrating ? elapsed / CELEBRATION_SECONDS : null;
 
     const idleBob = phase === "idle" || phase === "aiming" ? Math.sin(bob.current * 2.4) * 0.02 : 0;
+
     if (root.current) {
-      root.current.position.y = idleBob;
-      root.current.rotation.y = facing;
+      if (progress !== null) {
+        // Every baller is a rigid mesh now (see stripSkinning), so the
+        // celebration is a jump-and-spin of the whole body rather than an
+        // arm pump — one full 360, landing back at `facing` exactly as the
+        // jump completes.
+        root.current.position.y = Math.sin(progress * Math.PI) * CELEBRATION_JUMP_HEIGHT;
+        root.current.rotation.y = facing + progress * Math.PI * 2;
+      } else {
+        root.current.position.y = idleBob;
+        root.current.rotation.y = facing;
+      }
+    }
+
+    // The happy-face sprite is always mounted and toggled imperatively
+    // (visible + material opacity), never via conditional JSX — this runs
+    // every frame, and re-rendering React to mount/unmount it would fight
+    // the same physics-in-refs rule the rest of Basketball's frame loop
+    // follows.
+    if (face.current && faceMaterial.current) {
+      if (progress !== null) {
+        face.current.visible = true;
+        const fade = progress < 0.15 ? progress / 0.15 : progress > 0.85 ? (1 - progress) / 0.15 : 1;
+        faceMaterial.current.opacity = Math.max(0, fade);
+        const scale = 0.32 + Math.min(1, progress / 0.15) * 0.1;
+        face.current.scale.setScalar(scale);
+      } else {
+        face.current.visible = false;
+      }
     }
 
     // Every baller is a rigid mesh now (see stripSkinning), so "shooting"
@@ -207,11 +296,6 @@ export function BallerAvatar({
     if (lean.current) {
       lean.current.rotation.x += (targetLean - lean.current.rotation.x) * lerp;
     }
-
-    const t = state.clock.elapsedTime;
-    if (root.current && (phase === "made" || phase === "missed")) {
-      root.current.position.y = idleBob + Math.max(0, Math.sin(t * 6)) * (phase === "made" ? 0.06 : 0);
-    }
   });
 
   return (
@@ -219,6 +303,16 @@ export function BallerAvatar({
       <group ref={lean}>
         <BallerModel ballerId={ballerId} phase={phase} />
       </group>
+      {/* Celebration face — see the imperative toggle above. */}
+      <sprite ref={face} position={[0, TARGET_HEIGHT + 0.32, 0]} visible={false}>
+        <spriteMaterial
+          ref={faceMaterial}
+          map={getSmileyTexture()}
+          transparent
+          opacity={0}
+          depthWrite={false}
+        />
+      </sprite>
     </group>
   );
 }

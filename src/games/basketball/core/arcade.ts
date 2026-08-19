@@ -50,6 +50,26 @@ export const RIM_CONTACT_RADIUS = 0.68;
 /** Where a ready ball sits, waiting to be flicked. */
 export const RACK_POSITION: readonly [number, number, number] = [0, 1.0, 6.0];
 
+/**
+ * The last stretch of the clock: the hoop itself starts sliding side to
+ * side, so the final shots ask for a bit of aim as well as power. A pure
+ * function of `secondsRemaining` rather than any stored, mutable timer —
+ * `scene/Hoop.tsx` (what's drawn) and `stepBall` (what's scored) both call
+ * this with the same value each frame, so the visual hoop and the hitbox
+ * that scores against it can never drift apart.
+ */
+export const HOOP_MOVE_WINDOW_SECONDS = 15;
+export const HOOP_MOVE_AMPLITUDE = 1.1;
+export const HOOP_MOVE_PERIOD_SECONDS = 2.6;
+
+/** The hoop's horizontal offset from its resting centre, in world units. */
+export function getRimOffsetX(secondsRemaining: number): number {
+  if (secondsRemaining > HOOP_MOVE_WINDOW_SECONDS || secondsRemaining < 0) return 0;
+  const elapsed = HOOP_MOVE_WINDOW_SECONDS - secondsRemaining;
+  const phase = (elapsed / HOOP_MOVE_PERIOD_SECONDS) * Math.PI * 2;
+  return Math.sin(phase) * HOOP_MOVE_AMPLITUDE;
+}
+
 export const BALL_RADIUS = 0.14;
 export const GRAVITY = 9.8;
 export const FLOOR_Y = BALL_RADIUS;
@@ -249,8 +269,8 @@ export function launchBall(
   return ball;
 }
 
-function horizontalDistanceFromRim(x: number, z: number): number {
-  const dx = x - RIM_X;
+function horizontalDistanceFromRim(x: number, z: number, rimX: number): number {
+  const dx = x - rimX;
   const dz = z - RIM_Z;
   return Math.sqrt(dx * dx + dz * dz);
 }
@@ -263,8 +283,12 @@ function horizontalDistanceFromRim(x: number, z: number): number {
  * the interpolated moment it crosses. A ball rising through the rim plane on
  * its way up can never score, which is what stops a flat rocket shot from
  * counting.
+ *
+ * `rimX` is the hoop's current horizontal offset (see `getRimOffsetX`) —
+ * pass the same value the scene rendered the hoop at this frame, or omit it
+ * outside the closing-seconds window, where it's always 0.
  */
-export function stepBall(ball: ArcadeBall, dtSeconds: number): void {
+export function stepBall(ball: ArcadeBall, dtSeconds: number, rimX: number = RIM_X): void {
   if (!ball.active) return;
 
   ball.hitRim = false;
@@ -289,7 +313,7 @@ export function stepBall(ball: ArcadeBall, dtSeconds: number): void {
     const t = span > 0 ? (previousY - RIM_Y) / span : 0;
     const crossX = previousX + (ball.x - previousX) * t;
     const crossZ = previousZ + (ball.z - previousZ) * t;
-    const distance = horizontalDistanceFromRim(crossX, crossZ);
+    const distance = horizontalDistanceFromRim(crossX, crossZ, rimX);
 
     if (distance <= SCORE_RADIUS) {
       ball.outcome = "made";
@@ -299,16 +323,24 @@ export function stepBall(ball: ArcadeBall, dtSeconds: number): void {
       ball.hitRim = true;
       ball.vy = Math.abs(ball.vy) * 0.42;
       ball.vz *= -0.3;
-      ball.vx += (crossX >= RIM_X ? 1 : -1) * 0.6;
+      ball.vx += (crossX >= rimX ? 1 : -1) * 0.6;
       ball.y = RIM_Y + 0.01;
     } else {
       ball.outcome = "missed";
     }
   }
 
-  // Backboard: a plane behind the hoop, so long shots come back rather than
-  // flying off into the fog.
-  if (ball.z < -0.35 && ball.vz < 0 && ball.y > 2.3 && ball.y < 3.5) {
+  // Backboard: a plane behind the hoop (bounded to the backboard's own
+  // width around wherever it currently sits), so long shots come back
+  // rather than flying off into the fog — and a shot nowhere near the
+  // (possibly sliding) backboard doesn't clang off empty air.
+  if (
+    ball.z < -0.35 &&
+    ball.vz < 0 &&
+    ball.y > 2.3 &&
+    ball.y < 3.5 &&
+    Math.abs(ball.x - rimX) < 0.95
+  ) {
     ball.vz = Math.abs(ball.vz) * 0.45;
     ball.z = -0.35;
     ball.hitRim = true;

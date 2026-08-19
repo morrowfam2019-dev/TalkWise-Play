@@ -1,10 +1,11 @@
 "use client";
 
 import { Canvas, useFrame } from "@react-three/fiber";
-import { Suspense, useRef } from "react";
+import { Suspense, useEffect, useRef } from "react";
 import * as THREE from "three";
 import {
   BALL_RADIUS,
+  getRimOffsetX,
   RACK_POSITION,
   stepBall,
   type ArcadeBall,
@@ -54,12 +55,18 @@ function BallRack() {
  */
 function BallPool({
   pool,
+  rimX,
   onBallEvent,
 }: {
   pool: ArcadeBall[];
+  rimX: number;
   onBallEvent: (ball: ArcadeBall) => void;
 }) {
   const meshes = useRef<(THREE.Mesh | null)[]>([]);
+  const rimXRef = useRef(rimX);
+  useEffect(() => {
+    rimXRef.current = rimX;
+  }, [rimX]);
 
   useFrame((_, rawDelta) => {
     // Clamped so a backgrounded tab resuming cannot teleport every ball
@@ -71,7 +78,7 @@ function BallPool({
       const mesh = meshes.current[i];
 
       if (ball.active) {
-        stepBall(ball, delta);
+        stepBall(ball, delta, rimXRef.current);
         onBallEvent(ball);
       }
 
@@ -118,14 +125,20 @@ export function ArcadeScene({
   ballerId,
   jerseyId,
   ballReady,
+  secondsRemaining,
   onBallEvent,
 }: {
   pool: ArcadeBall[];
   ballerId: string;
   jerseyId: string | null;
   ballReady: boolean;
+  /** Drives the hoop's side-to-side slide in the closing seconds — see
+   * `getRimOffsetX`. */
+  secondsRemaining: number;
   onBallEvent: (ball: ArcadeBall) => void;
 }) {
+  const rimX = getRimOffsetX(secondsRemaining);
+
   return (
     <Canvas
       flat
@@ -145,7 +158,7 @@ export function ArcadeScene({
       <directionalLight position={[-6, 8, -4]} intensity={0.35} color="#ffe6bd" />
 
       <Court />
-      <Hoop />
+      <Hoop x={rimX} />
       <BallRack />
 
       {/* The child's chosen baller stands beside the rack, cheering rather
@@ -163,7 +176,7 @@ export function ArcadeScene({
       </group>
 
       <ReadyBall visible={ballReady} />
-      <BallPool pool={pool} onBallEvent={onBallEvent} />
+      <BallPool pool={pool} rimX={rimX} onBallEvent={onBallEvent} />
     </Canvas>
   );
 }
