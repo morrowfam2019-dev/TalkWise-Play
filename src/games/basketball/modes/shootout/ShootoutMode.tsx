@@ -148,6 +148,7 @@ export function ShootoutMode({
     setAvatarPhase(lastResult.made ? "made" : "missed");
     if (lastResult.made) {
       hoopAudio.swish();
+      hoopAudio.cheer();
     } else {
       hoopAudio.clank();
     }

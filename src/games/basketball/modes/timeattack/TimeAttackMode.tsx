@@ -286,6 +286,7 @@ export function TimeAttackMode({
 
     publishTally();
     hoopAudio.score();
+    hoopAudio.cheer();
 
     const callout = streakCallout(tallies.streak);
     if (callout) {

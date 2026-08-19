@@ -3,7 +3,21 @@
  * no-shipped-audio-files approach as the adventure engine's `gameAudio`.
  * Kept as its own instance rather than extending `gameAudio` so the
  * basketball module stays fully isolated, per its own module boundary.
+ *
+ * The one exception is `cheer()`: a made basket deserves an actual excited
+ * kid voice, not another oscillator beep, so it plays one of a small set of
+ * short recorded clips (TalkWise's own TJ character voice) instead.
  */
+
+/** Recorded "made it!" cheers — a real young voice, picked at random so the
+ * same line doesn't repeat every basket. */
+const CHEER_CLIPS = [
+  "/audio/basketball/cheer-yay.mp3",
+  "/audio/basketball/cheer-yes-woohoo.mp3",
+  "/audio/basketball/cheer-nice-shot.mp3",
+  "/audio/basketball/cheer-awesome.mp3",
+  "/audio/basketball/cheer-woohoo-yay.mp3",
+];
 
 type Wave = OscillatorType;
 
@@ -21,6 +35,7 @@ class HoopAudio {
   private muted = false;
   private musicTimer: number | null = null;
   private musicGen = 0;
+  private lastCheerIndex = -1;
 
   unlock() {
     if (this.muted) return;
@@ -95,6 +110,22 @@ class HoopAudio {
     this.tone({ freq: 880, duration: 0.14, type: "triangle", gain: 0.09 });
     this.tone({ freq: 1175, duration: 0.18, type: "triangle", gain: 0.08, delay: 0.08 });
     this.noiseBurst(0.12, 0.03, 0.1);
+  }
+
+  /** A real excited kid-voice cheer for a made basket — never repeats the
+   * same clip twice in a row. Best-effort: a rejected `play()` (autoplay
+   * policy, slow network) is swallowed exactly like the rest of this
+   * class's audio, never surfaced to the caller. */
+  cheer() {
+    if (this.muted || typeof window === "undefined") return;
+    let index = Math.floor(Math.random() * CHEER_CLIPS.length);
+    if (CHEER_CLIPS.length > 1 && index === this.lastCheerIndex) {
+      index = (index + 1) % CHEER_CLIPS.length;
+    }
+    this.lastCheerIndex = index;
+    const clip = new Audio(CHEER_CLIPS[index]);
+    clip.volume = 0.85;
+    clip.play().catch(() => {});
   }
 
   /** Rim/backboard miss. */
