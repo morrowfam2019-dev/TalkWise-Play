@@ -35,95 +35,18 @@ export interface BallerItem extends ShopItem {
   look: BallerLook;
 }
 
+// The roster is deliberately just the five founder-approved styles — no
+// legacy placeholder ballers. All five are the same rendering pipeline (no
+// external meshes, no separate code path), just different look values, and
+// are priced low right now specifically so the shop is easy to test end to
+// end. Raise prices back up once testing is done.
 export const BALLERS: BallerItem[] = [
-  {
-    id: "zoe",
-    kind: "baller",
-    name: "Zoe",
-    blurb: "Quick first step, quicker smile.",
-    price: 0,
-    look: {
-      skin: "#c98b5e",
-      skinDark: "#a86f45",
-      hair: "#2b1c14",
-      hairStyle: "puff",
-    },
-  },
-  {
-    id: "marcus",
-    kind: "baller",
-    name: "Marcus",
-    blurb: "Calls every shot before he takes it.",
-    price: 140,
-    look: {
-      skin: "#5b3a24",
-      skinDark: "#432a19",
-      hair: "#141414",
-      hairStyle: "fade",
-    },
-  },
-  {
-    id: "priya",
-    kind: "baller",
-    name: "Priya",
-    blurb: "Practices free throws in her sleep.",
-    price: 140,
-    look: {
-      skin: "#e0ab7a",
-      skinDark: "#c08d5c",
-      hair: "#2a1810",
-      hairStyle: "braids",
-    },
-  },
-  {
-    id: "kai",
-    kind: "baller",
-    name: "Kai",
-    blurb: "Never met a corner three they didn't like.",
-    price: 180,
-    look: {
-      skin: "#f2c9a0",
-      skinDark: "#d9a877",
-      hair: "#3d2b1a",
-      hairStyle: "short",
-    },
-  },
-  {
-    id: "amara",
-    kind: "baller",
-    name: "Amara",
-    blurb: "The loudest cheer on the bench, the coolest head on the court.",
-    price: 180,
-    look: {
-      skin: "#3d2415",
-      skinDark: "#2a1810",
-      hair: "#1a1a1a",
-      hairStyle: "bun",
-    },
-  },
-  {
-    id: "leo",
-    kind: "baller",
-    name: "Leo",
-    blurb: "Big hair, bigger hops.",
-    price: 220,
-    look: {
-      skin: "#f4d9b8",
-      skinDark: "#dcb98f",
-      hair: "#8a5a2b",
-      hairStyle: "curly",
-    },
-  },
-  // --- Founder-approved style pack ------------------------------------
-  // Five distinct art directions the founder picked from concept art.
-  // Same rendering pipeline as every other baller — no external meshes,
-  // no separate code path — just new look values.
   {
     id: "cosmo",
     kind: "baller",
     name: "Cosmo",
     blurb: "Pastel and round, never stops smiling.",
-    price: 260,
+    price: 0, // the starter baller — always owned, per sanitizeBasketballState
     look: {
       skin: "#f6e4f2",
       skinDark: "#e0c7ea",
@@ -136,7 +59,7 @@ export const BALLERS: BallerItem[] = [
     kind: "baller",
     name: "Nova",
     blurb: "Hair like a firework, game like one too.",
-    price: 260,
+    price: 10,
     look: {
       skin: "#f2c9a0",
       skinDark: "#d9a877",
@@ -151,7 +74,7 @@ export const BALLERS: BallerItem[] = [
     kind: "baller",
     name: "Yarnie",
     blurb: "Stitched with love, shoots with heart.",
-    price: 240,
+    price: 10,
     look: {
       skin: "#c9793b",
       skinDark: "#a85f2a",
@@ -165,7 +88,7 @@ export const BALLERS: BallerItem[] = [
     kind: "baller",
     name: "Volt",
     blurb: "Built different. Powered up.",
-    price: 300,
+    price: 10,
     look: {
       skin: "#c7ccd6",
       skinDark: "#9aa1b0",
@@ -179,7 +102,7 @@ export const BALLERS: BallerItem[] = [
     kind: "baller",
     name: "Cocoa",
     blurb: "Smooth, sweet, and clutch in the fourth.",
-    price: 220,
+    price: 10,
     look: {
       skin: "#5a3420",
       skinDark: "#402412",
@@ -235,7 +158,7 @@ export const JERSEYS: JerseyItem[] = [
   },
 ];
 
-export const DEFAULT_BALLER_ID = "zoe";
+export const DEFAULT_BALLER_ID = "cosmo";
 export const DEFAULT_JERSEY_ID = "jersey-home";
 
 export function getBaller(id: string): BallerItem {

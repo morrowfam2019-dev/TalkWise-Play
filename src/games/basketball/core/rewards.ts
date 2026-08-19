@@ -13,7 +13,7 @@
  *   performance     = min(15, floor(score/4)) the basketball part, capped
  *   personalBest    = 5 if this round beat the stored best for this
  *                     (sound, difficulty), else 0
- *   difficultyBonus = easy 0 | intermediate 1 | hard 2
+ *   difficultyBonus = beginner 0 | expert 2
  *
  *   base    = min(25, speechGate + performance + personalBest + difficultyBonus)
  *   coins   = max(1, round(base * dailyMultiplier(roundsAlreadyPlayedToday)))
@@ -53,9 +53,8 @@ export const TIME_ATTACK_PERSONAL_BEST_COINS = 5;
 export const TIME_ATTACK_ROUND_CAP = 25;
 
 const DIFFICULTY_BONUS: Record<SpeechDifficulty, number> = {
-  easy: 0,
-  intermediate: 1,
-  hard: 2,
+  beginner: 0,
+  expert: 2,
 };
 
 /** Full-rate rounds per day, then half, then quarter. */

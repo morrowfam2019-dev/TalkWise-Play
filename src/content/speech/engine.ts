@@ -34,8 +34,15 @@ import { getSoundLadder } from "./tiers";
  * Speech difficulty — how hard the *talking* is. Explicitly not the same
  * axis as a game's mechanical difficulty; Basketball keeps its shot-meter
  * tuning separate for exactly this reason.
+ *
+ * Two tiers, not three. An isolated-sound "Easy / Sound Builder" tier
+ * (`mmm`, `ba`, …) shipped originally but speech recognition reliably
+ * mis-heard bare sounds and short mouth-noises as silence or noise — so it
+ * came back out rather than ship a level that structurally can't register a
+ * correct attempt. Beginner now starts at whole words/phrases (what used to
+ * be Intermediate); Expert is unchanged (full sentences).
  */
-export type SpeechDifficulty = "easy" | "intermediate" | "hard";
+export type SpeechDifficulty = "beginner" | "expert";
 
 export const SPEECH_DIFFICULTIES: {
   id: SpeechDifficulty;
@@ -44,32 +51,27 @@ export const SPEECH_DIFFICULTIES: {
   blurb: string;
 }[] = [
   {
-    id: "easy",
-    label: "Easy",
-    kicker: "Sound Builder",
-    blurb: "Just the sound, then simple syllables. Great for starting out.",
-  },
-  {
-    id: "intermediate",
-    label: "Intermediate",
+    id: "beginner",
+    label: "Beginner",
     kicker: "Words & Phrases",
     blurb: "Whole words and short phrases.",
   },
   {
-    id: "hard",
-    label: "Hard",
+    id: "expert",
+    label: "Expert",
     kicker: "Sentences",
     blurb: "Full sentences, one word at a time.",
   },
 ];
 
-export const DEFAULT_SPEECH_DIFFICULTY: SpeechDifficulty = "intermediate";
+export const DEFAULT_SPEECH_DIFFICULTY: SpeechDifficulty = "beginner";
 
 export function isSpeechDifficulty(value: unknown): value is SpeechDifficulty {
-  return value === "easy" || value === "intermediate" || value === "hard";
+  return value === "beginner" || value === "expert";
 }
 
-/** Falls back to Intermediate for anything unrecognised (e.g. a stale URL). */
+/** Falls back to Beginner for anything unrecognised (e.g. a stale URL, or a
+ * link saved back when the removed "easy" tier still existed). */
 export function coerceSpeechDifficulty(value: unknown): SpeechDifficulty {
   return isSpeechDifficulty(value) ? value : DEFAULT_SPEECH_DIFFICULTY;
 }
@@ -167,8 +169,7 @@ function splitWords(text: string): SpeechTargetWord[] {
 
 /** How a target is announced, per tier. */
 function promptFor(text: string, difficulty: SpeechDifficulty): string {
-  if (difficulty === "easy") return `Say ${text}`;
-  if (difficulty === "hard") return "Say the whole sentence!";
+  if (difficulty === "expert") return "Say the whole sentence!";
   return `Say ${text.toUpperCase()}!`;
 }
 
@@ -180,22 +181,10 @@ function poolFor(
   const level = listLevels().find((entry) => entry.sound.id === soundId);
   const ladder = getSoundLadder(soundId);
 
-  if (difficulty === "easy") {
-    // No ladder authored for this sound yet: the safest possible degradation
-    // is the level's own words rather than nothing to say.
-    if (!ladder || ladder.easy.length === 0) {
-      return (level?.challenges ?? []).map((c) => ({
-        text: c.word,
-        glyph: c.glyph,
-      }));
-    }
-    return ladder.easy.map((text) => ({ text, glyph: "🗣️" }));
-  }
-
-  if (difficulty === "hard") {
+  if (difficulty === "expert") {
     if (!ladder || ladder.sentences.length === 0) {
       // Fall back one tier rather than to nothing.
-      return poolFor(soundId, "intermediate");
+      return poolFor(soundId, "beginner");
     }
     return ladder.sentences.map((text) => ({ text, glyph: "💬" }));
   }
@@ -239,7 +228,7 @@ export function requestSpeechTargets(
       praise: PRAISE[index % PRAISE.length],
       glyph: entry.glyph,
       difficulty,
-      wordByWord: difficulty === "hard" && words.length > 1,
+      wordByWord: difficulty === "expert" && words.length > 1,
     });
   }
   return targets;
@@ -247,5 +236,5 @@ export function requestSpeechTargets(
 
 /** Whether a sound has any content at all, at any tier. */
 export function hasSpeechContent(soundId: string): boolean {
-  return poolFor(soundId, "intermediate").length > 0;
+  return poolFor(soundId, "beginner").length > 0;
 }

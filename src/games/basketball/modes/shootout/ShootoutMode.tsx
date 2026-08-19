@@ -27,7 +27,7 @@ import { RoundResults } from "../../ui/RoundResults";
 import { ShotMeter } from "../../ui/ShotMeter";
 import { SpeechGate } from "../../ui/SpeechGate";
 
-type Phase = "word" | "meter" | "shooting" | "banner" | "results";
+type Phase = "ready" | "word" | "meter" | "shooting" | "banner" | "results";
 
 const RIM_POSITION: [number, number, number] = [0, 2.55, 0.04];
 const RESULT_BANNER_MS = 1300;
@@ -171,10 +171,18 @@ export function ShootoutMode({
         setPhase("results");
       } else {
         setShotIndex((i) => i + 1);
-        setPhase("word");
+        // Not straight to "word": the baller and camera are moving to the
+        // next spot right now, and the speech popup used to cover that move
+        // completely. "ready" holds off the popup until the child taps
+        // SHOOT, so the move to the next basket is actually visible.
+        setPhase("ready");
       }
     }, RESULT_BANNER_MS);
   }, [lastResult, shotIndex]);
+
+  const handleReadyShoot = useCallback(() => {
+    setPhase("word");
+  }, []);
 
   const summary = useMemo(() => summarizeRound(results), [results]);
 
@@ -249,6 +257,18 @@ export function ShootoutMode({
           spotLabel={currentPlan.spot.label}
           onExit={onExit}
         />
+
+        {phase === "ready" ? (
+          <div className="pointer-events-none absolute inset-x-0 bottom-10 flex justify-center px-4">
+            <button
+              type="button"
+              onClick={handleReadyShoot}
+              className="tw-pop pointer-events-auto rounded-full border-b-8 border-[#1c5fc9] bg-[#2f80ff] px-10 py-4 text-xl font-black tracking-wide text-white shadow-2xl transition-transform active:translate-y-1 active:border-b-4"
+            >
+              🏀 SHOOT
+            </button>
+          </div>
+        ) : null}
 
         {phase === "word" ? (
           <SpeechGate

@@ -40,7 +40,7 @@ export interface BasketballModeDefinition {
   slug: string;
   /**
    * Speech difficulties this mode can actually run. Every live mode supports
-   * all three today; the field exists so a future mode can opt out of one
+   * both today; the field exists so a future mode can opt out of one
    * without the picker having to special-case it.
    */
   difficulties: SpeechDifficulty[];
@@ -57,7 +57,7 @@ const MODES: BasketballModeDefinition[] = [
     cardGradient: "from-[#ff9f4a] to-[#e0662c]",
     status: "live",
     slug: "shootout",
-    difficulties: ["easy", "intermediate", "hard"],
+    difficulties: ["beginner", "expert"],
   },
   {
     id: "timeAttack",
@@ -69,7 +69,7 @@ const MODES: BasketballModeDefinition[] = [
     cardGradient: "from-[#4ac1ff] to-[#2f6fd4]",
     status: "live",
     slug: "time-attack",
-    difficulties: ["easy", "intermediate", "hard"],
+    difficulties: ["beginner", "expert"],
   },
   {
     id: "clutch",
@@ -81,7 +81,7 @@ const MODES: BasketballModeDefinition[] = [
     cardGradient: "from-[#a97bff] to-[#6d3fd4]",
     status: "coming-soon",
     slug: "clutch",
-    difficulties: ["easy", "intermediate", "hard"],
+    difficulties: ["beginner", "expert"],
   },
 ];
 

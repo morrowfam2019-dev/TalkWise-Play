@@ -8,6 +8,7 @@ import {
   type BallerItem,
   type JerseyItem,
 } from "@/content/basketball/roster";
+import { BallerThumbnail } from "@/games/basketball/scene/BallerThumbnail";
 import { GAME_BASKETBALL } from "@/platform/games/registry";
 import { spendableCoins } from "@/player/types";
 import { usePlayerProfile } from "@/player/usePlayerProfile";
@@ -31,83 +32,21 @@ const TABS: { kind: BasketballTab; label: string }[] = [
   { kind: "jersey", label: "Jerseys" },
 ];
 
-function BallerPreview({ baller }: { baller: BallerItem }) {
-  const { look } = baller;
-
-  if (look.headStyle === "basketball") {
-    return (
-      <div className="relative mx-auto h-16 w-16" aria-hidden>
-        <div
-          className="relative grid h-16 w-16 place-items-center rounded-full bg-[#e0742a]"
-          style={{
-            backgroundImage:
-              "linear-gradient(#1b2233 2px, transparent 2px), linear-gradient(90deg, #1b2233 2px, transparent 2px)",
-            backgroundSize: "100% 2px, 2px 100%",
-            backgroundPosition: "center",
-            backgroundRepeat: "no-repeat",
-          }}
-        >
-          <div className="flex gap-1.5">
-            <span className="block h-1.5 w-1.5 rounded-full bg-[#1b2233]" />
-            <span className="block h-1.5 w-1.5 rounded-full bg-[#1b2233]" />
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  const hairClassName =
-    look.hairStyle === "puff"
-      ? "-top-2 h-5 w-14 rounded-full"
-      : look.hairStyle === "braids"
-        ? "-top-1 h-4 w-12 rounded-t-full"
-        : look.hairStyle === "bun"
-          ? "-top-3 h-4 w-4 rounded-full"
-          : look.hairStyle === "curly"
-            ? "-top-2 h-5 w-13 rounded-full"
-            : look.hairStyle === "bald"
-              ? "hidden"
-              : look.hairStyle === "spiky"
-                ? "-top-3 h-6 w-14"
-                : look.hairStyle === "visor"
-                  ? "top-3 h-2.5 w-13 rounded-full"
-                  : "-top-1 h-3 w-12 rounded-t-full";
-
+function BallerPreview({
+  baller,
+  jerseyId,
+}: {
+  baller: BallerItem;
+  jerseyId: string | null;
+}) {
+  // The real BallerAvatar, rendered small and static — this is exactly
+  // what the child gets on the court, not a CSS guess at it.
   return (
-    <div className="relative mx-auto h-16 w-16" aria-hidden>
-      {/* Hair silhouette, matching what the 3D baller actually wears. */}
-      {look.hairStyle === "spiky" ? (
-        <span className="absolute -top-3 left-1/2 flex -translate-x-1/2 gap-0.5">
-          {[look.hair, look.hairAccent ?? look.hair, look.hairAccent2 ?? look.hair].map(
-            (color, i) => (
-              <span
-                key={i}
-                className="block h-5 w-2 rounded-t-full"
-                style={{ background: color }}
-              />
-            ),
-          )}
-        </span>
-      ) : (
-        <span
-          className={`absolute left-1/2 -translate-x-1/2 ${hairClassName}`}
-          style={{ background: look.hair }}
-        />
-      )}
-      <div
-        className="relative grid h-16 w-16 place-items-center rounded-full"
-        style={{ background: look.skin }}
-      >
-        <div className="flex gap-1.5">
-          <span className="block h-3 w-3 rounded-full bg-white">
-            <span className="mx-auto mt-1 block h-1.5 w-1.5 rounded-full bg-[#1b2233]" />
-          </span>
-          <span className="block h-3 w-3 rounded-full bg-white">
-            <span className="mx-auto mt-1 block h-1.5 w-1.5 rounded-full bg-[#1b2233]" />
-          </span>
-        </div>
-      </div>
-    </div>
+    <BallerThumbnail
+      ballerId={baller.id}
+      jerseyId={jerseyId}
+      className="mx-auto h-24 w-24"
+    />
   );
 }
 
@@ -226,7 +165,10 @@ export default function BasketballShopPage() {
                 }`}
               >
                 {item.kind === "baller" ? (
-                  <BallerPreview baller={item as BallerItem} />
+                  <BallerPreview
+                    baller={item as BallerItem}
+                    jerseyId={basketball.loadout.jerseyId}
+                  />
                 ) : (
                   <JerseyPreview jersey={item as JerseyItem} />
                 )}

@@ -2,23 +2,22 @@
  * Difficulty ladders for the shared speech content layer.
  *
  * The existing level files carry exactly one tier — five whole words per
- * sound — which is the Intermediate level. This file adds the two tiers
- * either side of it as *data*, so a game can ask for "easy /m/ targets"
- * without any game UI hard-coding `mmm` or `ma`.
+ * sound — which is the Beginner level. This file adds the harder tier as
+ * *data*, so a game can ask for "expert /m/ targets" without any game UI
+ * hard-coding a sentence.
  *
- * ## Easy — Sound Builder
+ * An isolated-sound "Sound Builder" tier (`mmm`, `ba`, …) shipped originally
+ * as an even-earlier rung below Beginner, but speech recognition reliably
+ * mis-heard bare sounds and short mouth-noises as silence or noise, so a
+ * correct attempt often couldn't register at all. It was removed rather than
+ * ship a level that structurally can't recognise success.
  *
- * For a learner not yet producing the whole word. The ladder runs isolated
- * sound → sound+vowel → vowel+sound → simple syllable → short simple word,
- * which is the order the spec asks for. It is deliberately a *sequence*, not
- * a set: index 0 is always the easiest thing in the list.
- *
- * ## Intermediate — Words / Phrases
+ * ## Beginner — Words / Phrases
  *
  * The level's own five words, then short phrases that put the target sound
  * in more than one word position.
  *
- * ## Hard — Sentences / Functional speech
+ * ## Expert — Sentences / Functional speech
  *
  * Complete sentences. These are the targets that carry word-by-word
  * recognition state, so each one is written to be a natural spoken sentence
@@ -31,18 +30,15 @@
 export interface SoundLadder {
   /** Speech sound id, matching `SpeechSound.id` — "m", "p", … */
   soundId: string;
-  /** EASY, easiest first. */
-  easy: string[];
-  /** INTERMEDIATE phrases, layered on top of the level's own words. */
+  /** BEGINNER phrases, layered on top of the level's own words. */
   phrases: string[];
-  /** HARD sentences. */
+  /** EXPERT sentences. */
   sentences: string[];
 }
 
 const LADDERS: SoundLadder[] = [
   {
     soundId: "m",
-    easy: ["mmm", "ma", "moo", "me", "am", "mom"],
     phrases: ["blue moon", "my milk", "more money", "my mom"],
     sentences: [
       "I see the big moon.",
@@ -52,7 +48,6 @@ const LADDERS: SoundLadder[] = [
   },
   {
     soundId: "p",
-    easy: ["puh", "pa", "pie", "pop", "up", "pig"],
     phrases: ["big pig", "pizza party", "purple panda", "pop the bubble"],
     sentences: [
       "I want a piece of pizza.",
@@ -62,7 +57,6 @@ const LADDERS: SoundLadder[] = [
   },
   {
     soundId: "b",
-    easy: ["buh", "ba", "bee", "boo", "bye", "ball"],
     phrases: ["big ball", "blue boat", "baby bear", "bouncy bubble"],
     sentences: [
       "The baby bear has a blue ball.",
@@ -72,7 +66,6 @@ const LADDERS: SoundLadder[] = [
   },
   {
     soundId: "w",
-    easy: ["wuh", "wa", "we", "woo", "why", "wow"],
     phrases: ["warm water", "big wagon", "open window", "wiggly worm"],
     sentences: [
       "The wolf walks past the window.",
@@ -82,7 +75,6 @@ const LADDERS: SoundLadder[] = [
   },
   {
     soundId: "s",
-    easy: ["sss", "sa", "so", "see", "us", "sun"],
     phrases: ["sunny sky", "silly snake", "soft sock", "super star"],
     sentences: [
       "The silly snake sits in the sun.",
@@ -92,7 +84,6 @@ const LADDERS: SoundLadder[] = [
   },
   {
     soundId: "l",
-    easy: ["lll", "la", "lee", "loo", "all", "log"],
     phrases: ["little lion", "green leaf", "yellow lemon", "long log"],
     sentences: [
       "The little lion licks a lemon.",
@@ -102,7 +93,6 @@ const LADDERS: SoundLadder[] = [
   },
   {
     soundId: "f",
-    easy: ["fff", "fa", "fee", "foo", "off", "fan"],
     phrases: ["fast fox", "funny fish", "fluffy feather", "five frogs"],
     sentences: [
       "The fast fox found five frogs.",

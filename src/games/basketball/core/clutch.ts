@@ -65,18 +65,17 @@ export interface ClutchRules {
 }
 
 /**
- * Per-difficulty rules. The clock loosens as the target gets longer, so Hard
- * is harder because the *sentence* is longer, never because the child is
- * given proportionally less time to say it.
+ * Per-difficulty rules. The clock loosens as the target gets longer, so
+ * Expert is harder because the *sentence* is longer, never because the
+ * child is given proportionally less time to say it.
  */
 const RULES: Record<SpeechDifficulty, ClutchRules> = {
-  easy: { shotClockSeconds: null, possessions: 5, closeoutSeconds: 2.4 },
-  intermediate: { shotClockSeconds: 12, possessions: 7, closeoutSeconds: 1.9 },
-  hard: { shotClockSeconds: 20, possessions: 7, closeoutSeconds: 1.6 },
+  beginner: { shotClockSeconds: 12, possessions: 7, closeoutSeconds: 1.9 },
+  expert: { shotClockSeconds: 20, possessions: 7, closeoutSeconds: 1.6 },
 };
 
 export function getClutchRules(difficulty: SpeechDifficulty): ClutchRules {
-  return RULES[difficulty] ?? RULES.intermediate;
+  return RULES[difficulty] ?? RULES.beginner;
 }
 
 /** What happened on one possession. */

@@ -92,18 +92,16 @@ export interface ArcadeAssist {
 
 /**
  * Basketball forgiveness per *speech* difficulty. The spec is explicit that
- * difficulty is primarily speech complexity, and it is equally explicit that
- * Easy should carry low gameplay pressure — so the basketball assist varies
- * only mildly, and never enough to make Hard feel punishing.
+ * difficulty is primarily speech complexity — so the basketball assist
+ * varies only mildly, and never enough to make Expert feel punishing.
  */
 const ASSISTS: Record<SpeechDifficulty, ArcadeAssist> = {
-  easy: { band: 0.08, strength: 0.75 },
-  intermediate: { band: 0.05, strength: 0.6 },
-  hard: { band: 0.05, strength: 0.45 },
+  beginner: { band: 0.05, strength: 0.6 },
+  expert: { band: 0.05, strength: 0.45 },
 };
 
 export function getArcadeAssist(difficulty: SpeechDifficulty): ArcadeAssist {
-  return ASSISTS[difficulty] ?? ASSISTS.intermediate;
+  return ASSISTS[difficulty] ?? ASSISTS.beginner;
 }
 
 // --- Launching -------------------------------------------------------------
