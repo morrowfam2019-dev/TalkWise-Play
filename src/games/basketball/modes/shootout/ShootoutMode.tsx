@@ -1,11 +1,16 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { getLevel, listLevels } from "@/content/speech";
+import { listLevels } from "@/content/speech";
+import {
+  requestSpeechTargets,
+  type SpeechDifficulty,
+} from "@/content/speech/engine";
 import { getDifficulty, SHOTS_PER_ROUND } from "@/content/basketball/types";
+import { GAME_BASKETBALL } from "@/platform/games/registry";
 import { speakCoachLine } from "@/speech/maya-voice";
 import { usePlayerProfile } from "@/player/usePlayerProfile";
-import { hoopAudio } from "./core/audio";
+import { hoopAudio } from "../../core/audio";
 import {
   buildRoundPlan,
   computeCurrentStreak,
@@ -13,14 +18,14 @@ import {
   summarizeRound,
   type ShotResult,
   type TimingTier,
-} from "./core/round";
-import type { BallFlight } from "./scene/Ball";
-import { CourtScene } from "./scene/CourtScene";
-import type { ShotPhase } from "./scene/BallerAvatar";
-import { RoundHud } from "./ui/RoundHud";
-import { RoundResults } from "./ui/RoundResults";
-import { ShotMeter } from "./ui/ShotMeter";
-import { WordPrompt } from "./ui/WordPrompt";
+} from "../../core/round";
+import type { BallFlight } from "../../scene/Ball";
+import { CourtScene } from "../../scene/CourtScene";
+import type { ShotPhase } from "../../scene/BallerAvatar";
+import { RoundHud } from "../../ui/RoundHud";
+import { RoundResults } from "../../ui/RoundResults";
+import { ShotMeter } from "../../ui/ShotMeter";
+import { SpeechGate } from "../../ui/SpeechGate";
 
 type Phase = "word" | "meter" | "shooting" | "banner" | "results";
 
@@ -31,27 +36,52 @@ function missTarget(): [number, number, number] {
   return [(Math.random() - 0.5) * 0.9, 2.75 + Math.random() * 0.3, -0.05];
 }
 
-export function BasketballShell({
+/**
+ * MODE 01 — Speech Shootout.
+ *
+ * The original, production-verified quick-play loop, unchanged in substance:
+ * say the target → the shot unlocks → time the meter → the ball flies → next
+ * target, ten times. The shot-meter make-chances in `core/round.ts` are the
+ * founder-verified ones and are deliberately not touched here.
+ *
+ * What the expansion changed: targets now come from the shared content engine
+ * at a chosen speech difficulty rather than straight off the level, and the
+ * speech popup is the shared `SpeechGate` rather than a Shootout-private
+ * component. At Intermediate — the difficulty every existing save was
+ * effectively playing — both are substitutions of identical behaviour.
+ */
+export function ShootoutMode({
   soundId,
+  difficulty,
   onExit,
   onChangeSound,
+  onChangeDifficulty,
 }: {
   soundId: string;
+  difficulty: SpeechDifficulty;
   onExit: () => void;
   onChangeSound: () => void;
+  onChangeDifficulty: () => void;
 }) {
   const level = useMemo(
-    () => listLevels().find((l) => l.sound.id === soundId) ?? getLevel(soundId),
+    () => listLevels().find((l) => l.sound.id === soundId),
     [soundId],
   );
-  const difficulty = getDifficulty("rookie");
-  const plan = useMemo(
-    () => (level ? buildRoundPlan(level.challenges) : []),
-    [level],
-  );
+  const meterDifficulty = getDifficulty("rookie");
+
+  const plan = useMemo(() => {
+    const targets = requestSpeechTargets({
+      gameId: GAME_BASKETBALL,
+      mode: "shootout",
+      soundId,
+      difficulty,
+      targetCount: SHOTS_PER_ROUND,
+    });
+    return buildRoundPlan(targets);
+  }, [soundId, difficulty]);
 
   // `basketball` is GAME-002's own isolated slice of this child's data —
-  // ballers, jerseys and high scores. Nothing here can read or write the
+  // ballers, jerseys and records. Nothing here can read or write the
   // Adventures wardrobe.
   const { profile, basketball, recordBasketballRound, setMicEnabled } =
     usePlayerProfile();
@@ -66,9 +96,7 @@ export function BasketballShell({
   const recordedRef = useRef(false);
   // Captured once per round, before it can be overwritten by this round's
   // own recorded score — `profile` is reactive, so reading it directly at
-  // results time would already reflect the round that just finished. Set
-  // once at mount (lazy initializer) and again by `handlePlayAgain`, which
-  // is a plain event handler, not an effect.
+  // results time would already reflect the round that just finished.
   const [previousBest, setPreviousBest] = useState(
     () => basketball.highScores[soundId]?.bestScore ?? 0,
   );
@@ -154,9 +182,13 @@ export function BasketballShell({
     if (phase !== "results" || recordedRef.current) return;
     recordedRef.current = true;
     hoopAudio.buzzer();
-    recordBasketballRound(soundId, {
+    recordBasketballRound({
+      mode: "shootout",
+      soundId,
+      difficulty,
       basketballScore: summary.basketballScore,
       basketsMade: summary.basketsMade,
+      shotsTaken: SHOTS_PER_ROUND,
       bestStreak: summary.bestStreak,
       coinsEarned: summary.coinsEarned,
     });
@@ -179,7 +211,9 @@ export function BasketballShell({
     return (
       <div className="grid min-h-[100dvh] place-items-center bg-[#141420] p-6 text-center text-white">
         <div>
-          <p className="text-xl font-black">This sound isn&apos;t ready for Speech Basketball yet.</p>
+          <p className="text-xl font-black">
+            This sound isn&apos;t ready for Speech Basketball yet.
+          </p>
           <button
             type="button"
             onClick={onExit}
@@ -217,10 +251,10 @@ export function BasketballShell({
         />
 
         {phase === "word" ? (
-          <WordPrompt
+          <SpeechGate
             key={`word-${shotIndex}-${runId}`}
-            word={currentPlan.word}
-            prompt={currentPlan.prompt}
+            target={currentPlan.target}
+            headline="Say It To Shoot"
             micEnabled={profile.micEnabled}
             assist={profile.assistMode}
             onMicEnabledChange={setMicEnabled}
@@ -230,7 +264,7 @@ export function BasketballShell({
 
         {phase === "meter" ? (
           <div className="pointer-events-none absolute inset-x-0 bottom-8 flex justify-center px-4">
-            <ShotMeter difficulty={difficulty} onLock={handleShotLock} />
+            <ShotMeter difficulty={meterDifficulty} onLock={handleShotLock} />
           </div>
         ) : null}
 
@@ -266,6 +300,7 @@ export function BasketballShell({
             previousBest={previousBest}
             onPlayAgain={handlePlayAgain}
             onChangeSound={onChangeSound}
+            onChangeDifficulty={onChangeDifficulty}
             onExit={onExit}
           />
         ) : null}

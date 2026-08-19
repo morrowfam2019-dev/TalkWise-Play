@@ -1,18 +1,26 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { use, useCallback } from "react";
+import { coerceSpeechDifficulty } from "@/content/speech/engine";
 
 /**
+ * MODE 01 Speech Shootout — the playable round.
+ *
+ * The URL is unchanged from before the multi-mode expansion, so every link,
+ * bookmark and back-button history entry that existed still lands here. The
+ * difficulty is an optional query parameter that defaults to Intermediate —
+ * which is exactly what this route always played.
+ *
  * The court mounts client-side only: it builds a WebGL context and an
  * AudioContext, neither of which exists during server rendering — same
  * reasoning as the adventure engine's `LevelRunner`.
  */
-const BasketballShell = dynamic(
+const ShootoutMode = dynamic(
   () =>
-    import("@/games/basketball/BasketballShell").then(
-      (module) => module.BasketballShell,
+    import("@/games/basketball/modes/shootout/ShootoutMode").then(
+      (module) => module.ShootoutMode,
     ),
   {
     ssr: false,
@@ -36,6 +44,9 @@ export default function BasketballRoundPage({
 }) {
   const { soundId } = use(params);
   const router = useRouter();
+  const difficulty = coerceSpeechDifficulty(
+    useSearchParams().get("difficulty"),
+  );
 
   // Exiting returns to Basketball's own home, not the platform library —
   // each game owns its internal navigation.
@@ -44,15 +55,17 @@ export default function BasketballRoundPage({
     [router],
   );
   const handleChangeSound = useCallback(
-    () => router.push("/games/basketball"),
+    () => router.push("/games/basketball/shootout"),
     [router],
   );
 
   return (
-    <BasketballShell
+    <ShootoutMode
       soundId={soundId}
+      difficulty={difficulty}
       onExit={handleExit}
       onChangeSound={handleChangeSound}
+      onChangeDifficulty={handleChangeSound}
     />
   );
 }

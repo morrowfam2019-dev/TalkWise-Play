@@ -13,6 +13,7 @@ import {
   mergeBasketballRound,
   sanitizeBasketballState,
   type BasketballLoadout,
+  type BasketballRoundOutcome,
 } from "./games/basketball";
 import {
   DEFAULT_PROFILE,
@@ -318,13 +319,7 @@ export function mergeRunResult(
  */
 export function mergeBasketballResult(
   profile: PlayerProfile,
-  soundId: string,
-  round: {
-    basketballScore: number;
-    basketsMade: number;
-    bestStreak: number;
-    coinsEarned: number;
-  },
+  round: BasketballRoundOutcome & { coinsEarned: number },
   now: Date = new Date(),
 ): PlayerProfile {
   return {
@@ -335,8 +330,8 @@ export function mergeBasketballResult(
       ...profile.games,
       [GAME_BASKETBALL]: mergeBasketballRound(
         profile.games[GAME_BASKETBALL],
-        soundId,
         round,
+        now,
       ),
     },
   };

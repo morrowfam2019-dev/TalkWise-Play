@@ -2,8 +2,10 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
+import type { SpeechTarget } from "@/content/speech/engine";
 import { playExampleWord } from "@/speech/maya-voice";
 import {
+  PhraseRecognizer,
   WordRecognizer,
   isSpeechRecognitionSupported,
   requestMicPermission,
@@ -13,24 +15,38 @@ import {
 const MAX_ATTEMPTS = 3;
 const EXAMPLE_AFTER_ATTEMPT = 2;
 const ASSIST_LISTEN_TIMEOUT_MS = 7000;
+const SENTENCE_LISTEN_TIMEOUT_MS = 8000;
+const SENTENCE_ASSIST_LISTEN_TIMEOUT_MS = 11000;
 
 /**
- * Say the word to unlock the shot. Same philosophy as the adventure
- * engine's challenge popup — listen, retry, Miss Maya's example after two
- * misses, the third attempt always unlocks so a quiet room or a shy voice
- * never blocks a round — reusing the same `WordRecognizer` and Miss Maya
- * voice helper, with basketball's own compact presentation.
+ * The speech gate every Basketball mode shares.
+ *
+ * Grown out of Shootout's `WordPrompt` rather than written twice: same
+ * philosophy (listen, retry, Miss Maya's example after two misses, the third
+ * attempt always unlocks so a quiet room or a shy voice never blocks a
+ * child), with two additions the expansion needs:
+ *
+ * - `headline` / `cta`, so Time Attack can say "Say it to start the clock"
+ *   where Shootout says "Say it to shoot".
+ * - word-by-word state for Hard sentence targets. Words already recognised
+ *   stay recognised across attempts, so a learner repairs the one word they
+ *   missed instead of the sentence resetting under them.
+ *
+ * The third-attempt unlock is not a bug and must not be "tightened": speech
+ * differences are the population this game is for, and the gate exists to
+ * invite talking, not to gate play behind a recogniser's opinion.
  */
-export function WordPrompt({
-  word,
-  prompt,
+export function SpeechGate({
+  target,
+  headline,
   micEnabled,
   assist,
   onMicEnabledChange,
   onUnlock,
 }: {
-  word: string;
-  prompt: string;
+  target: SpeechTarget;
+  /** Small caps line above the target, e.g. "Say It To Shoot". */
+  headline: string;
   micEnabled: boolean;
   assist: boolean;
   onMicEnabledChange: (enabled: boolean) => void;
@@ -39,43 +55,39 @@ export function WordPrompt({
   const [micPermission, setMicPermission] = useState<
     "not-requested" | "granted" | "denied"
   >("not-requested");
-  const [listeningStatus, setListeningStatus] = useState<SpeechListenStatus>("idle");
+  const [listeningStatus, setListeningStatus] =
+    useState<SpeechListenStatus>("idle");
   const [attempts, setAttempts] = useState(0);
   const [showExample, setShowExample] = useState(false);
+  const [matchedWordIds, setMatchedWordIds] = useState<string[]>([]);
   const attemptsRef = useRef(0);
-  const recognizerRef = useRef<WordRecognizer | null>(null);
+  const matchedRef = useRef<string[]>([]);
+  const wordRecognizerRef = useRef<WordRecognizer | null>(null);
+  const phraseRecognizerRef = useRef<PhraseRecognizer | null>(null);
   const unlockedRef = useRef(false);
 
-  // The caller remounts this component per word (a `key` change in
-  // BasketballShell), so every piece of state above already starts fresh
-  // for a new word — no reset effect needed, same as ChallengeModal.
+  const wordByWord = target.wordByWord;
+
+  // The caller remounts this component per target (a `key` change), so every
+  // piece of state above already starts fresh — no reset effect needed.
   useEffect(() => {
     return () => {
-      recognizerRef.current?.stop();
+      wordRecognizerRef.current?.stop();
+      phraseRecognizerRef.current?.stop();
     };
   }, []);
 
   useEffect(() => {
     if (!showExample) return;
-    playExampleWord(word);
-  }, [showExample, word]);
+    playExampleWord(target.text);
+  }, [showExample, target.text]);
 
   const unlock = () => {
     if (unlockedRef.current) return;
     unlockedRef.current = true;
+    wordRecognizerRef.current?.stop();
+    phraseRecognizerRef.current?.stop();
     onUnlock();
-  };
-
-  const startListeningAttempt = () => {
-    setShowExample(false);
-    const recognizer = new WordRecognizer();
-    recognizerRef.current = recognizer;
-    recognizer.listenFor(word, {
-      onMatch: unlock,
-      onNoMatch: handleListenTimeout,
-      onStatus: setListeningStatus,
-      timeoutMs: assist ? ASSIST_LISTEN_TIMEOUT_MS : undefined,
-    });
   };
 
   function handleListenTimeout() {
@@ -90,6 +102,45 @@ export function WordPrompt({
     } else {
       startListeningAttempt();
     }
+  }
+
+  function startListeningAttempt() {
+    setShowExample(false);
+
+    if (wordByWord) {
+      const recognizer = new PhraseRecognizer();
+      phraseRecognizerRef.current = recognizer;
+      recognizer.listenFor(target.words, matchedRef.current, {
+        onProgress: (ids) => {
+          matchedRef.current = ids;
+          setMatchedWordIds(ids);
+        },
+        onComplete: () => {
+          matchedRef.current = target.words.map((word) => word.id);
+          setMatchedWordIds(matchedRef.current);
+          unlock();
+        },
+        onNoMatch: (ids) => {
+          matchedRef.current = ids;
+          setMatchedWordIds(ids);
+          handleListenTimeout();
+        },
+        onStatus: setListeningStatus,
+        timeoutMs: assist
+          ? SENTENCE_ASSIST_LISTEN_TIMEOUT_MS
+          : SENTENCE_LISTEN_TIMEOUT_MS,
+      });
+      return;
+    }
+
+    const recognizer = new WordRecognizer();
+    wordRecognizerRef.current = recognizer;
+    recognizer.listenFor(target.text, {
+      onMatch: unlock,
+      onNoMatch: handleListenTimeout,
+      onStatus: setListeningStatus,
+      timeoutMs: assist ? ASSIST_LISTEN_TIMEOUT_MS : undefined,
+    });
   }
 
   const handleRequestMic = async () => {
@@ -111,8 +162,10 @@ export function WordPrompt({
   };
 
   const handleMicOff = () => {
-    recognizerRef.current?.stop();
-    recognizerRef.current = null;
+    wordRecognizerRef.current?.stop();
+    phraseRecognizerRef.current?.stop();
+    wordRecognizerRef.current = null;
+    phraseRecognizerRef.current = null;
     setListeningStatus("idle");
     setShowExample(false);
     onMicEnabledChange(false);
@@ -127,27 +180,60 @@ export function WordPrompt({
     <div
       role="dialog"
       aria-modal="true"
-      aria-label={prompt}
-      className="pointer-events-auto absolute inset-0 z-20 flex items-center justify-center bg-[#141420]/70 p-4 backdrop-blur-sm"
+      aria-label={target.prompt}
+      className="pointer-events-auto absolute inset-0 z-20 flex items-center justify-center overflow-y-auto bg-[#141420]/70 p-4 backdrop-blur-sm"
     >
       <div className="tw-pop w-full max-w-sm rounded-[2rem] border-8 border-[#f5c33b] bg-white p-6 text-center shadow-2xl sm:p-8">
         <p className="text-sm font-black tracking-[0.2em] text-[#8a8aa0] uppercase">
-          Say It To Shoot
+          {headline}
         </p>
 
-        <div className="mt-3 text-6xl" aria-hidden>
-          🏀
+        <div className="mt-3 text-5xl" aria-hidden>
+          {target.glyph}
         </div>
 
-        <p className="mt-2 text-5xl font-black tracking-tight text-[#141420] sm:text-6xl">
-          {word}
+        {wordByWord ? (
+          <div className="mt-3 flex flex-wrap justify-center gap-x-2 gap-y-1">
+            {target.words.map((word) => {
+              const done = matchedWordIds.includes(word.id);
+              return (
+                <span
+                  key={word.id}
+                  className={`rounded-lg px-1.5 py-0.5 text-2xl font-black transition-colors ${
+                    done
+                      ? "bg-[#d8f5e4] text-[#25a25a]"
+                      : "text-[#141420]"
+                  }`}
+                >
+                  {word.text}
+                  {done ? (
+                    <span className="ml-0.5 align-middle text-base" aria-hidden>
+                      ✓
+                    </span>
+                  ) : null}
+                </span>
+              );
+            })}
+          </div>
+        ) : (
+          <p className="mt-2 text-5xl font-black tracking-tight text-[#141420] sm:text-6xl">
+            {target.text.toUpperCase()}
+          </p>
+        )}
+
+        <p className="mt-4 text-xl font-extrabold text-[#2f7fd4]">
+          {target.prompt}
         </p>
 
-        <p className="mt-4 text-2xl font-extrabold text-[#2f7fd4]">{prompt}</p>
+        {wordByWord && matchedWordIds.length > 0 ? (
+          <p className="mt-1 text-xs font-bold text-[#25a25a]">
+            {matchedWordIds.length} of {target.words.length} words — keep going!
+          </p>
+        ) : null}
 
         <button
           type="button"
-          onClick={() => playExampleWord(word)}
+          onClick={() => playExampleWord(target.text)}
           className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-2xl border-4 border-[#2f7fd4] bg-[#eaf4ff] px-4 py-2.5 text-sm font-black text-[#2f7fd4]"
         >
           <Image
@@ -175,13 +261,15 @@ export function WordPrompt({
                 <p className="text-[0.65rem] font-black tracking-wide text-[#2f7fd4] uppercase">
                   Miss Maya says
                 </p>
-                <p className="text-2xl font-black text-[#141420]">{word}</p>
+                <p className="text-xl font-black text-[#141420]">
+                  {target.text}
+                </p>
               </div>
             </div>
             <div className="mt-3 flex gap-2">
               <button
                 type="button"
-                onClick={() => playExampleWord(word)}
+                onClick={() => playExampleWord(target.text)}
                 className="flex-1 rounded-xl bg-[#2f7fd4] px-3 py-2.5 text-sm font-black text-white"
               >
                 🔊 Hear it again

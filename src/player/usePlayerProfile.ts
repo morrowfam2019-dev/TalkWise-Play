@@ -16,6 +16,7 @@ import {
   setActiveChild,
   setAssistMode as setAssistModeOnProfile,
 } from "./storage";
+import type { BasketballRoundOutcome } from "./games/basketball";
 import { DEFAULT_PROFILE, type PlayerProfile } from "./types";
 
 /**
@@ -74,18 +75,16 @@ export function usePlayerProfile() {
     [updateActive],
   );
 
-  /** Records a finished GAME-002 basketball round. */
+  /**
+   * Records a finished GAME-002 basketball round, whichever mode it was.
+   *
+   * One entry point for every mode rather than one per mode: the outcome
+   * carries its own `mode`, so adding a fourth Basketball mode needs no
+   * change here at all.
+   */
   const recordBasketballRound = useCallback(
-    (
-      soundId: string,
-      round: {
-        basketballScore: number;
-        basketsMade: number;
-        bestStreak: number;
-        coinsEarned: number;
-      },
-    ) => {
-      updateActive((p) => mergeBasketballResult(p, soundId, round));
+    (round: BasketballRoundOutcome & { coinsEarned: number }) => {
+      updateActive((p) => mergeBasketballResult(p, round));
     },
     [updateActive],
   );

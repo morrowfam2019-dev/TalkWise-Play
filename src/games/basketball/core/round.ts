@@ -6,7 +6,7 @@
  * (basketball itself) has a fail state, and even that is forgiving.
  */
 
-import type { SpeechChallenge } from "@/content/speech";
+import type { SpeechTarget } from "@/content/speech/engine";
 import {
   getCourtSpot,
   MAKE_BONUS_COINS,
@@ -25,6 +25,9 @@ export type TimingTier = "perfect" | "good" | "miss";
 export interface ShotPlan {
   index: number;
   spot: CourtSpot;
+  /** What the child has to say before this shot unlocks. */
+  target: SpeechTarget;
+  /** Convenience mirror of `target.text`, used by results and records. */
   word: string;
   prompt: string;
   praise: string;
@@ -49,20 +52,25 @@ export interface RoundSummary {
 }
 
 /**
- * Builds the 10-shot plan for a sound: each court spot in
- * `ROUND_SPOT_SEQUENCE`, paired with a word from the sound's challenge list.
- * Cycles through the list (5 words -> 10 shots means each word is asked
- * twice) rather than inventing basketball-specific words.
+ * Builds the 10-shot plan: each court spot in `ROUND_SPOT_SEQUENCE`, paired
+ * with a speech target supplied by the shared content engine.
+ *
+ * Basketball asks the content engine for exactly `SHOTS_PER_ROUND` targets at
+ * the chosen difficulty and pairs them positionally, so the cycling rule
+ * (5 words over 10 shots means each is asked twice) now lives in the content
+ * layer where every game benefits from it, rather than here.
  */
-export function buildRoundPlan(challenges: SpeechChallenge[]): ShotPlan[] {
+export function buildRoundPlan(targets: SpeechTarget[]): ShotPlan[] {
+  if (targets.length === 0) return [];
   return ROUND_SPOT_SEQUENCE.map((spotId, index) => {
-    const challenge = challenges[index % challenges.length];
+    const target = targets[index % targets.length];
     return {
       index,
       spot: getCourtSpot(spotId),
-      word: challenge.word,
-      prompt: challenge.prompt,
-      praise: challenge.praise,
+      target,
+      word: target.text,
+      prompt: target.prompt,
+      praise: target.praise,
     };
   });
 }

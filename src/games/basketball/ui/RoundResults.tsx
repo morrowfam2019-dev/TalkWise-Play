@@ -10,6 +10,7 @@ export function RoundResults({
   previousBest,
   onPlayAgain,
   onChangeSound,
+  onChangeDifficulty,
   onExit,
 }: {
   summary: RoundSummary;
@@ -18,6 +19,7 @@ export function RoundResults({
   previousBest: number;
   onPlayAgain: () => void;
   onChangeSound: () => void;
+  onChangeDifficulty: () => void;
   onExit: () => void;
 }) {
   return (
@@ -96,6 +98,13 @@ export function RoundResults({
           className="mt-3 w-full rounded-2xl border-4 border-[#f5c33b] bg-[#fff8e6] px-6 py-3 text-base font-black text-[#b8860b]"
         >
           CHANGE SOUND
+        </button>
+        <button
+          type="button"
+          onClick={onChangeDifficulty}
+          className="mt-2 w-full rounded-2xl border-4 border-[#c9cde0] bg-white px-6 py-3 text-base font-black text-[#4a4a60]"
+        >
+          CHANGE DIFFICULTY
         </button>
         <button
           type="button"
