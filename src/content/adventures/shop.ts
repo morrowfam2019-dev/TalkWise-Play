@@ -83,7 +83,7 @@ export const CHARACTERS: CharacterItem[] = [
     kind: "character",
     name: "Jam",
     blurb: "Sunny, round-eared, always first up the hill.",
-    price: 120,
+    price: 50,
     look: {
       skin: "#ff9f4a",
       skinDark: "#e07f2c",
@@ -99,7 +99,7 @@ export const CHARACTERS: CharacterItem[] = [
     kind: "character",
     name: "Kenn",
     blurb: "Stargazer with a ring that never stops glowing.",
-    price: 200,
+    price: 50,
     look: {
       skin: "#9b7ff0",
       skinDark: "#7a5fd0",
@@ -115,7 +115,7 @@ export const CHARACTERS: CharacterItem[] = [
     kind: "character",
     name: "Jayce",
     blurb: "Grew up in the woods. Talks to the trees.",
-    price: 200,
+    price: 50,
     look: {
       skin: "#6fd36b",
       skinDark: "#4faa4c",
@@ -131,7 +131,7 @@ export const CHARACTERS: CharacterItem[] = [
     kind: "character",
     name: "TJ",
     blurb: "TalkWise's own crew captain, hoodie and all. A big unlock!",
-    price: 1200,
+    price: 300,
     look: {
       skin: "#a9744f",
       skinDark: "#8a5c3d",

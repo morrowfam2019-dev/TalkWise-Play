@@ -37,9 +37,8 @@ export interface BallerItem extends ShopItem {
 
 // The roster is deliberately just the five founder-approved styles — no
 // legacy placeholder ballers. All five are the same rendering pipeline (no
-// external meshes, no separate code path), just different look values, and
-// are priced low right now specifically so the shop is easy to test end to
-// end. Raise prices back up once testing is done.
+// external meshes, no separate code path), just different look values.
+// Cosmo is the free starter baller; every other baller is 50 coins.
 export const BALLERS: BallerItem[] = [
   {
     id: "cosmo",
@@ -59,7 +58,7 @@ export const BALLERS: BallerItem[] = [
     kind: "baller",
     name: "Nova",
     blurb: "Hair like a firework, game like one too.",
-    price: 10,
+    price: 50,
     look: {
       skin: "#f2c9a0",
       skinDark: "#d9a877",
@@ -74,7 +73,7 @@ export const BALLERS: BallerItem[] = [
     kind: "baller",
     name: "Yarnie",
     blurb: "Stitched with love, shoots with heart.",
-    price: 10,
+    price: 50,
     look: {
       skin: "#c9793b",
       skinDark: "#a85f2a",
@@ -88,7 +87,7 @@ export const BALLERS: BallerItem[] = [
     kind: "baller",
     name: "Volt",
     blurb: "Built different. Powered up.",
-    price: 10,
+    price: 50,
     look: {
       skin: "#c7ccd6",
       skinDark: "#9aa1b0",
@@ -102,7 +101,7 @@ export const BALLERS: BallerItem[] = [
     kind: "baller",
     name: "Cocoa",
     blurb: "Smooth, sweet, and clutch in the fourth.",
-    price: 10,
+    price: 50,
     look: {
       skin: "#5a3420",
       skinDark: "#402412",
