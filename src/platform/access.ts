@@ -61,6 +61,24 @@ export function membershipEnforced(): boolean {
   return getLaunchSecret() !== null;
 }
 
+/**
+ * Whether this request is being rendered inside a frame (Whop's embed, or
+ * anything else) rather than as a top-level page.
+ *
+ * `sec-fetch-dest: iframe` is sent by every current WebKit/Chromium/Firefox
+ * browser on a framed navigation and can't be set by page JavaScript, so it
+ * is trustworthy signal — unlike the session cookie itself: `SameSite=Lax`
+ * only blocks a cookie on *cross-site* requests, and Whop's embed loads our
+ * own domain, so it's same-site and the cookie is sent regardless of
+ * framing. Without this check, a browser that ever completed one real
+ * `/launch` would carry a cookie that keeps working inside Whop's iframe
+ * forever after — exactly the "game plays embedded, mic broken" bug this
+ * function exists to prevent.
+ */
+function isFramed(requestHeaders: Headers): boolean {
+  return requestHeaders.get("sec-fetch-dest") === "iframe";
+}
+
 export async function resolveAccess(): Promise<AccessDecision> {
   const requestHeaders = await headers();
 
@@ -83,6 +101,13 @@ export async function resolveAccess(): Promise<AccessDecision> {
       whopUserId: whopSession.externalUserId,
       embedded: true,
     };
+  }
+
+  // A framed request with no verifiable Whop session is never trusted with
+  // the browser-session cookie below, no matter what the cookie says — see
+  // `isFramed`. Play only ever happens top-level.
+  if (isFramed(requestHeaders)) {
+    return { mode: "locked", allowed: false, whopUserId: null, embedded: true };
   }
 
   // 2. External browser holding a session cookie we issued.
