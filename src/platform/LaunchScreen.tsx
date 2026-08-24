@@ -11,14 +11,29 @@ import { useCallback, useState } from "react";
  * point (talking) is broken. Instead this hands the member off to their own
  * browser, where the microphone works, carrying a one-time credential so
  * the session on the other side is still a paid one.
+ *
+ * Getting there is two steps, not one, and that is deliberate: earlier this
+ * screen tried to escape to the browser in a single tap by falling back to
+ * `window.location.href` when `window.open` was blocked. Inside Whop's own
+ * webview that fallback doesn't reliably escape at all — it just navigates
+ * *this* frame to the one-time launch URL, which redeems it right there,
+ * inside Whop, before the real browser ever gets a chance to. That is
+ * exactly the "game plays live inside Whop" bug this screen exists to
+ * prevent, and it was self-inflicted. This screen must never navigate its
+ * own frame to the launch URL, under any circumstance — only a real,
+ * visible link the member taps themselves is allowed to carry it, because
+ * an embedding host's link-tap handling is far more consistently "hand this
+ * to the real browser" than a script-driven popup or redirect ever is.
  */
 export function LaunchScreen() {
-  const [state, setState] = useState<"idle" | "opening" | "error">("idle");
+  const [state, setState] = useState<"idle" | "opening" | "ready" | "error">("idle");
   const [message, setMessage] = useState<string | null>(null);
+  const [launchUrl, setLaunchUrl] = useState<string | null>(null);
 
   const handleLaunch = useCallback(async () => {
     setState("opening");
     setMessage(null);
+    setLaunchUrl(null);
 
     try {
       const response = await fetch("/api/launch", { method: "POST" });
@@ -33,18 +48,14 @@ export function LaunchScreen() {
         return;
       }
 
-      // Opened from a real tap, so this is a user-gesture navigation — which
-      // is what lets the host app hand it to the system browser instead of
-      // swallowing it or having it blocked as a popup.
-      const opened = window.open(body.launchUrl, "_blank", "noopener,noreferrer");
-      if (!opened) {
-        // Some embedded webviews refuse window.open outright. Navigating the
-        // frame itself still reaches the launch route, and hosts that treat
-        // external URLs specially will escalate it to the real browser.
-        window.location.href = body.launchUrl;
-        return;
-      }
-      setState("idle");
+      // Try the fast path once — a real popup from a real tap, which a
+      // normal browser (and some embedding hosts) hands straight to the
+      // system browser. If it's blocked or silently swallowed, that's fine:
+      // there is no frame-navigation fallback here anymore. The link
+      // rendered below is the guaranteed path either way.
+      window.open(body.launchUrl, "_blank", "noopener,noreferrer");
+      setLaunchUrl(body.launchUrl);
+      setState("ready");
     } catch {
       setState("error");
       setMessage("Could not reach TalkWise Play. Please try again.");
@@ -70,18 +81,42 @@ export function LaunchScreen() {
           works properly for speech practice.
         </p>
 
-        <button
-          type="button"
-          onClick={handleLaunch}
-          disabled={state === "opening"}
-          className={`mt-6 w-full rounded-2xl border-b-8 px-6 py-5 text-xl font-black text-white shadow-lg transition-transform ${
-            state === "opening"
-              ? "cursor-wait border-[#25a25a]/60 bg-[#2ecc71]/70"
-              : "border-[#25a25a] bg-[#2ecc71] active:translate-y-1 active:border-b-4"
-          }`}
-        >
-          {state === "opening" ? "Opening…" : "OPEN TALKWISE PLAY"}
-        </button>
+        {state === "ready" && launchUrl ? (
+          // The real, guaranteed handoff — see the note above `handleLaunch`
+          // on why this must be a plain tappable link rather than anything
+          // script-driven navigating this frame.
+          <a
+            href={launchUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-6 block w-full rounded-2xl border-b-8 border-[#25a25a] bg-[#2ecc71] px-6 py-5 text-xl font-black text-white shadow-lg transition-transform active:translate-y-1 active:border-b-4"
+          >
+            TAP TO OPEN IN YOUR BROWSER
+          </a>
+        ) : (
+          <button
+            type="button"
+            onClick={handleLaunch}
+            disabled={state === "opening"}
+            className={`mt-6 w-full rounded-2xl border-b-8 px-6 py-5 text-xl font-black text-white shadow-lg transition-transform ${
+              state === "opening"
+                ? "cursor-wait border-[#25a25a]/60 bg-[#2ecc71]/70"
+                : "border-[#25a25a] bg-[#2ecc71] active:translate-y-1 active:border-b-4"
+            }`}
+          >
+            {state === "opening" ? "Opening…" : "OPEN TALKWISE PLAY"}
+          </button>
+        )}
+
+        {state === "ready" ? (
+          <button
+            type="button"
+            onClick={handleLaunch}
+            className="mt-3 text-xs font-bold text-[#8a8aa0] underline"
+          >
+            Didn&apos;t open? Get a new link
+          </button>
+        ) : null}
 
         {message ? (
           <p
