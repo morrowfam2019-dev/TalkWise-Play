@@ -17,12 +17,17 @@ src/
   platform/          Whop identity, entitlement, launch bridge, game registry
   speech/            Shared speech services: recognition + Miss Maya's voice
   content/
-    speech/          Shared word content — both games ask it for challenges
+    speech/          Shared speech content — both games ask it for challenges
+                     beginner/  sound library + developmental groups
+                     expert/    sentence quests
+                     curriculum.ts  the sound → word → sentence view
     shop-item.ts     The 4 fields every shop item has, whoever sells it
     adventures/      GAME-001 catalogue (characters, hats, auras, boosts)
     basketball/      GAME-002 catalogue (ballers, jerseys) + court/scoring data
   games/
     adventures/      GAME-001 engine — 3D world, controller, challenge modal
+                     explorer/  BEGINNER — open maps, sound stations
+                     expert/    EXPERT — sentence story shell
     basketball/      GAME-002 engine — court, shot meter, round logic
   player/            Child profiles, wallet, per-game namespaces, persistence
   ui/                Platform-level shared components
@@ -69,8 +74,8 @@ Household
         ├── currentStreak, bestStreak           ← platform-wide
         ├── micEnabled, assistMode              ← platform-wide
         └── games
-              ├── GAME-001 → { owned, loadout, levels }
-              └── GAME-002 → { owned, loadout, highScores }
+              ├── GAME-001 → { owned, loadout, levels, beginner, expert }
+              └── GAME-002 → { owned, loadout, highScores, modes, … }
 ```
 
 Anything that belongs to the *child* is platform-level. Anything that
@@ -177,6 +182,135 @@ that cannot verify its own tokens would lock members out rather than let
 them in. Until it is set, TalkWise Play behaves exactly as it did before the
 bridge existed.
 
+## GAME-001's three stages
+
+Speech Adventures is one game with three stages of production. The stages
+are the product: a child does not "get better at Speech Adventures", they
+move from making a sound, to using it in a word, to using it in a sentence.
+
+```
+BEGINNER      Sound Explorer       /m/                        "I can make the sound."
+INTERMEDIATE  Word Adventures      MOON                       "I can use it in a word."
+EXPERT        Sentence Adventures  "I see the big moon."      "I can use it in a sentence."
+```
+
+**The join between the three is a single shared id.** `BeginnerSound.id`,
+`SpeechSound.id` on an Intermediate level, and `ExpertQuest.soundId` are the
+same string. Nothing else has to line up, so a sound can exist at one stage
+before the others catch up — which is exactly the state the library will be
+in for the eighth sound. `content/speech/curriculum.ts` is the read-only
+view over that join; it owns no content of its own, so adding content never
+means editing it.
+
+```
+src/
+  content/speech/
+    beginner/    groups.ts (developmental grouping + its rationale)
+                 sounds.ts (the sound library, incl. recognition config)
+    levels/      INTERMEDIATE — the original word adventures, untouched
+    tiers.ts     phrase + sentence ladders per sound
+    expert/      quests.ts (one authored quest + generated ones)
+    curriculum.ts
+  games/adventures/
+    explorer/    BEGINNER — maps/, ExplorerShell, SoundStationModal
+    (root)       INTERMEDIATE — GameShell, GameScene, ChallengeModal
+    expert/      EXPERT — QuestShell, SentenceChallenge
+```
+
+Routes: `/games/adventures` is the stage picker; `/beginner`, `/intermediate`
+and `/expert` are the three stage homes. **The original play route
+`/games/adventures/play/[levelId]` is unchanged**, so every existing link,
+bookmark and legacy redirect still lands on the same adventure.
+
+### Beginner reuses the engine rather than forking it
+
+An explorer map is a `WorldDefinition` with sound stations where checkpoints
+would be — `toWorldDefinition()` adapts it — so Beginner runs the *same*
+collision, controller, camera, terrain renderer and touch controls the word
+adventures already shipped. Two things differ, and only two: stations stand
+where checkpoints would, and there is no finish portal, because an open park
+has nothing to finish.
+
+Stations stay re-enterable: the controller is passed an all-false
+`completed` array, so a child who has already lit /m/ can walk back to the
+swings tomorrow and say it again. Trigger radius is a prop, defaulted to the
+word adventures' value and widened only for Beginner — on a 104 × 104 map a
+four-year-old aiming at a letter should not be able to walk past it.
+
+### Beginner cannot be failed
+
+Browser speech recognition is unreliable on isolated consonants. That is a
+platform fact, not a tuning problem, and an earlier isolated-sound
+difficulty tier was removed from this codebase for exactly that reason. The
+Beginner tier is built for that reality instead of against it:
+
+- `SoundRecognizer` accepts a wide set of transcripts per sound — what
+  browsers actually return for a hummed consonant, plus any token starting
+  with the sound, plus the sound's anchor word;
+- three misses credit the turn anyway;
+- the manual "I SAID IT" button is on screen from the first second, not
+  unlocked by failing.
+
+Nothing in Beginner scores, grades or records accuracy. The save layer
+counts turns taken and turns finished, and that is all it counts.
+
+### Expert is DOM, not WebGL
+
+Expert is a communication challenge, not a traversal one: a character puts a
+situation to you, you say a sentence, the world answers. Walking to the next
+checkpoint would add nothing to that and would make Expert read as
+Intermediate with longer signs. It is also the honest scope call — one
+polished mobile-first Expert experience now beats a half-built second 3D
+engine, and everything on screen comes from `ExpertQuest` data, so adding a
+story is a content change.
+
+Recognised words stay recognised across attempts (`PhraseRecognizer`
+accumulates by word id), so a learner repairs the one word they missed
+rather than restarting the sentence.
+
+### GAME-001 save shape
+
+```
+games["GAME-001"]
+  ├── owned, loadout        shop inventory — shared by all three stages
+  ├── levels                INTERMEDIATE — the original key, unmoved
+  ├── beginner              { maps: { [mapId]: { stations, celebrated } } }
+  └── expert                { quests: { [questId]: { bestScenes, … } } }
+```
+
+`levels` was **deliberately not renamed**. Every production profile already
+has it, the word adventures already write it, and moving live saved data to
+a new key buys nothing but a migration that can strand somebody. The stage a
+record belongs to is expressed in the types and accessors, not in a key
+rename. `sanitizeAdventuresState` additionally accepts an
+`intermediate.levels` shape and merges it record-by-record, so a save
+written by any future build that does move the key is read rather than
+dropped.
+
+`beginner` and `expert` are new sibling keys. A pre-upgrade profile has
+neither, gets the empty defaults, and loses nothing — the same additive
+pattern as the v1→v2 household migration. A rollback is equally safe: an
+older build ignores the two keys it does not know, and `levels` is exactly
+where it always was.
+
+Sanitising is idempotent, which matters because the household is
+re-sanitised on every read, on every write, and again server-side.
+`npm run verify:progress` proves it.
+
+### Stage access
+
+No stage is locked behind another, and no map is locked behind another map.
+A family picks where their child belongs today. Placement is a product
+decision for later; guessing at it here would mean the game telling a
+four-year-old what they are not ready for.
+
+The Beginner sound *grouping* follows the broad consensus on typical English
+consonant acquisition (Shriberg's Early-8 / Middle-8 / Late-8; Crowe &
+McLeod 2020), clustered by articulator so a pre-K learner practises one
+mouth movement at a time. It orders **content**, not children — see
+`content/speech/beginner/groups.ts` for the rationale and the explicit
+non-claims.
+
 ## GAME-002's mode system
 
 Speech Basketball is one game with several ways to play it. It applies the
@@ -256,6 +390,21 @@ that would invent a difficulty the child never played at.
 
 Nothing in GAME-001 or GAME-002 should need editing. If it does, the
 abstraction is wrong — fix that rather than working around it.
+
+## Verification
+
+Three Node suites run the real game logic with no browser and no rendering.
+They are the fastest way to know a data change did not quietly break a
+level, a save, or the speech ladder.
+
+| Command | What it proves |
+| --- | --- |
+| `npm run verify:world` | Every word adventure walks spawn → checkpoints → portal, and every Beginner map walks spawn → every station → home, with no fall and no stuck leg. Anchors and coins sit on the surface. |
+| `npm run verify:progress` | v1 and pre-tier saves migrate intact, sanitising is idempotent, and no stage or game can write into another's records. |
+| `npm run verify:speech` | Every sound matches everything its recognition config lists and rejects silence; the sound → word → sentence ladder joins up for every supported sound; every Expert sentence splits into matchable words. |
+
+Add `npm run build`, `npm run lint` and `npm run typecheck` and that is the
+full gate. A map is data, and data is easy to get subtly wrong.
 
 ## Privacy notes
 

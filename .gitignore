@@ -30,3 +30,9 @@ yarn-error.log*
 
 # world verification build output
 /.verify-tmp
+
+# progress verification build output
+/.verify-progress-tmp
+
+# speech verification build output
+/.verify-speech-tmp

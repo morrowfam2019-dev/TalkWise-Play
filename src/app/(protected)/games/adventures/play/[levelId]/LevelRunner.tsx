@@ -35,7 +35,10 @@ export function LevelRunner({ levelId }: { levelId: string }) {
   const level = getLevel(levelId);
 
   const handleExit = useCallback(() => {
-    router.push("/games/adventures");
+    // The word adventures now live under the Intermediate tier, so exiting a
+    // run returns to that list rather than to the stage picker. The play
+    // route itself is unchanged, so old links and bookmarks still work.
+    router.push("/games/adventures/intermediate");
   }, [router]);
 
   if (!level) return null;
@@ -53,10 +56,10 @@ export function LevelRunner({ levelId }: { levelId: string }) {
             Complete {requiredTitle} first.
           </p>
           <Link
-            href="/games/adventures"
+            href="/games/adventures/intermediate"
             className="mt-6 inline-block rounded-2xl bg-[#f5c33b] px-6 py-3 font-black text-[#141420]"
           >
-            Back to Speech Adventures
+            Back to Word Adventures
           </Link>
         </div>
       </div>

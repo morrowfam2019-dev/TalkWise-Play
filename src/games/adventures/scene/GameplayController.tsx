@@ -16,6 +16,7 @@ const PITCH_MIN = -0.05;
 const PITCH_MAX = 0.95;
 const KEYBOARD_YAW_SPEED = 2.2;
 
+/** Default trigger ring, tuned for a word adventure's checkpoint. */
 const CHECKPOINT_RADIUS = 2.3;
 const CHECKPOINT_REARM_RADIUS = 3.4;
 const CHECKPOINT_VERTICAL_TOLERANCE = 2.6;
@@ -51,6 +52,18 @@ interface GameplayControllerProps extends GameplayCallbacks {
   finishUnlocked: boolean;
   /** Bumping this restarts the run from spawn. */
   runId: number;
+  /**
+   * How close a player must get to fire a checkpoint, and how far they must
+   * then move away before it can fire again.
+   *
+   * Both default to the word adventures' values and are only overridden by
+   * the Beginner explorer, whose maps are four times the size and whose
+   * players are four years old — there, walking onto the ring a station
+   * draws on the ground should be enough, rather than hitting a smaller
+   * circle inside it.
+   */
+  checkpointRadius?: number;
+  checkpointRearmRadius?: number;
 }
 
 /**
@@ -74,6 +87,8 @@ export function GameplayController({
   collected,
   finishUnlocked,
   runId,
+  checkpointRadius = CHECKPOINT_RADIUS,
+  checkpointRearmRadius = CHECKPOINT_REARM_RADIUS,
   onCheckpoint,
   onCoin,
   onFinish,
@@ -227,7 +242,7 @@ export function GameplayController({
       if (Math.abs(dy) > CHECKPOINT_VERTICAL_TOLERANCE) return;
       const distance = Math.hypot(dx, dz);
 
-      if (distance > CHECKPOINT_REARM_RADIUS) armed.current[index] = true;
+      if (distance > checkpointRearmRadius) armed.current[index] = true;
 
       if (done[index]) return;
 
@@ -236,13 +251,13 @@ export function GameplayController({
         closest = index;
       }
 
-      if (distance < CHECKPOINT_RADIUS && armed.current[index]) {
+      if (distance < checkpointRadius && armed.current[index]) {
         armed.current[index] = false;
         onCheckpoint(index);
       }
     });
 
-    const near = closestDistance < CHECKPOINT_REARM_RADIUS ? closest : null;
+    const near = closestDistance < checkpointRearmRadius ? closest : null;
     if (near !== nearIndex.current) {
       nearIndex.current = near;
       onNearChange(near);

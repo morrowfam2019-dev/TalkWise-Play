@@ -359,3 +359,171 @@ export class WordRecognizer {
     }
   }
 }
+
+// ---------------------------------------------------------------------------
+// Sound-level recognition (GAME-001 Beginner)
+// ---------------------------------------------------------------------------
+
+/**
+ * What counts as a production of one isolated speech sound.
+ *
+ * Supplied by the caller as plain data so this module stays free of the
+ * content layer, exactly like `PhraseWord`.
+ */
+export interface SoundMatchConfig {
+  /** Whole transcripts that count, lowercased and stripped to a–z. */
+  accepted: string[];
+  /** A heard token counts if it starts with one of these. */
+  acceptedPrefixes: string[];
+  /**
+   * The sound's anchor word ("moon" for /m/). A child who answers the /m/
+   * station with the whole word still made the sound, so it counts.
+   * Optional — omit to require the isolated sound.
+   */
+  anchorWord?: string;
+}
+
+/** Isolated sounds need longer than a word: a child often takes a run-up. */
+const SOUND_LISTEN_TIMEOUT_MS = 6000;
+
+/**
+ * Whether a transcript counts as the target sound.
+ *
+ * Exported because it is the single rule the whole Beginner tier depends on
+ * and it should be checkable without a microphone.
+ */
+export function isSoundMatch(heard: string, config: SoundMatchConfig): boolean {
+  const normalized = normalize(heard);
+  if (!normalized) return false;
+
+  if (config.accepted.includes(normalized)) return true;
+  if (config.acceptedPrefixes.some((prefix) => normalized.startsWith(prefix))) {
+    return true;
+  }
+  if (config.anchorWord) {
+    const anchor = normalize(config.anchorWord);
+    if (anchor && normalized.includes(anchor)) return true;
+  }
+  return false;
+}
+
+/**
+ * Listens for one isolated speech sound.
+ *
+ * ## Why this is not `WordRecognizer` with a one-letter target
+ *
+ * Browser speech recognition is built to transcribe *words*. Handed a bare
+ * consonant it returns whatever word it can nearest-match, an interjection
+ * ("hmm", "um"), or nothing at all — which is why an earlier isolated-sound
+ * difficulty tier was removed from this codebase rather than shipped. This
+ * recogniser is built for that reality instead of fighting it:
+ *
+ * - it accepts a **wide set** of transcripts per sound, listing what
+ *   browsers actually return rather than what phonetics says they should;
+ * - it accepts any token *starting* with the sound, so "mmmoon" and even a
+ *   mis-transcribed "monkey" credit /m/;
+ * - it accepts the sound's anchor word outright;
+ * - it listens longer than a word attempt, because young children take a
+ *   run-up;
+ * - and, crucially, the **caller is expected to let a child through
+ *   anyway** after a few tries. Beginner is exploration, not a test. A
+ *   recogniser that cannot hear a four-year-old must never be able to lock
+ *   them out of a playground.
+ */
+export class SoundRecognizer {
+  private recognition: SpeechRecognitionLike | null = null;
+  private timeoutId: number | null = null;
+  private statusCallback: ((status: SpeechListenStatus) => void) | null = null;
+  private finished = false;
+
+  /** Listens once for the configured sound. Always calls exactly one of
+   * onMatch/onNoMatch. */
+  listenFor(
+    config: SoundMatchConfig,
+    { onMatch, onNoMatch, onStatus, timeoutMs }: SpeechListenCallbacks,
+  ): void {
+    this.statusCallback = onStatus ?? null;
+    this.finished = false;
+
+    const Ctor = getSpeechRecognitionCtor();
+    if (!Ctor) {
+      this.updateStatus("unsupported");
+      onNoMatch();
+      return;
+    }
+
+    const recognition = new Ctor();
+    this.recognition = recognition;
+    recognition.lang = "en-US";
+    recognition.continuous = false;
+    recognition.interimResults = true;
+    // More alternatives than a word attempt: the correct reading of a hummed
+    // consonant is often not the browser's first guess.
+    recognition.maxAlternatives = 5;
+
+    const finish = (matched: boolean) => {
+      if (this.finished) return;
+      this.finished = true;
+      this.clearTimer();
+      this.updateStatus(matched ? "matched" : "no-match");
+      try {
+        recognition.stop();
+      } catch {
+        // Already stopped — nothing to clean up.
+      }
+      if (matched) onMatch();
+      else onNoMatch();
+    };
+
+    recognition.onresult = (event) => {
+      for (let i = event.resultIndex; i < event.results.length; i += 1) {
+        const result = event.results[i];
+        for (let j = 0; j < result.length; j += 1) {
+          if (isSoundMatch(result[j].transcript, config)) {
+            finish(true);
+            return;
+          }
+        }
+      }
+    };
+    recognition.onerror = () => finish(false);
+    recognition.onend = () => finish(false);
+
+    this.updateStatus("listening");
+    try {
+      recognition.start();
+    } catch {
+      finish(false);
+      return;
+    }
+
+    this.timeoutId = window.setTimeout(
+      () => finish(false),
+      timeoutMs ?? SOUND_LISTEN_TIMEOUT_MS,
+    );
+  }
+
+  private clearTimer(): void {
+    if (this.timeoutId !== null) {
+      window.clearTimeout(this.timeoutId);
+      this.timeoutId = null;
+    }
+  }
+
+  private updateStatus(status: SpeechListenStatus): void {
+    this.statusCallback?.(status);
+  }
+
+  /** Stops listening without firing either callback. */
+  stop(): void {
+    this.finished = true;
+    this.clearTimer();
+    if (this.recognition) {
+      try {
+        this.recognition.stop();
+      } catch {
+        // Already stopped — nothing to clean up.
+      }
+    }
+  }
+}

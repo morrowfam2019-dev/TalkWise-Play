@@ -10,8 +10,12 @@ import {
   addChild as addChildToHousehold,
   equipItem,
   householdStore,
+  markMapCelebration,
   mergeBasketballResult,
+  mergeExplorerCoins,
+  mergeQuestResult,
   mergeRunResult,
+  mergeStationResult,
   purchaseItem,
   setActiveChild,
   setAssistMode as setAssistModeOnProfile,
@@ -71,6 +75,58 @@ export function usePlayerProfile() {
       run: { checkpoints: number; coins: number; completed: boolean },
     ) => {
       updateActive((p) => mergeRunResult(p, levelId, run));
+    },
+    [updateActive],
+  );
+
+  /**
+   * Records one turn at a GAME-001 Beginner sound station.
+   *
+   * Called per turn rather than per session: an Explorer map has no "run"
+   * to end, and a child who wanders off mid-map should keep everything they
+   * practised. `completed` is true whether the microphone heard them or
+   * they tapped the button — Beginner records participation, not accuracy.
+   */
+  const recordStationTurn = useCallback(
+    (
+      mapId: string,
+      soundId: string,
+      turn: { completed: boolean; coins: number },
+    ) => {
+      updateActive((p) => mergeStationResult(p, mapId, soundId, turn));
+    },
+    [updateActive],
+  );
+
+  /**
+   * Banks a coin picked up in a Beginner map, immediately.
+   *
+   * An explorer map never ends, so there is no results screen to bank
+   * pickups on — a child who wanders off with ten coins in their pocket
+   * should keep them.
+   */
+  const recordExplorerCoins = useCallback(
+    (coins: number) => {
+      updateActive((p) => mergeExplorerCoins(p, coins));
+    },
+    [updateActive],
+  );
+
+  /** Records that a child reached a Beginner map's celebration. Idempotent. */
+  const recordMapCelebration = useCallback(
+    (mapId: string) => {
+      updateActive((p) => markMapCelebration(p, mapId));
+    },
+    [updateActive],
+  );
+
+  /** Records a finished GAME-001 Expert sentence quest run. */
+  const recordQuestRun = useCallback(
+    (
+      questId: string,
+      run: { scenes: number; coins: number; completed: boolean },
+    ) => {
+      updateActive((p) => mergeQuestResult(p, questId, run));
     },
     [updateActive],
   );
@@ -159,6 +215,10 @@ export function usePlayerProfile() {
     basketball: profile.games[GAME_BASKETBALL],
     setName,
     recordRun,
+    recordStationTurn,
+    recordExplorerCoins,
+    recordMapCelebration,
+    recordQuestRun,
     recordBasketballRound,
     buyItem,
     equip,
