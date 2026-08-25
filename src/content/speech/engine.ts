@@ -156,6 +156,17 @@ const PRAISE = [
   "SUPER TALKING!",
 ];
 
+/**
+ * Splits a sentence into individually-recognisable words.
+ *
+ * Exported because the Expert tier builds its targets from story scenes
+ * rather than from the ladder pool, and word-by-word recognition only works
+ * if both paths normalise identically — one rule, one place.
+ */
+export function splitTargetWords(text: string): SpeechTargetWord[] {
+  return splitWords(text);
+}
+
 function splitWords(text: string): SpeechTargetWord[] {
   return text
     .split(/\s+/)

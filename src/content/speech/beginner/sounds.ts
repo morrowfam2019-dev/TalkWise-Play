@@ -1,0 +1,161 @@
+import type { BeginnerSound } from "./types";
+
+/**
+ * The Beginner sound library.
+ *
+ * **Only sounds TalkWise already supports appear here.** Every entry below
+ * has a matching Intermediate word adventure, a Miss Maya recording for its
+ * anchor word, and Expert sentences in `tiers.ts`, so the whole
+ * sound → word → sentence ladder is real for each one. No placeholder
+ * curriculum was invented to pad the maps out: three maps carrying 3 / 2 / 2
+ * stations is the honest shape of the current library, and adding the eighth
+ * sound later is one record here plus one anchor in a map file.
+ *
+ * `accepted` lists are the spellings browsers actually return when a child
+ * hums or buzzes an isolated consonant, not phonetic notation. They are
+ * deliberately wide — see `SoundRecognition` for why.
+ */
+export const BEGINNER_SOUNDS: BeginnerSound[] = [
+  {
+    id: "m",
+    display: "M",
+    phoneme: "/m/",
+    model: "mmmmm",
+    cue: "Put your lips together and hum: mmmmm.",
+    glyph: "🌙",
+    anchorWord: "moon",
+    group: "group1",
+    repetitions: 3,
+    reward: 5,
+    recognition: {
+      accepted: [
+        "m", "mm", "mmm", "mmmm", "mmmmm", "em", "hm", "hmm", "hmmm",
+        "um", "umm", "mhm", "mmhmm", "ma", "mah", "mama", "me", "my",
+        "moo", "mom", "mum",
+      ],
+      acceptedPrefixes: ["m", "hm", "um"],
+    },
+  },
+  {
+    id: "b",
+    display: "B",
+    phoneme: "/b/",
+    model: "b-b-b",
+    cue: "Press your lips together, then pop them open: b-b-b.",
+    glyph: "🫧",
+    anchorWord: "ball",
+    group: "group1",
+    repetitions: 3,
+    reward: 5,
+    recognition: {
+      accepted: [
+        "b", "bb", "bbb", "be", "bee", "bea", "buh", "bah", "ba", "baa",
+        "bab", "baba", "boo", "bub", "bop", "bob", "bye",
+      ],
+      acceptedPrefixes: ["b"],
+    },
+  },
+  {
+    id: "p",
+    display: "P",
+    phoneme: "/p/",
+    model: "p-p-p",
+    cue: "Lips together, then puff the air out: p-p-p.",
+    glyph: "🎈",
+    anchorWord: "pig",
+    group: "group1",
+    repetitions: 3,
+    reward: 5,
+    recognition: {
+      accepted: [
+        "p", "pp", "ppp", "pe", "pea", "pee", "puh", "pah", "pa", "paa",
+        "papa", "poo", "pop", "pup", "up", "pow",
+      ],
+      acceptedPrefixes: ["p"],
+    },
+  },
+  {
+    id: "w",
+    display: "W",
+    phoneme: "/w/",
+    model: "wuh-wuh-wuh",
+    cue: "Round your lips like a little circle: wuh-wuh.",
+    glyph: "💧",
+    anchorWord: "water",
+    group: "group2",
+    repetitions: 3,
+    reward: 5,
+    recognition: {
+      accepted: [
+        "w", "ww", "wuh", "wa", "wah", "waa", "wo", "woh", "woo", "wow",
+        "we", "wee", "why", "one", "won", "whoa", "wu",
+      ],
+      acceptedPrefixes: ["w", "wh"],
+    },
+  },
+  {
+    id: "f",
+    display: "F",
+    phoneme: "/f/",
+    model: "fffff",
+    cue: "Top teeth on your bottom lip, then blow: fffff.",
+    glyph: "🍃",
+    anchorWord: "fish",
+    group: "group2",
+    repetitions: 3,
+    reward: 5,
+    recognition: {
+      accepted: [
+        "f", "ff", "fff", "ffff", "ef", "eff", "fa", "fah", "fuh", "fee",
+        "foo", "few", "if", "off", "huff", "puff", "ph",
+      ],
+      acceptedPrefixes: ["f", "ph"],
+    },
+  },
+  {
+    id: "l",
+    display: "L",
+    phoneme: "/l/",
+    model: "llllla",
+    cue: "Tongue tip up behind your top teeth, then sing: lllla.",
+    glyph: "🦁",
+    anchorWord: "lion",
+    group: "group3",
+    repetitions: 3,
+    reward: 5,
+    recognition: {
+      accepted: [
+        "l", "ll", "lll", "el", "ell", "la", "lah", "laa", "lala", "luh",
+        "lee", "le", "low", "loo", "hello", "yellow",
+      ],
+      acceptedPrefixes: ["l", "el"],
+    },
+  },
+  {
+    id: "s",
+    display: "S",
+    phoneme: "/s/",
+    model: "sssss",
+    cue: "Teeth together and let the air hiss out: sssss.",
+    glyph: "🐍",
+    anchorWord: "sun",
+    group: "group3",
+    repetitions: 3,
+    reward: 5,
+    recognition: {
+      accepted: [
+        "s", "ss", "sss", "ssss", "es", "ess", "sa", "sah", "suh", "sea",
+        "see", "so", "sew", "say", "sigh", "yes", "hiss", "this", "c",
+      ],
+      acceptedPrefixes: ["s", "es", "c"],
+    },
+  },
+];
+
+export function getBeginnerSound(id: string): BeginnerSound | undefined {
+  return BEGINNER_SOUNDS.find((sound) => sound.id === id);
+}
+
+export function listBeginnerSoundsInGroup(groupId: string): BeginnerSound[] {
+  return BEGINNER_SOUNDS.filter((sound) => sound.group === groupId);
+}

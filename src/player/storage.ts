@@ -4,10 +4,19 @@ import {
   type GameId,
 } from "@/platform/games/registry";
 import {
+  getMapProgressFrom,
   getLevelProgressFrom,
+  getQuestProgressFrom,
+  getStationProgressFrom,
+  markMapCelebrated,
+  mergeQuestRun,
+  mergeStationTurn,
   sanitizeAdventuresState,
   type AdventuresLoadout,
+  type BeginnerMapProgress,
   type LevelProgress,
+  type QuestProgress,
+  type StationProgress,
 } from "./games/adventures";
 import {
   mergeBasketballRound,
@@ -309,6 +318,113 @@ export function mergeRunResult(
 }
 
 // ---------------------------------------------------------------------------
+// GAME-001 BEGINNER — Sound Explorer
+// ---------------------------------------------------------------------------
+
+export function getMapProgress(
+  profile: PlayerProfile,
+  mapId: string,
+): BeginnerMapProgress {
+  return getMapProgressFrom(profile.games[GAME_ADVENTURES], mapId);
+}
+
+export function getStationProgress(
+  profile: PlayerProfile,
+  mapId: string,
+  soundId: string,
+): StationProgress {
+  return getStationProgressFrom(profile.games[GAME_ADVENTURES], mapId, soundId);
+}
+
+/**
+ * Folds one turn at a sound station into a profile.
+ *
+ * Same split as every other GAME-001 write: coins to the shared platform
+ * wallet, the streak to the platform, the station record to the Adventures
+ * namespace — and, within it, to the Beginner tier only. An Explorer turn
+ * can never touch a word-adventure record.
+ *
+ * The streak advances here too, deliberately: a pre-K learner who spends
+ * their session in the playground practised today just as much as a child
+ * who finished a word adventure.
+ */
+export function mergeStationResult(
+  profile: PlayerProfile,
+  mapId: string,
+  soundId: string,
+  turn: { completed: boolean; coins: number },
+  now: Date = new Date(),
+): PlayerProfile {
+  return {
+    ...profile,
+    ...advanceStreak(profile, now),
+    totalCoins: profile.totalCoins + Math.max(0, turn.coins),
+    games: {
+      ...profile.games,
+      [GAME_ADVENTURES]: mergeStationTurn(
+        profile.games[GAME_ADVENTURES],
+        mapId,
+        soundId,
+        turn,
+      ),
+    },
+  };
+}
+
+/**
+ * Records that a child reached a map's celebration.
+ *
+ * Idempotent down to the reference: a second call returns the *same* profile
+ * object rather than an equal one, so it cannot trigger a pointless save or
+ * a re-render.
+ */
+export function markMapCelebration(
+  profile: PlayerProfile,
+  mapId: string,
+): PlayerProfile {
+  const adventures = profile.games[GAME_ADVENTURES];
+  const next = markMapCelebrated(adventures, mapId);
+  if (next === adventures) return profile;
+  return {
+    ...profile,
+    games: { ...profile.games, [GAME_ADVENTURES]: next },
+  };
+}
+
+// ---------------------------------------------------------------------------
+// GAME-001 EXPERT — Sentence Adventures
+// ---------------------------------------------------------------------------
+
+export function getQuestProgress(
+  profile: PlayerProfile,
+  questId: string,
+): QuestProgress {
+  return getQuestProgressFrom(profile.games[GAME_ADVENTURES], questId);
+}
+
+/** Folds a finished sentence quest run into a profile. */
+export function mergeQuestResult(
+  profile: PlayerProfile,
+  questId: string,
+  run: { scenes: number; coins: number; completed: boolean },
+  now: Date = new Date(),
+): PlayerProfile {
+  return {
+    ...profile,
+    ...advanceStreak(profile, now),
+    totalCoins: profile.totalCoins + Math.max(0, run.coins),
+    games: {
+      ...profile.games,
+      [GAME_ADVENTURES]: mergeQuestRun(
+        profile.games[GAME_ADVENTURES],
+        questId,
+        run,
+      ),
+    },
+  };
+}
+
+// ---------------------------------------------------------------------------
 // GAME-002 Speech Basketball
 // ---------------------------------------------------------------------------
 
@@ -467,4 +583,11 @@ export function setActiveChild(household: Household, id: string): Household {
   return { ...household, activeChildId: id };
 }
 
-export type { AdventuresLoadout, BasketballLoadout, LevelProgress };
+export type {
+  AdventuresLoadout,
+  BasketballLoadout,
+  BeginnerMapProgress,
+  LevelProgress,
+  QuestProgress,
+  StationProgress,
+};
