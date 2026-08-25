@@ -3,9 +3,18 @@
 import Link from "next/link";
 import { useSyncExternalStore } from "react";
 import { listLevels } from "@/content/speech";
+import { getBeginnerSound } from "@/content/speech/beginner";
+import { listExpertQuests } from "@/content/speech/expert";
+import { listExplorerMaps } from "@/games/adventures/explorer/maps";
 import { ACHIEVEMENTS, getUnlockedAchievements } from "@/player/achievements";
 import { GAME_BASKETBALL } from "@/platform/games/registry";
-import { getLevelProgress, householdStore, setAssistMode } from "@/player/storage";
+import {
+  getLevelProgress,
+  getMapProgress,
+  getQuestProgress,
+  householdStore,
+  setAssistMode,
+} from "@/player/storage";
 import { CoinIcon } from "@/ui/CoinIcon";
 
 /**
@@ -25,6 +34,11 @@ export default function ParentPage() {
   const levelChallengeCounts = Object.fromEntries(
     levels.map((level) => [level.id, level.challenges.length]),
   );
+  // GAME-001's three stages report separately, because they are three
+  // separate records. None of these numbers is an accuracy score or an
+  // assessment — they are counts of practice that happened.
+  const maps = listExplorerMaps();
+  const quests = listExpertQuests();
 
   const toggleAssist = (childId: string) => {
     const current = householdStore.getSnapshot();
@@ -114,10 +128,63 @@ export default function ParentPage() {
                   {profile.assistMode ? "On" : "Off"}
                 </button>
 
+                {/* GAME-001 BEGINNER — turns taken at each sound station.
+                    Deliberately "turns", not "accuracy": nothing in the
+                    Beginner tier scores a child's speech. */}
                 <table className="mt-4 w-full text-left text-sm">
                   <thead>
                     <tr className="text-[0.65rem] font-black tracking-wide text-[#8a8aa0] uppercase">
-                      <th className="pb-1.5">Speech Adventures</th>
+                      <th className="pb-1.5">Sound Explorer · Beginner</th>
+                      <th className="pb-1.5">Sound</th>
+                      <th className="pb-1.5">Turns</th>
+                      <th className="pb-1.5">Lit up</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {maps.flatMap((map) => {
+                      const saved = getMapProgress(profile, map.id);
+                      return map.stations.map((station) => {
+                        const sound = getBeginnerSound(station.soundId);
+                        const record = saved.stations[station.soundId];
+                        const turns = record?.completions ?? 0;
+                        const lit =
+                          sound !== undefined && turns >= sound.repetitions;
+                        return (
+                          <tr
+                            key={`${map.id}-${station.id}`}
+                            className="border-t border-[#eef0f5]"
+                          >
+                            <td className="py-2 font-bold text-[#141420]">
+                              {map.title}
+                            </td>
+                            <td className="py-2 font-semibold text-[#4a4a60]">
+                              {sound?.phoneme ?? station.soundId}
+                            </td>
+                            <td className="py-2 font-semibold text-[#4a4a60]">
+                              {turns}
+                            </td>
+                            <td className="py-2">
+                              {lit ? (
+                                <span className="font-black text-[#2ecc71]">
+                                  ★ Yes
+                                </span>
+                              ) : (
+                                <span className="font-semibold text-[#b0b0c0]">
+                                  Not yet
+                                </span>
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      });
+                    })}
+                  </tbody>
+                </table>
+
+                <table className="mt-5 w-full text-left text-sm">
+                  <thead>
+                    <tr className="text-[0.65rem] font-black tracking-wide text-[#8a8aa0] uppercase">
+                      <th className="pb-1.5">Word Adventures · Intermediate</th>
                       <th className="pb-1.5">Checkpoints</th>
                       <th className="pb-1.5">Best coins</th>
                       <th className="pb-1.5">Finished</th>
@@ -133,6 +200,47 @@ export default function ParentPage() {
                           </td>
                           <td className="py-2 font-semibold text-[#4a4a60]">
                             {progress.bestCheckpoints}/{level.challenges.length}
+                          </td>
+                          <td className="py-2 font-semibold text-[#4a4a60]">
+                            {progress.bestCoins}
+                          </td>
+                          <td className="py-2">
+                            {progress.completed ? (
+                              <span className="font-black text-[#2ecc71]">
+                                ★ Yes
+                              </span>
+                            ) : (
+                              <span className="font-semibold text-[#b0b0c0]">
+                                Not yet
+                              </span>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+
+                {/* GAME-001 EXPERT — sentence stories. */}
+                <table className="mt-5 w-full text-left text-sm">
+                  <thead>
+                    <tr className="text-[0.65rem] font-black tracking-wide text-[#8a8aa0] uppercase">
+                      <th className="pb-1.5">Sentence Adventures · Expert</th>
+                      <th className="pb-1.5">Sentences</th>
+                      <th className="pb-1.5">Best coins</th>
+                      <th className="pb-1.5">Finished</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {quests.map((quest) => {
+                      const progress = getQuestProgress(profile, quest.id);
+                      return (
+                        <tr key={quest.id} className="border-t border-[#eef0f5]">
+                          <td className="py-2 font-bold text-[#141420]">
+                            {quest.title}
+                          </td>
+                          <td className="py-2 font-semibold text-[#4a4a60]">
+                            {progress.bestScenes}/{quest.scenes.length}
                           </td>
                           <td className="py-2 font-semibold text-[#4a4a60]">
                             {progress.bestCoins}
@@ -204,6 +312,16 @@ export default function ParentPage() {
             );
           })}
         </div>
+
+        <p className="mx-auto mt-8 max-w-2xl rounded-2xl border-2 border-[#e2e4ee] bg-white/70 p-4 text-xs leading-relaxed font-semibold text-[#6b6b80]">
+          These are counts of practice, not test results. TalkWise Play does
+          not score pronunciation, assess development, or diagnose anything.
+          Speech Adventures groups its sounds by the order English speech
+          sounds are commonly learned, purely so the worlds have a sensible
+          order to meet them in — children pick sounds up on their own
+          timeline and in their own order, and every level and world in the
+          game is open from the start.
+        </p>
       </div>
     </main>
   );

@@ -12,6 +12,7 @@ import {
   householdStore,
   markMapCelebration,
   mergeBasketballResult,
+  mergeExplorerCoins,
   mergeQuestResult,
   mergeRunResult,
   mergeStationResult,
@@ -93,6 +94,20 @@ export function usePlayerProfile() {
       turn: { completed: boolean; coins: number },
     ) => {
       updateActive((p) => mergeStationResult(p, mapId, soundId, turn));
+    },
+    [updateActive],
+  );
+
+  /**
+   * Banks a coin picked up in a Beginner map, immediately.
+   *
+   * An explorer map never ends, so there is no results screen to bank
+   * pickups on — a child who wanders off with ten coins in their pocket
+   * should keep them.
+   */
+  const recordExplorerCoins = useCallback(
+    (coins: number) => {
+      updateActive((p) => mergeExplorerCoins(p, coins));
     },
     [updateActive],
   );
@@ -201,6 +216,7 @@ export function usePlayerProfile() {
     setName,
     recordRun,
     recordStationTurn,
+    recordExplorerCoins,
     recordMapCelebration,
     recordQuestRun,
     recordBasketballRound,

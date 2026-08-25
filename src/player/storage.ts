@@ -372,6 +372,24 @@ export function mergeStationResult(
 }
 
 /**
+ * Adds coins a child picked up while exploring to the shared wallet.
+ *
+ * Separate from `mergeStationResult` because an explorer map has no run to
+ * end: a word adventure banks its pickups on the results screen, and an open
+ * park has no results screen to bank them on. Deliberately does **not**
+ * advance the daily streak — walking over a coin is not practice, and the
+ * streak should mean a child spoke. Station turns advance it.
+ */
+export function mergeExplorerCoins(
+  profile: PlayerProfile,
+  coins: number,
+): PlayerProfile {
+  const earned = Math.max(0, Math.floor(coins));
+  if (earned === 0) return profile;
+  return { ...profile, totalCoins: profile.totalCoins + earned };
+}
+
+/**
  * Records that a child reached a map's celebration.
  *
  * Idempotent down to the reference: a second call returns the *same* profile

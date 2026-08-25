@@ -50,6 +50,7 @@ export function ExplorerShell({ map, onExit }: ExplorerShellProps) {
     profile,
     adventures,
     recordStationTurn,
+    recordExplorerCoins,
     recordMapCelebration,
     setMicEnabled,
   } = usePlayerProfile();
@@ -74,6 +75,19 @@ export function ExplorerShell({ map, onExit }: ExplorerShellProps) {
   const [coins, setCoins] = useState(0);
   const [muted, setMuted] = useState(false);
   const [runId] = useState(0);
+
+  // Opt-in position readout, the same `?debug` switch the word adventures
+  // carry — it is how a map's anchors get placed and how an automated
+  // play-through knows where it is standing.
+  const [debugEnabled] = useState(
+    () =>
+      typeof window !== "undefined" &&
+      new URLSearchParams(window.location.search).has("debug"),
+  );
+  const [debugPosition, setDebugPosition] = useState("");
+  const handleDebugSample = useCallback((x: number, y: number, z: number) => {
+    setDebugPosition(`${x.toFixed(2)} ${y.toFixed(2)} ${z.toFixed(2)}`);
+  }, []);
 
   const phaseRef = useRef<Phase>("intro");
   const collectedRef = useRef<Set<string>>(new Set());
@@ -137,13 +151,20 @@ export function ExplorerShell({ map, onExit }: ExplorerShellProps) {
     setPhase("station");
   }, []);
 
-  const handleCoin = useCallback((id: string, value: number) => {
-    if (collectedRef.current.has(id)) return;
-    collectedRef.current.add(id);
-    gameAudio.coin();
-    setCollected((current) => [...current, id]);
-    setCoins((current) => current + value);
-  }, []);
+  const handleCoin = useCallback(
+    (id: string, value: number) => {
+      if (collectedRef.current.has(id)) return;
+      collectedRef.current.add(id);
+      gameAudio.coin();
+      setCollected((current) => [...current, id]);
+      setCoins((current) => current + value);
+      // Banked immediately: there is no results screen in an open map to
+      // bank it on later, and `collectedRef` already makes each coin
+      // unrepeatable within a session.
+      recordExplorerCoins(value);
+    },
+    [recordExplorerCoins],
+  );
 
   const handleNearChange = useCallback((index: number | null) => {
     setNearIndex(index);
@@ -239,6 +260,7 @@ export function ExplorerShell({ map, onExit }: ExplorerShellProps) {
           onFinish={handleFinish}
           onNearChange={handleNearChange}
           onJump={handleJump}
+          onDebugSample={debugEnabled ? handleDebugSample : undefined}
         />
       </div>
 
@@ -255,6 +277,15 @@ export function ExplorerShell({ map, onExit }: ExplorerShellProps) {
         />
 
         <TouchControls input={input} action="jump" />
+
+        {debugEnabled ? (
+          <p
+            data-testid="debug-position"
+            className="absolute bottom-1 left-1 rounded bg-black/70 px-2 py-1 font-mono text-[10px] text-lime-300"
+          >
+            {debugPosition}
+          </p>
+        ) : null}
 
         {phase === "intro" ? (
           <div className="pointer-events-auto absolute inset-0 z-30 flex items-center justify-center bg-[#141420]/80 p-4 backdrop-blur-sm">

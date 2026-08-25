@@ -32,7 +32,7 @@ export default function IntermediateHome() {
   return (
     <main className="min-h-[100dvh] bg-gradient-to-b from-[#8fd8f5] via-[#bfeafb] to-[#eaf8e6]">
       <PlatformHeader
-        eyebrow="Speech Adventures · Intermediate"
+        eyebrow="Intermediate"
         title={
           <>
             Word <span className="text-[#6fd36b]">Adventures</span>

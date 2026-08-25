@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { listExpertQuests } from "@/content/speech/expert";
 import { listLevels } from "@/content/speech";
-import { GAME_ADVENTURES, getGame } from "@/platform/games/registry";
 import { listExplorerMaps } from "@/games/adventures/explorer/maps";
 import { getMapProgress, getQuestProgress } from "@/player/storage";
 import { spendableCoins } from "@/player/types";
@@ -30,7 +29,6 @@ import { PlatformHeader } from "@/ui/PlatformHeader";
  */
 export default function AdventuresHome() {
   const { profile, adventures } = usePlayerProfile();
-  const game = getGame(GAME_ADVENTURES);
 
   const maps = listExplorerMaps();
   const levels = listLevels();
@@ -73,8 +71,9 @@ export default function AdventuresHome() {
 
       <div className="mx-auto max-w-3xl px-5 pt-6 pb-16">
         <p className="rounded-[1.5rem] border-4 border-white bg-white/85 p-5 text-base font-semibold text-[#4a4a60] shadow-lg backdrop-blur-sm">
-          {game.tagline} Pick where you want to play today — sounds, words, or
-          sentences.
+          Speech Adventures grows with your child: make the sound, then use it
+          in a word, then use it in a sentence. Pick where you want to play
+          today.
         </p>
 
         <Link

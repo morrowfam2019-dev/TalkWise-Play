@@ -114,7 +114,10 @@ export function QuestShell({
   return (
     <main className="min-h-[100dvh] bg-gradient-to-b from-[#0d1330] via-[#16215a] to-[#26307a]">
       <PlatformHeader
-        eyebrow="Speech Adventures · Expert"
+        // Short eyebrow on purpose: a quest title is long, and the full
+        // "Speech Adventures · Expert" wrapped to three lines at 390px and
+        // squeezed the title into an ellipsis.
+        eyebrow="Expert"
         accent="text-[#8fa8ff]"
         title={<>{quest.title}</>}
         coins={spendableCoins(profile)}

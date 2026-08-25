@@ -16,6 +16,14 @@ import { RewardProps } from "./RewardProps";
 import { SoundStations } from "./SoundStations";
 import { useMemo } from "react";
 
+/**
+ * Station triggers are wider than a word adventure's checkpoint, and match
+ * the ring the station draws on the ground: on a map this size, a
+ * four-year-old aiming at a letter should not be able to walk past it.
+ */
+const STATION_RADIUS = 3.2;
+const STATION_REARM_RADIUS = 5;
+
 interface ExplorerSceneProps extends GameplayCallbacks {
   map: ExplorerMap;
   input: GameInput;
@@ -118,6 +126,8 @@ export function ExplorerScene({
         collected={collected}
         finishUnlocked={false}
         runId={runId}
+        checkpointRadius={STATION_RADIUS}
+        checkpointRearmRadius={STATION_REARM_RADIUS}
         {...callbacks}
       />
     </Canvas>

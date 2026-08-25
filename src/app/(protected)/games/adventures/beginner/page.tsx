@@ -30,7 +30,7 @@ export default function BeginnerHome() {
   return (
     <main className="min-h-[100dvh] bg-gradient-to-b from-[#ffe9a8] via-[#ffd76a] to-[#ffeccd]">
       <PlatformHeader
-        eyebrow="Speech Adventures · Beginner"
+        eyebrow="Beginner"
         title={
           <>
             Sound <span className="text-[#ffd76a]">Explorer</span>

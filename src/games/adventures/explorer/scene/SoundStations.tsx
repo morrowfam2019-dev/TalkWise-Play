@@ -95,7 +95,9 @@ function Station({ anchor, completions, repetitions, isNear }: StationProps) {
 
       {/* Ground ring */}
       <mesh ref={ring} rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.05, 0]}>
-        <torusGeometry args={[2.5, 0.16, 8, 32]} />
+        {/* Radius matches ExplorerScene's STATION_RADIUS, so the ring a
+            child can see is exactly the ring that opens the station. */}
+        <torusGeometry args={[3.2, 0.18, 8, 32]} />
         <meshLambertMaterial color={color} emissive={color} emissiveIntensity={0.55} />
       </mesh>
 

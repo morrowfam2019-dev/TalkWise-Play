@@ -22,16 +22,28 @@ import type { ExplorerMap, RewardProp, SoundStationAnchor } from "./types";
  * and back.
  */
 
-const CLOUD = "#eef6ff";
-const CLOUD_EDGE = "#cfe0f2";
-const RED = "#ff8f8f";
-const ORANGE = "#ffc46a";
-const GREEN = "#9fe89f";
-const BLUE = "#8fc8ff";
-const VIOLET = "#c8a6ff";
-const DECK = "#ffffff";
+/**
+ * Each platform is a darker body under its own bright cap, so the colour is
+ * what you walk *on*. A white deck cap read as a colourless void from ground
+ * level — the sides were the only coloured surface, and you never see those
+ * from on top of them.
+ */
+const CLOUD = "#eaf2ff";
+const CLOUD_EDGE = "#c3d6ee";
+const RED = "#ff9d9d";
+const RED_DEEP = "#e06b6b";
+const ORANGE = "#ffca7a";
+const ORANGE_DEEP = "#e09b3f";
+const GREEN = "#a6ec9f";
+const GREEN_DEEP = "#63bf63";
+const BLUE = "#9ad0ff";
+const BLUE_DEEP = "#5b9ede";
+const VIOLET = "#cfb0ff";
+const VIOLET_DEEP = "#9a7ae0";
 const TOWER = "#ffe9a8";
-const STAR_DECK = "#bfe0ff";
+const TOWER_DEEP = "#e0c46a";
+const STAR_DECK = "#c7e6ff";
+const STAR_DECK_DEEP = "#7fb6ea";
 
 const RISE = 0.95;
 /** Every platform. */
@@ -69,26 +81,26 @@ const solids: Solid[] = [
   slab(-52, 52, -52, 52, 0, -10, CLOUD_EDGE, CLOUD),
 
   // South platform, where you arrive.
-  slab(-16, 16, 24, 46, T1, -1, RED, DECK),
+  slab(-16, 16, 24, 46, T1, -1, RED_DEEP, RED),
   // Rainbow bridge south → centre. Ten units wide.
-  slab(-5, 5, 6, 26, T1, -1, ORANGE, DECK),
+  slab(-5, 5, 6, 26, T1, -1, ORANGE_DEEP, ORANGE),
   // Centre platform, the big open one.
-  slab(-22, 22, -14, 8, T1, -1, GREEN, DECK),
+  slab(-22, 22, -14, 8, T1, -1, GREEN_DEEP, GREEN),
 
   // East run to the star deck.
-  slab(20, 44, -10, 2, T1, -1, BLUE, DECK),
-  slab(28, 48, -24, -2, T1, -1, BLUE, DECK),
-  slab(32, 46, -22, -6, T2, -1, STAR_DECK, DECK),
+  slab(20, 44, -10, 2, T1, -1, BLUE_DEEP, BLUE),
+  slab(28, 48, -24, -2, T1, -1, BLUE_DEEP, BLUE),
+  slab(32, 46, -22, -6, T2, -1, STAR_DECK_DEEP, STAR_DECK),
 
   // West run to the lantern tower.
-  slab(-44, -20, -12, 2, T1, -1, VIOLET, DECK),
-  slab(-46, -28, -22, -6, T1, -1, VIOLET, DECK),
-  slab(-42, -32, -20, -10, T2, -1, TOWER, DECK),
+  slab(-44, -20, -12, 2, T1, -1, VIOLET_DEEP, VIOLET),
+  slab(-46, -28, -22, -6, T1, -1, VIOLET_DEEP, VIOLET),
+  slab(-42, -32, -20, -10, T2, -1, TOWER_DEEP, TOWER),
 
   // North bridge and the far platform, so the map keeps going past the two
   // stations rather than ending at them.
-  slab(-5, 5, -30, -10, T1, -1, ORANGE, DECK),
-  slab(-24, 24, -48, -26, T1, -1, VIOLET, DECK),
+  slab(-5, 5, -30, -10, T1, -1, ORANGE_DEEP, ORANGE),
+  slab(-24, 24, -48, -26, T1, -1, VIOLET_DEEP, VIOLET),
 ];
 
 const decorations: Decoration[] = [

@@ -22,7 +22,7 @@ export default function ExpertHome() {
   return (
     <main className="min-h-[100dvh] bg-gradient-to-b from-[#0d1330] via-[#16215a] to-[#2b3f8f]">
       <PlatformHeader
-        eyebrow="Speech Adventures · Expert"
+        eyebrow="Expert"
         accent="text-[#8fa8ff]"
         title={
           <>

@@ -7,7 +7,10 @@
 Rebalance character shop pricing in both games
 ```
 
-Tagged locally and on the remote as **`restore/pre-game001-progression`**.
+Pushed to the remote as the branch **`restore/pre-game001-progression`**,
+and tagged locally under the same name. (The tag itself could not be pushed
+— this environment's git proxy refuses tag refs with a 403 — so the branch
+is the durable remote marker.)
 
 This is the last commit of the founder-approved, production-working
 TalkWise Play platform *before* Speech Adventures was split into
@@ -29,8 +32,8 @@ Beginner / Intermediate / Expert.
 Whole-repo rollback:
 
 ```bash
-git fetch origin --tags
-git checkout -B <branch> restore/pre-game001-progression
+git fetch origin restore/pre-game001-progression
+git checkout -B <branch> origin/restore/pre-game001-progression
 git push --force-with-lease origin <branch>
 ```
 
