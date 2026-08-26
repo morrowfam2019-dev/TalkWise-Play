@@ -1,11 +1,15 @@
 /**
  * BEGINNER — Sound Explorer content model.
  *
- * The unit of practice here is a **speech sound**, not a word and not a
- * letter name. A station shows the grapheme because letter shapes help a
- * pre-reader recognise which station they are standing on, but everything
- * the child is asked to produce, and everything recognition listens for, is
- * the sound itself: /m/ as a single clean "M", never "the letter em".
+ * A station targets one speech sound and shows its grapheme, but what Miss
+ * Maya models and what a child is asked to say out loud is the letter's
+ * **name** — "Em", not the isolated phoneme /m/ held on its own. That switch
+ * exists for one reason: browser speech recognition transcribes a spoken
+ * letter name reliably, and cannot reliably transcribe an isolated
+ * consonant with no vowel around it (a glide like /w/ especially comes back
+ * as noise). Keeping the model, the prompt, and the recognizer's target all
+ * the same thing — the letter name — is what makes a correct attempt
+ * actually get credited.
  *
  * Nothing in here knows about maps, 3D, or recognition APIs. A map consumes
  * this data; the explorer engine renders it. Adding a sound to TalkWise
@@ -27,23 +31,26 @@ export type BeginnerGroupId = "group1" | "group2" | "group3";
  * How the sound-level recogniser decides a child produced the target.
  *
  * Deliberately generous. Browser speech recognition is built to transcribe
- * words, and an isolated consonant is the hardest thing to hand it — an
- * earlier isolated-sound tier was removed from this codebase for exactly
- * that reason. So a production counts when the transcript looks anything
- * like the sound: an exact token, a token that starts with it, or the
- * sound's own anchor word. This confirms a child spoke; it is not a
+ * words, and an isolated consonant held with no vowel is the hardest thing
+ * to hand it — an earlier isolated-sound tier was removed from this
+ * codebase for exactly that reason. Asking for the letter's *name* instead
+ * ("Em" rather than a held /m/) gives the browser something it actually
+ * transcribes well. A production still counts when the transcript looks
+ * anything like the target: an exact token, a token that starts with it, or
+ * the sound's own anchor word. This confirms a child spoke; it is not a
  * pronunciation score, and a speech difference must never read as failure.
  */
 export interface SoundRecognition {
   /**
    * Whole transcripts that count, lowercased and stripped to a–z. These are
-   * the spellings browsers actually return for a hummed or buzzed
-   * consonant ("em", "hmm", "um" for /m/), not phonetic notation.
+   * the spellings browsers actually return for a spoken letter name ("em",
+   * "bee", "double u" → "doubleu"), not phonetic notation.
    */
   accepted: string[];
   /**
-   * A heard token counts when it *starts* with one of these. A child who
-   * says "mmmoon" or whose hum is transcribed as "monkey" still made /m/.
+   * A heard token counts when it *starts* with one of these. A child whose
+   * "Em" is transcribed as "emma", or whose "Double U" comes back as
+   * "dubstep", still said the letter name.
    */
   acceptedPrefixes: string[];
 }
@@ -61,8 +68,9 @@ export interface BeginnerSound {
   /** The sound itself, e.g. "/m/". */
   phoneme: string;
   /**
-   * How Miss Maya models it out loud — a single, clean production, said
-   * once. "M", not "mmmmm" and not "m-m-m".
+   * How Miss Maya models it out loud — the letter's name, said once,
+   * cleanly. "Em" for /m/, "Double U" for /w/. Not the isolated phoneme:
+   * browser recognition can't reliably hear that back.
    */
   model: string;
   /** Kid-facing articulation cue. One short sentence, read aloud too. */

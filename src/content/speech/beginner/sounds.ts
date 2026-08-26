@@ -11,21 +11,24 @@ import type { BeginnerSound } from "./types";
  * the honest shape of the current library, and adding the eighth sound later
  * is one record here plus one anchor in the map file.
  *
- * `model` is a single, un-elongated production — "M", not "mmmmm" or
- * "m-m-m" — matching founder feedback that repeated or stretched-out
- * examples read as harder to imitate, not easier. Miss Maya's recording for
- * each sound follows the same rule: she says it once, cleanly.
+ * `model` is the letter's **name** — "Em", not the isolated phoneme "mmm"
+ * — said once, cleanly, never stretched out. Browser speech recognition
+ * transcribes a spoken letter name reliably; it cannot reliably transcribe
+ * an isolated consonant held in the mouth with no vowel around it (a glide
+ * like /w/ especially). Modelling the letter name is what keeps what Miss
+ * Maya says, what a child is asked to repeat, and what recognition listens
+ * for all the same thing — see `SoundRecognition` for the full reasoning.
  *
- * `accepted` lists are the spellings browsers actually return when a child
- * hums or buzzes an isolated consonant, not phonetic notation. They are
- * deliberately wide — see `SoundRecognition` for why.
+ * `accepted` lists are the spellings browsers actually return for a spoken
+ * letter name, not phonetic notation. They are deliberately wide — see
+ * `SoundRecognition` for why.
  */
 export const BEGINNER_SOUNDS: BeginnerSound[] = [
   {
     id: "m",
     display: "M",
     phoneme: "/m/",
-    model: "M",
+    model: "Em",
     cue: "Put your lips together and hum: mmm.",
     glyph: "🌙",
     anchorWord: "moon",
@@ -45,7 +48,7 @@ export const BEGINNER_SOUNDS: BeginnerSound[] = [
     id: "b",
     display: "B",
     phoneme: "/b/",
-    model: "B",
+    model: "Bee",
     cue: "Press your lips together, then pop them open: b.",
     glyph: "🫧",
     anchorWord: "ball",
@@ -64,7 +67,7 @@ export const BEGINNER_SOUNDS: BeginnerSound[] = [
     id: "p",
     display: "P",
     phoneme: "/p/",
-    model: "P",
+    model: "Pee",
     cue: "Lips together, then puff the air out: p.",
     glyph: "🎈",
     anchorWord: "pig",
@@ -83,7 +86,7 @@ export const BEGINNER_SOUNDS: BeginnerSound[] = [
     id: "w",
     display: "W",
     phoneme: "/w/",
-    model: "W",
+    model: "Double U",
     cue: "Round your lips like a little circle: wuh.",
     glyph: "💧",
     anchorWord: "water",
@@ -91,25 +94,19 @@ export const BEGINNER_SOUNDS: BeginnerSound[] = [
     repetitions: 1,
     reward: 5,
     recognition: {
-      // /w/ is a glide: said alone (no vowel riding on it) it decays too
-      // fast to transcribe as anything starting with "w" at all, so a real
-      // attempt is more likely to come back as a short vowel-ish interjection
-      // than a w-word. Listed here rather than assumed, same rule as every
-      // other sound in this file.
       accepted: [
         "w", "ww", "wuh", "wa", "wah", "waa", "wo", "woh", "woo", "wow",
         "we", "wee", "why", "one", "won", "whoa", "wu",
-        "oo", "ooh", "oh", "ohh", "uh", "uhh", "huh", "who", "hoo", "hu",
-        "boo", "goo", "hwa", "hwuh",
+        "doubleu", "doubleyou", "dubya",
       ],
-      acceptedPrefixes: ["w", "wh", "oo", "ooh", "uh", "who"],
+      acceptedPrefixes: ["w", "wh", "double", "dub"],
     },
   },
   {
     id: "f",
     display: "F",
     phoneme: "/f/",
-    model: "F",
+    model: "Eff",
     cue: "Top teeth on your bottom lip, then blow: fff.",
     glyph: "🍃",
     anchorWord: "fish",
@@ -128,7 +125,7 @@ export const BEGINNER_SOUNDS: BeginnerSound[] = [
     id: "l",
     display: "L",
     phoneme: "/l/",
-    model: "L",
+    model: "El",
     cue: "Tongue tip up behind your top teeth, then sing: l.",
     glyph: "🦁",
     anchorWord: "lion",
@@ -147,7 +144,7 @@ export const BEGINNER_SOUNDS: BeginnerSound[] = [
     id: "s",
     display: "S",
     phoneme: "/s/",
-    model: "S",
+    model: "Ess",
     cue: "Teeth together and let the air hiss out: sss.",
     glyph: "🐍",
     anchorWord: "sun",

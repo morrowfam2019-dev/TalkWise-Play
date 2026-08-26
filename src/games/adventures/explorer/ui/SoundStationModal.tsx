@@ -45,16 +45,20 @@ type Phase = "ready" | "listening" | "encourage" | "celebrating";
  *
  * ## What it asks for
  *
- * The production, not the letter name. The grapheme is on screen because a
- * pre-reader uses it to tell one station from another, but every prompt,
- * every model and every match is about the *sound*: /m/ is "mmmmm".
+ * The letter's name, not the isolated phoneme. The grapheme is on screen
+ * because a pre-reader uses it to tell one station from another, and every
+ * prompt, every model and every match is that same name: /m/ is modelled,
+ * asked for, and recognized as "Em" — never a held "mmmmm".
  *
  * ## Why it can't be failed
  *
- * Browser speech recognition is unreliable on isolated consonants — that is
- * a documented fact about the platform, not a tuning problem, and an earlier
- * isolated-sound difficulty tier was pulled from this codebase because of
- * it. So three things are true here at once:
+ * Browser speech recognition is unreliable on isolated consonants held with
+ * no vowel around them — that is a documented fact about the platform, not
+ * a tuning problem, and an earlier isolated-sound difficulty tier was
+ * pulled from this codebase because of it. Modelling the letter name instead
+ * gives the browser something it transcribes well, but the safety net below
+ * still exists for the child who gets a shy microphone anyway. So three
+ * things are true here at once:
  *
  * 1. `SoundRecognizer` accepts a deliberately wide set of transcripts.
  * 2. After three tries the turn is credited anyway, with warm copy — a
