@@ -45,11 +45,12 @@ export function playExampleWord(word: string) {
 // ---------------------------------------------------------------------------
 
 /**
- * Speaks an elongated speech sound, e.g. "mmmmm".
+ * Speaks a Beginner sound's letter name, e.g. "Em" for /m/.
  *
- * Slower and slightly lower than the word voice, because the point is to let
- * a child hear the sound *held* rather than clipped. Nothing here says a
- * letter name: /m/ is modelled as "mmmmm", never as "em".
+ * Slower and slightly lower than the word voice, so a child can track it
+ * clearly. This is the letter's *name*, not the isolated phoneme held on
+ * its own — browser recognition can't reliably hear a held consonant back,
+ * but it hears a spoken letter name well.
  */
 function speakSoundModel(model: string) {
   if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
@@ -79,13 +80,12 @@ function speakSoundModel(model: string) {
 const missingSoundClips = new Set<string>();
 
 /**
- * Plays Miss Maya modelling one speech sound.
+ * Plays Miss Maya modelling one speech sound's letter name.
  *
- * Prefers a recorded clip at `/audio/maya/sounds/<id>.mp3`. **None of those
- * are recorded yet** — the existing library is word clips — so today every
- * sound falls through to the elongated text-to-speech model. The clip path
- * is still checked first, once per sound per session, so that dropping real
- * recordings in later needs no code change at all.
+ * Prefers a recorded clip at `/audio/maya/sounds/<id>.mp3`; falls back to
+ * the text-to-speech model if that sound's clip is missing. The clip path
+ * is still checked first, once per sound per session, so that dropping a
+ * new recording in later needs no code change at all.
  */
 export function playExampleSound(soundId: string, model: string) {
   if (typeof window === "undefined") return;
