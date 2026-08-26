@@ -106,16 +106,11 @@ export function playExampleSound(soundId: string, model: string) {
   clip.play().catch(fallback);
 }
 
-/**
- * Speaks a whole sentence in Miss Maya's fallback voice.
- *
- * Expert sentences have no recorded clips (and would need one per sentence),
- * so this is text-to-speech by design rather than by omission. Paced a
- * little under normal speed so a child can track the words, but not so slow
- * that the sentence stops sounding like connected speech — which is the
- * whole point of the Expert tier.
- */
-export function playExampleSentence(sentence: string) {
+/** Best-effort browser voice for a sentence, used only when no recorded
+ * clip exists for it. Paced a little under normal speed so a child can
+ * track the words, but not so slow that it stops sounding like connected
+ * speech — which is the whole point of the Expert tier. */
+function speakSentence(sentence: string) {
   if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
   try {
     const utterance = new SpeechSynthesisUtterance(sentence);
@@ -131,4 +126,45 @@ export function playExampleSentence(sentence: string) {
   } catch {
     // Best-effort — the sentence is on screen either way.
   }
+}
+
+/**
+ * Filename for a sentence's recorded clip. Must match the naming used for
+ * the files under `public/audio/maya/sentences/` — lowercased, punctuation
+ * dropped, words joined with hyphens.
+ */
+function slugifySentence(sentence: string): string {
+  return sentence
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, "")
+    .trim()
+    .replace(/\s+/g, "-");
+}
+
+/** Sentences whose clip has already been found missing this session — see
+ * `missingSoundClips` above for why this cache exists. */
+const missingSentenceClips = new Set<string>();
+
+/**
+ * Plays Miss Maya's recorded voice for a whole Expert sentence, in her real
+ * cloned voice rather than the browser's synthesized fallback. Falls back
+ * to `speakSentence` for any sentence that doesn't have a clip yet.
+ */
+export function playExampleSentence(sentence: string) {
+  if (typeof window === "undefined") return;
+  const slug = slugifySentence(sentence);
+  if (missingSentenceClips.has(slug)) {
+    speakSentence(sentence);
+    return;
+  }
+  const clip = new Audio(`/audio/maya/sentences/${slug}.mp3`);
+  let fellBack = false;
+  const fallback = () => {
+    if (fellBack) return;
+    fellBack = true;
+    missingSentenceClips.add(slug);
+    speakSentence(sentence);
+  };
+  clip.addEventListener("error", fallback);
+  clip.play().catch(fallback);
 }
