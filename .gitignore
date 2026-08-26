@@ -36,3 +36,6 @@ yarn-error.log*
 
 # speech verification build output
 /.verify-speech-tmp
+
+# Claude Code agent worktrees
+/.claude/worktrees
