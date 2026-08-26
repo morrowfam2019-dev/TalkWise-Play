@@ -14,7 +14,6 @@
  * approved, and none of it was rewritten to get a second kind of level.
  */
 
-import type { BeginnerGroupId } from "@/content/speech/beginner";
 import type {
   Collectible,
   Decoration,
@@ -68,12 +67,22 @@ export interface RewardProp {
   color?: string;
 }
 
+/**
+ * A free-standing toy, unlocked from the very first second — nothing here
+ * is gated behind speech. Touching one is a small delight in its own right,
+ * something to do on the walk between stations rather than a reason to
+ * hurry to the next one.
+ */
+export interface ToyBalloon {
+  id: string;
+  position: Vec3;
+  color: string;
+}
+
 /** A large, open Beginner world. */
 export interface ExplorerMap {
-  /** Stable id used in routes and saved progress, e.g. "sunny-park". */
+  /** Stable id used in routes and saved progress, e.g. "sound-island". */
   id: string;
-  /** Which developmental sound group this map hosts. */
-  groupId: BeginnerGroupId;
   /** Kid-facing title. */
   title: string;
   /** One line for the map card. */
@@ -95,6 +104,8 @@ export interface ExplorerMap {
   stations: SoundStationAnchor[];
   /** Everything speech can switch on. */
   rewardProps: RewardProp[];
+  /** Free-standing toys — unlocked from the start, no speech required. */
+  toyBalloons: ToyBalloon[];
 
   skyColor: string;
   fogColor: string;

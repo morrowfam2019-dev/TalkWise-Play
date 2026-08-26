@@ -13,6 +13,7 @@ function Pad({ pad, seed }: { pad: JumpPad; seed: number }) {
   const arrow = useRef<THREE.Group>(null);
 
   useFrame((state) => {
+    if (pad.hidden) return;
     const t = state.clock.elapsedTime * 2.4 + seed;
     if (ring.current) {
       const scale = 1 + Math.sin(t) * 0.08;
@@ -22,6 +23,8 @@ function Pad({ pad, seed }: { pad: JumpPad; seed: number }) {
       arrow.current.position.y = 0.55 + Math.sin(t * 1.4) * 0.12;
     }
   });
+
+  if (pad.hidden) return null;
 
   return (
     <group position={pad.position}>

@@ -1,17 +1,14 @@
-import { rainbowRidge } from "./rainbowRidge";
-import { sunnyPark } from "./sunnyPark";
-import { whisperWoods } from "./whisperWoods";
+import { soundIsland } from "./soundIsland";
 import type { ExplorerMap } from "./types";
 
 /**
- * The Beginner map registry, in progression order.
+ * The Beginner map registry.
  *
- * Maps are **not** locked behind one another. The order is the order the
- * sound groups are usually acquired, so a family with no idea where to start
- * has an obvious first door — but a child who is ready for Rainbow Ridge on
- * day one can walk straight into it.
+ * One world, holding every sound. Kept as an array (rather than a single
+ * export) so the rest of the app — the map-select screen, the route, the
+ * verifier — needs no restructuring if a second world is ever added.
  */
-const MAPS: ExplorerMap[] = [sunnyPark, whisperWoods, rainbowRidge];
+const MAPS: ExplorerMap[] = [soundIsland];
 
 export function listExplorerMaps(): ExplorerMap[] {
   return MAPS;
@@ -27,4 +24,5 @@ export type {
   RewardProp,
   RewardPropKind,
   SoundStationAnchor,
+  ToyBalloon,
 } from "./types";

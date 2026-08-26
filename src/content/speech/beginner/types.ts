@@ -5,7 +5,7 @@
  * letter name. A station shows the grapheme because letter shapes help a
  * pre-reader recognise which station they are standing on, but everything
  * the child is asked to produce, and everything recognition listens for, is
- * the sound itself: /m/ as "mmmmm", never "the letter em".
+ * the sound itself: /m/ as a single clean "M", never "the letter em".
  *
  * Nothing in here knows about maps, 3D, or recognition APIs. A map consumes
  * this data; the explorer engine renders it. Adding a sound to TalkWise
@@ -61,8 +61,8 @@ export interface BeginnerSound {
   /** The sound itself, e.g. "/m/". */
   phoneme: string;
   /**
-   * How Miss Maya models it out loud — an elongated production, never a
-   * letter name. "mmmmm", not "em".
+   * How Miss Maya models it out loud — a single, clean production, said
+   * once. "M", not "mmmmm" and not "m-m-m".
    */
   model: string;
   /** Kid-facing articulation cue. One short sentence, read aloud too. */
@@ -78,8 +78,9 @@ export interface BeginnerSound {
   anchorWord: string;
   group: BeginnerGroupId;
   /**
-   * Turns that fully light a station. Small on purpose: a station is a
-   * place to play with a sound a few times, not a drill to finish.
+   * Turns that fully light a station. One, everywhere: a correct or
+   * credited attempt lights the station immediately rather than asking a
+   * child to repeat a sound they already made.
    */
   repetitions: number;
   /** Coins per completed turn. */

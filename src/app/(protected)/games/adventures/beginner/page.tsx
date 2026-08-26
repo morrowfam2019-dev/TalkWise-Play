@@ -1,10 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import {
-  getBeginnerGroup,
-  getBeginnerSound,
-} from "@/content/speech/beginner";
+import { getBeginnerSound } from "@/content/speech/beginner";
 import { listExplorerMaps } from "@/games/adventures/explorer/maps";
 import { getMapProgress } from "@/player/storage";
 import { spendableCoins } from "@/player/types";
@@ -12,15 +9,14 @@ import { usePlayerProfile } from "@/player/usePlayerProfile";
 import { PlatformHeader } from "@/ui/PlatformHeader";
 
 /**
- * GAME-001 BEGINNER — Sound Explorer map select.
+ * GAME-001 BEGINNER — Sound Explorer entry screen.
  *
- * Three big worlds, none of them locked. The order on screen is the order
- * the sound groups are typically acquired, so there is an obvious place to
- * start — but a child who is ready for Rainbow Ridge on day one walks
- * straight into it. Nothing here tells a family what their child should be
- * able to do.
+ * One big world, holding all seven sounds. `listExplorerMaps()` still
+ * returns an array — the map registry doesn't know or care that there is
+ * currently only one entry in it — so this page needs no restructuring if a
+ * second world is ever added later; it would simply render a second card.
  *
- * Built for a pre-reader looking over a grown-up's shoulder: each card leads
+ * Built for a pre-reader looking over a grown-up's shoulder: the card leads
  * with its sounds as big letters, and the button is one word.
  */
 export default function BeginnerHome() {
@@ -44,17 +40,13 @@ export default function BeginnerHome() {
 
       <div className="mx-auto max-w-3xl px-5 pt-6 pb-16">
         <p className="rounded-[1.5rem] border-4 border-white bg-white/85 p-5 text-base font-semibold text-[#4a4a60] shadow-lg backdrop-blur-sm">
-          Explore a big world, find the glowing letters, and make each sound
-          out loud. Miss Maya shows you how at every stop.
+          Explore one big world, find the glowing letters, and make each sound
+          out loud. Miss Maya shows you how at every stop — and there are
+          slides, balloons and a bouncy bed to find in between.
         </p>
 
-        <h2 className="mt-8 mb-3 text-xs font-black tracking-[0.22em] text-[#7a5a12] uppercase">
-          Choose your world
-        </h2>
-
-        <div className="grid gap-5">
+        <div className="mt-8 grid gap-5">
           {maps.map((map) => {
-            const group = getBeginnerGroup(map.groupId);
             const saved = getMapProgress(profile, map.id);
             const lit = map.stations.filter((station) => {
               const sound = getBeginnerSound(station.soundId);
@@ -69,14 +61,14 @@ export default function BeginnerHome() {
                 className="overflow-hidden rounded-[1.5rem] border-4 border-white bg-white shadow-xl"
               >
                 <div
-                  className={`relative flex h-36 items-center justify-center gap-3 bg-gradient-to-br ${map.cardGradient}`}
+                  className={`relative flex flex-wrap items-center justify-center gap-2.5 bg-gradient-to-br ${map.cardGradient} p-5`}
                 >
                   {map.stations.map((station) => {
                     const sound = getBeginnerSound(station.soundId);
                     return (
                       <span
                         key={station.id}
-                        className="grid h-20 w-20 place-items-center rounded-2xl border-4 border-white/70 bg-white/25 text-5xl font-black text-white drop-shadow-lg"
+                        className="grid h-14 w-14 place-items-center rounded-2xl border-4 border-white/70 bg-white/25 text-3xl font-black text-white drop-shadow-lg"
                       >
                         {sound?.display ?? "?"}
                       </span>
@@ -99,11 +91,6 @@ export default function BeginnerHome() {
                   <p className="mt-1 text-sm font-medium text-[#4a4a60]">
                     {map.blurb}
                   </p>
-                  {group ? (
-                    <p className="mt-2 inline-block rounded-full bg-[#fff4d6] px-3 py-1 text-xs font-black text-[#8a6a12]">
-                      {group.glyph} {group.title}
-                    </p>
-                  ) : null}
 
                   <p className="mt-3 rounded-lg bg-[#f3f4f8] px-3 py-1.5 text-xs font-bold text-[#4a4a60]">
                     {lit} / {map.stations.length} sounds lit up
@@ -122,9 +109,9 @@ export default function BeginnerHome() {
         </div>
 
         <p className="mt-8 rounded-2xl border-4 border-white/70 bg-white/60 p-4 text-center text-xs font-semibold text-[#7a5a12]">
-          The worlds are grouped by how speech sounds usually develop, so
-          there is an easy place to begin — but every world is open from the
-          start, and children pick sounds up in their own order.
+          Every sound lives in this one world, and none of them are locked —
+          wander wherever looks fun and find them in whatever order suits
+          your child.
         </p>
 
         <div className="mt-8 text-center">

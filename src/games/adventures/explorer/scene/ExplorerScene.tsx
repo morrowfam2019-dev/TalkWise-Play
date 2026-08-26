@@ -14,6 +14,7 @@ import type { ExplorerMap } from "../maps";
 import { toWorldDefinition } from "../maps";
 import { RewardProps } from "./RewardProps";
 import { SoundStations } from "./SoundStations";
+import { ToyBalloons } from "./ToyBalloons";
 import { useMemo } from "react";
 
 /**
@@ -41,6 +42,9 @@ interface ExplorerSceneProps extends GameplayCallbacks {
   repetitions: Record<string, number>;
   /** Reward props currently switched on. */
   litProps: string[];
+  /** Balloon ids currently mid-rise, keyed to their start timestamp. */
+  risingToys: Record<string, number>;
+  onToyTouch: (id: string) => void;
   nearIndex: number | null;
   runId: number;
 }
@@ -73,6 +77,8 @@ export function ExplorerScene({
   completions,
   repetitions,
   litProps,
+  risingToys,
+  onToyTouch,
   nearIndex,
   runId,
   ...callbacks
@@ -105,6 +111,7 @@ export function ExplorerScene({
       {world.jumpPads ? <JumpPads pads={world.jumpPads} /> : null}
       <Coins collectibles={world.collectibles} collected={collected} />
       <RewardProps props={map.rewardProps} litIds={litProps} />
+      <ToyBalloons balloons={map.toyBalloons} rising={risingToys} />
       <SoundStations
         stations={map.stations}
         completions={completions}
@@ -128,6 +135,9 @@ export function ExplorerScene({
         runId={runId}
         checkpointRadius={STATION_RADIUS}
         checkpointRearmRadius={STATION_REARM_RADIUS}
+        toyBalloons={map.toyBalloons}
+        risingToyIds={Object.keys(risingToys)}
+        onToyTouch={onToyTouch}
         {...callbacks}
       />
     </Canvas>
