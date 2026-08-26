@@ -91,11 +91,18 @@ export const BEGINNER_SOUNDS: BeginnerSound[] = [
     repetitions: 1,
     reward: 5,
     recognition: {
+      // /w/ is a glide: said alone (no vowel riding on it) it decays too
+      // fast to transcribe as anything starting with "w" at all, so a real
+      // attempt is more likely to come back as a short vowel-ish interjection
+      // than a w-word. Listed here rather than assumed, same rule as every
+      // other sound in this file.
       accepted: [
         "w", "ww", "wuh", "wa", "wah", "waa", "wo", "woh", "woo", "wow",
         "we", "wee", "why", "one", "won", "whoa", "wu",
+        "oo", "ooh", "oh", "ohh", "uh", "uhh", "huh", "who", "hoo", "hu",
+        "boo", "goo", "hwa", "hwuh",
       ],
-      acceptedPrefixes: ["w", "wh"],
+      acceptedPrefixes: ["w", "wh", "oo", "ooh", "uh", "who"],
     },
   },
   {
