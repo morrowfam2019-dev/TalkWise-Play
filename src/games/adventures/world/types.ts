@@ -26,7 +26,15 @@ export interface Solid {
   capColor?: string;
 }
 
-export type DecorationKind = "tree" | "pine" | "rock" | "cloud" | "flower" | "crystal";
+export type DecorationKind =
+  | "tree"
+  | "pine"
+  | "rock"
+  | "cloud"
+  | "flower"
+  | "crystal"
+  | "house"
+  | "bed";
 
 /** Purely visual props. Decorations never collide. */
 export interface Decoration {
@@ -67,6 +75,12 @@ export interface JumpPad {
    * it a boosted jump can arc over the very ledge it was meant to clear.
    */
   aimYaw?: number;
+  /**
+   * Skips the red launch-pad visuals for a pad standing in for something
+   * else visually — a bouncy bed's mattress decoration, say — while leaving
+   * the boost trigger itself untouched. Purely a rendering switch.
+   */
+  hidden?: boolean;
 }
 
 /** Outer play-area edge. An invisible wall keeps the player inside it,

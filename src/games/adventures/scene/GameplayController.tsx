@@ -22,6 +22,7 @@ const CHECKPOINT_REARM_RADIUS = 3.4;
 const CHECKPOINT_VERTICAL_TOLERANCE = 2.6;
 const COIN_RADIUS = 1.15;
 const FINISH_RADIUS = 2.6;
+const TOY_RADIUS = 1.6;
 
 export interface GameplayCallbacks {
   onCheckpoint: (index: number) => void;
@@ -29,6 +30,8 @@ export interface GameplayCallbacks {
   onFinish: () => void;
   onNearChange: (index: number | null) => void;
   onJump: () => void;
+  /** A free-standing toy (currently: balloons) was touched. */
+  onToyTouch?: (id: string) => void;
   /** Optional position readout for level design; sampled a few times a second. */
   onDebugSample?: (x: number, y: number, z: number) => void;
 }
@@ -64,6 +67,10 @@ interface GameplayControllerProps extends GameplayCallbacks {
    */
   checkpointRadius?: number;
   checkpointRearmRadius?: number;
+  /** Free-standing touchable toys — Beginner explorer maps only. */
+  toyBalloons?: { id: string; position: [number, number, number] }[];
+  /** Ids of toys currently mid-rise; skipped so a touch can't retrigger them. */
+  risingToyIds?: string[];
 }
 
 /**
@@ -89,11 +96,14 @@ export function GameplayController({
   runId,
   checkpointRadius = CHECKPOINT_RADIUS,
   checkpointRearmRadius = CHECKPOINT_REARM_RADIUS,
+  toyBalloons,
+  risingToyIds,
   onCheckpoint,
   onCoin,
   onFinish,
   onNearChange,
   onJump,
+  onToyTouch,
   onDebugSample,
 }: GameplayControllerProps) {
   const controller = useMemo(() => new PlayerController(), []);
@@ -112,10 +122,10 @@ export function GameplayController({
   const debugClock = useRef(0);
 
   // Live mirrors so the frame loop never reads stale props via closure.
-  const state = useRef({ paused, completed, collected, finishUnlocked });
+  const state = useRef({ paused, completed, collected, finishUnlocked, risingToyIds });
   useEffect(() => {
-    state.current = { paused, completed, collected, finishUnlocked };
-  }, [paused, completed, collected, finishUnlocked]);
+    state.current = { paused, completed, collected, finishUnlocked, risingToyIds };
+  }, [paused, completed, collected, finishUnlocked, risingToyIds]);
 
   useEffect(() => {
     controller.reset(world.spawn, world.spawnYaw);
@@ -271,6 +281,17 @@ export function GameplayController({
       const dz = position.z - collectible.position[2];
       if (Math.hypot(dx, dy, dz) < COIN_RADIUS) {
         onCoin(collectible.id, collectible.value);
+      }
+    }
+
+    // --- Toys ------------------------------------------------------------
+    if (toyBalloons && onToyTouch) {
+      const rising = state.current.risingToyIds;
+      for (const toy of toyBalloons) {
+        if (rising?.includes(toy.id)) continue;
+        const dx = position.x - toy.position[0];
+        const dz = position.z - toy.position[2];
+        if (Math.hypot(dx, dz) < TOY_RADIUS) onToyTouch(toy.id);
       }
     }
 

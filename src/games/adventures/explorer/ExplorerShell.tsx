@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { getBeginnerGroup, getBeginnerSound } from "@/content/speech/beginner";
+import { getBeginnerSound } from "@/content/speech/beginner";
 import { getBoost } from "@/content/adventures/shop";
 import { getMapProgress } from "@/player/storage";
 import { usePlayerProfile } from "@/player/usePlayerProfile";
@@ -10,6 +10,7 @@ import { GameInput } from "../core/input";
 import { TouchControls } from "../ui/TouchControls";
 import type { ExplorerMap } from "./maps";
 import { ExplorerScene } from "./scene/ExplorerScene";
+import { TOY_RISE_DURATION_MS } from "./scene/ToyBalloons";
 import { ExplorerHud } from "./ui/ExplorerHud";
 import { MapCelebration } from "./ui/MapCelebration";
 import { SoundStationModal } from "./ui/SoundStationModal";
@@ -55,7 +56,6 @@ export function ExplorerShell({ map, onExit }: ExplorerShellProps) {
     setMicEnabled,
   } = usePlayerProfile();
   const boost = getBoost(adventures.loadout.boostId);
-  const group = getBeginnerGroup(map.groupId);
 
   // Turns already finished, per station, read once when the map loads. The
   // park a child comes back to is the park they left, lanterns and all.
@@ -72,6 +72,7 @@ export function ExplorerShell({ map, onExit }: ExplorerShellProps) {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [nearIndex, setNearIndex] = useState<number | null>(null);
   const [collected, setCollected] = useState<string[]>([]);
+  const [risingToys, setRisingToys] = useState<Record<string, number>>({});
   const [coins, setCoins] = useState(0);
   const [muted, setMuted] = useState(false);
   const [runId] = useState(0);
@@ -170,6 +171,25 @@ export function ExplorerShell({ map, onExit }: ExplorerShellProps) {
     setNearIndex(index);
   }, []);
 
+  // A free-standing toy the child touched, not tied to any station. Marked
+  // "rising" for a fixed window, then cleared automatically so the same
+  // balloon can be popped again on a later lap of the map.
+  const handleToyTouch = useCallback((id: string) => {
+    setRisingToys((current) => {
+      if (id in current) return current;
+      gameAudio.coin();
+      return { ...current, [id]: Date.now() };
+    });
+    window.setTimeout(() => {
+      setRisingToys((current) => {
+        if (!(id in current)) return current;
+        const next = { ...current };
+        delete next[id];
+        return next;
+      });
+    }, TOY_RISE_DURATION_MS);
+  }, []);
+
   const handleJump = useCallback(() => gameAudio.jump(), []);
 
   // The explorer has no finish portal; the controller's finish trigger is
@@ -253,6 +273,8 @@ export function ExplorerShell({ map, onExit }: ExplorerShellProps) {
           completions={completions}
           repetitions={repetitions}
           litProps={litProps}
+          risingToys={risingToys}
+          onToyTouch={handleToyTouch}
           nearIndex={nearIndex}
           runId={runId}
           onCheckpoint={handleStation}
@@ -296,13 +318,13 @@ export function ExplorerShell({ map, onExit }: ExplorerShellProps) {
               <h1 className="mt-1 text-4xl font-black tracking-tight text-[#141420]">
                 {map.title}
               </h1>
-              <div className="mt-3 flex justify-center gap-3">
+              <div className="mt-3 flex flex-wrap justify-center gap-2.5">
                 {map.stations.map((station) => {
                   const sound = getBeginnerSound(station.soundId);
                   return (
                     <span
                       key={station.id}
-                      className="grid h-16 w-16 place-items-center rounded-2xl bg-gradient-to-br from-[#f5c33b] to-[#e09a1e] text-4xl font-black text-white shadow"
+                      className="grid h-12 w-12 place-items-center rounded-2xl bg-gradient-to-br from-[#f5c33b] to-[#e09a1e] text-2xl font-black text-white shadow"
                     >
                       {sound?.display ?? "?"}
                     </span>
@@ -313,11 +335,6 @@ export function ExplorerShell({ map, onExit }: ExplorerShellProps) {
                 Explore and find the glowing letters. Say each sound to light
                 up {map.title}!
               </p>
-              {group ? (
-                <p className="mt-2 text-sm font-semibold text-[#8a8aa0]">
-                  {group.glyph} {group.title}
-                </p>
-              ) : null}
               <button
                 type="button"
                 onClick={startSession}
