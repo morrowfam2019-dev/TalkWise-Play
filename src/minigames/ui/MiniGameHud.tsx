@@ -124,7 +124,15 @@ export function MiniGameHud({
             </button>
             <button
               type="button"
-              onClick={onExit}
+              onClick={() => {
+                // Close this dialog *before* handing off. `onExit` swaps the
+                // game out for the results screen underneath, but this card
+                // owns its own visibility — without clearing it here it stays
+                // stranded on top of the results, and the only way past it is
+                // KEEP PLAYING, which reads as the button having done nothing.
+                setConfirming(false);
+                onExit();
+              }}
               className="mt-2 w-full rounded-xl border-2 border-[#e2e4ee] px-4 py-3 text-sm font-black text-[#4a4a60]"
             >
               Stop and see my score

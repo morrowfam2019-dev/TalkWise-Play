@@ -39,7 +39,7 @@ import { getMiniGame } from "@/minigames/registry";
 import { speechTargetWithFallback } from "@/minigames/speech";
 import { DRAG_START_PX, isInsideRect, useGestureLock } from "@/minigames/touch";
 import { useMiniGameRun } from "@/minigames/useMiniGameRun";
-import { MayaCoach, speakInstruction } from "@/minigames/ui/MayaCoach";
+import { MayaCoach, speakerFor } from "@/minigames/ui/MayaCoach";
 import { MiniGameHud } from "@/minigames/ui/MiniGameHud";
 import { MiniGameResults } from "@/minigames/ui/MiniGameResults";
 import { MiniSpeechGate } from "@/minigames/ui/MiniSpeechGate";
@@ -205,9 +205,8 @@ export function SoundMatchGame({
         run.begin();
       }
       setStage("matching");
-      if (round) speakInstruction(round.spoken);
     },
-    [run, round],
+    [run],
   );
 
   const handleExit = useCallback(() => {
@@ -264,10 +263,7 @@ export function SoundMatchGame({
       >
         {/* The instruction, always on screen while matching. */}
         <div className="relative z-10 mx-auto w-full max-w-md">
-          <MayaCoach
-            line={round.prompt}
-            onSpeak={() => speakInstruction(round.spoken)}
-          />
+          <MayaCoach line={round.prompt} speak={speakerFor(speechTarget)} />
         </div>
 
         {/* The treasure chest — the drop target. Deliberately huge. */}
@@ -402,10 +398,7 @@ export function SoundMatchGame({
         {stage === "speaking" && !speechTarget ? (
           <div className="absolute inset-0 z-40 flex items-center justify-center bg-[#141420]/70 p-4">
             <div className="tw-pop w-full max-w-sm rounded-[2rem] border-8 border-[#f5c33b] bg-white p-5 text-center">
-              <MayaCoach
-                line={round.prompt}
-                onSpeak={() => speakInstruction(round.spoken)}
-              />
+              <MayaCoach line={round.prompt} speak={speakerFor(speechTarget)} />
               <button
                 type="button"
                 onClick={() => handleUnlock(false)}

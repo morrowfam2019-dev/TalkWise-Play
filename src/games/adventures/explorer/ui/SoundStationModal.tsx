@@ -101,9 +101,12 @@ export function SoundStationModal({
     phaseRef.current = phase;
   }, [phase]);
 
+  // All seven Beginner sounds are recorded in Miss Maya's own voice, so this
+  // is never silent and the station keeps modelling on open — that is the
+  // point of a sound station, and it was never the synthesised voice.
   const model = useCallback(() => {
-    playExampleSound(sound.id, sound.model);
-  }, [sound.id, sound.model]);
+    playExampleSound(sound.id);
+  }, [sound.id]);
 
   // Miss Maya models the sound the moment the station opens. A child who
   // cannot read has now been told what to do without reading anything.

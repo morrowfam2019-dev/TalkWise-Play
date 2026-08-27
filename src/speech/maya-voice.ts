@@ -1,134 +1,126 @@
 /**
- * Miss Maya's voice — recorded clips with a browser text-to-speech
- * fallback for any word that doesn't have one yet. Shared by every game
- * that wants her to say a word out loud (the adventure engine's
- * `ChallengeModal`, Speech Basketball's word prompt) so there's exactly one
- * place that knows the clip naming convention and the fallback voice.
+ * Miss Maya's voice — her recorded clips, and nothing else.
+ *
+ * ## Why there is no text-to-speech any more
+ *
+ * This module used to fall back to the browser's speech synthesiser
+ * whenever a word had no recording, and it read every instruction, every
+ * "good job" and every Expert sentence that way. On a real device that is a
+ * robot voice, and a robot voice is the one thing a speech-practice app
+ * must not put in a child's ear: the whole mechanic is *listen to Miss Maya,
+ * then say it back*, so whatever comes out of the speaker is the target a
+ * child imitates. Modelling a synthesiser's vowels teaches the wrong thing,
+ * and it sounds nothing like the person the child is supposed to be
+ * learning from.
+ *
+ * So the rule is now absolute: **Miss Maya's real recorded voice, or
+ * silence.** Never a substitute, never a narrator, never an automatic
+ * announcement. Sound comes out only when a child presses to hear a sound,
+ * a word or a sentence.
+ *
+ * ## What that costs, honestly
+ *
+ * 35 words and 7 sounds are recorded today; the 152 mini-game pack words,
+ * every instruction line and every sentence are not. Those simply make no
+ * sound, and the UI hides the speaker button rather than offering one that
+ * does nothing — see `hasWordClip` and friends, and the generated
+ * `maya-clips.ts` that answers them.
+ *
+ * Dropping a new mp3 into `public/audio/maya/` and running
+ * `npm run gen:maya-clips` is all it takes to light a button up. No code
+ * change, in this file or any caller.
  */
 
-/** Best-effort female voice, used only when no recorded clip exists. */
-function speakExampleWord(word: string) {
-  if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
-  try {
-    const utterance = new SpeechSynthesisUtterance(word);
-    utterance.rate = 0.85;
-    utterance.pitch = 1.15;
-    const voices = window.speechSynthesis.getVoices();
-    const preferred = voices.find((voice) =>
-      /female|samantha|victoria|zira|karen|moira|tessa|susan/i.test(voice.name),
-    );
-    if (preferred) utterance.voice = preferred;
-    window.speechSynthesis.cancel();
-    window.speechSynthesis.speak(utterance);
-  } catch {
-    // Speech synthesis is best-effort — the caller's own UI still shows the word.
-  }
+import {
+  MAYA_SENTENCE_CLIPS,
+  MAYA_SOUND_CLIPS,
+  MAYA_WORD_CLIPS,
+} from "./maya-clips";
+
+const wordClips = new Set(MAYA_WORD_CLIPS);
+const soundClips = new Set(MAYA_SOUND_CLIPS);
+const sentenceClips = new Set(MAYA_SENTENCE_CLIPS);
+
+/** How a word maps to its file name. */
+function wordKey(word: string): string {
+  return word.trim().toLowerCase();
 }
 
-/** Plays the recorded "Miss Maya" clip for a word; falls back to browser
- * text-to-speech if that word hasn't been recorded yet. */
-export function playExampleWord(word: string) {
+/**
+ * How a sentence maps to its file name: lowercase, punctuation dropped,
+ * spaces to hyphens. "I see the big moon." → "i-see-the-big-moon".
+ *
+ * Fixed now, before any sentence has been recorded, so that a batch of
+ * recordings can be named against it and simply appear.
+ */
+export function sentenceSlug(sentence: string): string {
+  return sentence
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+export function hasWordClip(word: string): boolean {
+  return wordClips.has(wordKey(word));
+}
+
+export function hasSoundClip(soundId: string): boolean {
+  return soundClips.has(soundId.trim().toLowerCase());
+}
+
+export function hasSentenceClip(sentence: string): boolean {
+  return sentenceClips.has(sentenceSlug(sentence));
+}
+
+/**
+ * Plays a clip. Best-effort by design: a rejected `play()` (autoplay
+ * policy, a slow network) is swallowed, because a missing sound must never
+ * surface as an error to a child mid-game.
+ */
+function playClip(path: string): void {
   if (typeof window === "undefined") return;
-  const clip = new Audio(`/audio/maya/${word.toLowerCase()}.mp3`);
-  let fellBack = false;
-  const fallback = () => {
-    if (fellBack) return;
-    fellBack = true;
-    speakExampleWord(word);
-  };
-  clip.addEventListener("error", fallback);
-  clip.play().catch(fallback);
-}
-
-// ---------------------------------------------------------------------------
-// Sound modelling (GAME-001 Beginner)
-// ---------------------------------------------------------------------------
-
-/**
- * Speaks a Beginner sound's letter name, e.g. "Em" for /m/.
- *
- * Slower and slightly lower than the word voice, so a child can track it
- * clearly. This is the letter's *name*, not the isolated phoneme held on
- * its own — browser recognition can't reliably hear a held consonant back,
- * but it hears a spoken letter name well.
- */
-function speakSoundModel(model: string) {
-  if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
   try {
-    const utterance = new SpeechSynthesisUtterance(model);
-    utterance.rate = 0.6;
-    utterance.pitch = 1.05;
-    const voices = window.speechSynthesis.getVoices();
-    const preferred = voices.find((voice) =>
-      /female|samantha|victoria|zira|karen|moira|tessa|susan/i.test(voice.name),
-    );
-    if (preferred) utterance.voice = preferred;
-    window.speechSynthesis.cancel();
-    window.speechSynthesis.speak(utterance);
+    const clip = new Audio(path);
+    void clip.play().catch(() => {});
   } catch {
-    // Best-effort — the station still shows the sound and its cue.
+    // No Audio support at all. Silence is the correct outcome.
   }
 }
 
 /**
- * Sounds whose clip has already been found to be missing this session.
- *
- * Without this, a Beginner station probes the same absent file — and logs
- * the same 404 — every single time it models the sound, which is several
- * times per visit.
+ * Plays Miss Maya saying one word. Returns whether there was anything to
+ * play, so a caller can decide not to offer the button next time.
  */
-const missingSoundClips = new Set<string>();
-
-/**
- * Plays Miss Maya modelling one speech sound's letter name.
- *
- * Prefers a recorded clip at `/audio/maya/sounds/<id>.mp3`; falls back to
- * the text-to-speech model if that sound's clip is missing. The clip path
- * is still checked first, once per sound per session, so that dropping a
- * new recording in later needs no code change at all.
- */
-export function playExampleSound(soundId: string, model: string) {
-  if (typeof window === "undefined") return;
-  const id = soundId.toLowerCase();
-  if (missingSoundClips.has(id)) {
-    speakSoundModel(model);
-    return;
-  }
-  const clip = new Audio(`/audio/maya/sounds/${id}.mp3`);
-  let fellBack = false;
-  const fallback = () => {
-    if (fellBack) return;
-    fellBack = true;
-    missingSoundClips.add(id);
-    speakSoundModel(model);
-  };
-  clip.addEventListener("error", fallback);
-  clip.play().catch(fallback);
+export function playExampleWord(word: string): boolean {
+  const key = wordKey(word);
+  if (!wordClips.has(key)) return false;
+  playClip(`/audio/maya/${encodeURIComponent(key)}.mp3`);
+  return true;
 }
 
 /**
- * Speaks a whole sentence in Miss Maya's fallback voice.
- *
- * Expert sentences have no recorded clips (and would need one per sentence),
- * so this is text-to-speech by design rather than by omission. Paced a
- * little under normal speed so a child can track the words, but not so slow
- * that the sentence stops sounding like connected speech — which is the
- * whole point of the Expert tier.
+ * Plays Miss Maya modelling one speech sound — the letter's *name* ("Em"
+ * for /m/), which is what the recordings are and what recognition listens
+ * for. All seven supported sounds are recorded.
  */
-export function playExampleSentence(sentence: string) {
-  if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
-  try {
-    const utterance = new SpeechSynthesisUtterance(sentence);
-    utterance.rate = 0.8;
-    utterance.pitch = 1.1;
-    const voices = window.speechSynthesis.getVoices();
-    const preferred = voices.find((voice) =>
-      /female|samantha|victoria|zira|karen|moira|tessa|susan/i.test(voice.name),
-    );
-    if (preferred) utterance.voice = preferred;
-    window.speechSynthesis.cancel();
-    window.speechSynthesis.speak(utterance);
-  } catch {
-    // Best-effort — the sentence is on screen either way.
-  }
+export function playExampleSound(soundId: string): boolean {
+  const key = soundId.trim().toLowerCase();
+  if (!soundClips.has(key)) return false;
+  playClip(`/audio/maya/sounds/${encodeURIComponent(key)}.mp3`);
+  return true;
+}
+
+/**
+ * Plays Miss Maya saying a whole sentence.
+ *
+ * No sentences are recorded yet, so this returns false everywhere today and
+ * every sentence speaker button is hidden. The path convention above is
+ * fixed so that a recording session lands as a pure content drop.
+ */
+export function playExampleSentence(sentence: string): boolean {
+  const slug = sentenceSlug(sentence);
+  if (!sentenceClips.has(slug)) return false;
+  playClip(`/audio/maya/sentences/${encodeURIComponent(slug)}.mp3`);
+  return true;
 }

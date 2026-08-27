@@ -38,7 +38,7 @@ import {
   type SpeechListenStatus,
 } from "@/speech/recognition";
 import type { MiniSpeechTarget } from "../speech";
-import { MayaAvatar, speakMiniTarget } from "./MayaCoach";
+import { MayaAvatar, speakerFor } from "./MayaCoach";
 
 /** Attempts before the gate opens regardless. See the note above. */
 const MAX_ATTEMPTS = 3;
@@ -97,10 +97,16 @@ export function MiniSpeechGate({
     };
   }, []);
 
+  // What pressing the speaker plays, or null when this target has no
+  // recording — in which case no speaker button is offered at all.
+  const speak = speakerFor(target);
+
   useEffect(() => {
-    if (!showExample) return;
-    speakMiniTarget(target);
-  }, [showExample, target]);
+    if (!showExample || !speak) return;
+    speak();
+    // `speak` is derived from `target`, which is fixed for this mount.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showExample]);
 
   const stopAll = () => {
     wordRef.current?.stop();
@@ -125,7 +131,8 @@ export function MiniSpeechGate({
       // saying it, which is participation, and §19's speech reward is for
       // participation rather than for a recogniser's verdict.
       unlock(true);
-    } else if (next === EXAMPLE_AFTER_ATTEMPT) {
+    } else if (next === EXAMPLE_AFTER_ATTEMPT && speak) {
+      // Only worth showing Miss Maya's model when she can actually say it.
       setShowExample(true);
     } else {
       startListeningAttempt();
@@ -314,7 +321,7 @@ export function MiniSpeechGate({
             <div className="mt-3 flex gap-2">
               <button
                 type="button"
-                onClick={() => speakMiniTarget(target)}
+                onClick={() => speak?.()}
                 className="flex-1 rounded-xl bg-[#2f7fd4] px-3 py-2.5 text-sm font-black text-white"
               >
                 🔊 Hear it again
@@ -333,14 +340,16 @@ export function MiniSpeechGate({
           </div>
         ) : (
           <>
-            <button
-              type="button"
-              onClick={() => speakMiniTarget(target)}
-              className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-2xl border-4 border-[#2f7fd4] bg-[#eaf4ff] px-4 py-2.5 text-sm font-black text-[#2f7fd4]"
-            >
-              <MayaAvatar className="h-7 w-7" />
-              🔊 Hear Miss Maya say it
-            </button>
+            {speak ? (
+              <button
+                type="button"
+                onClick={speak}
+                className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-2xl border-4 border-[#2f7fd4] bg-[#eaf4ff] px-4 py-2.5 text-sm font-black text-[#2f7fd4]"
+              >
+                <MayaAvatar className="h-7 w-7" />
+                🔊 Hear Miss Maya say it
+              </button>
+            ) : null}
 
             {micEnabled && micPermission === "not-requested" ? (
               <button

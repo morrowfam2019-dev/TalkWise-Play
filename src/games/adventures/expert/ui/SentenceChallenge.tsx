@@ -3,7 +3,12 @@
 import Image from "next/image";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { splitTargetWords } from "@/content/speech/engine";
-import { playExampleSentence, playExampleWord } from "@/speech/maya-voice";
+import {
+  hasSentenceClip,
+  hasWordClip,
+  playExampleSentence,
+  playExampleWord,
+} from "@/speech/maya-voice";
 import {
   PhraseRecognizer,
   isSpeechRecognitionSupported,
@@ -121,8 +126,11 @@ export function SentenceChallenge({
             <button
               key={word.id}
               type="button"
+              disabled={!hasWordClip(word.normalized)}
               onClick={() => playExampleWord(word.normalized)}
-              aria-label={`Hear ${word.text}`}
+              aria-label={
+                hasWordClip(word.normalized) ? `Hear ${word.text}` : word.text
+              }
               className={`rounded-xl border-4 px-3 py-2 text-xl font-black transition-colors sm:text-2xl ${
                 done
                   ? "border-[#2ecc71] bg-[#2ecc71] text-white"
@@ -138,25 +146,31 @@ export function SentenceChallenge({
         })}
       </div>
 
-      <p className="mt-2 text-center text-[0.7rem] font-bold text-white/45">
-        Tap a word to hear it on its own
-      </p>
+      {words.some((word) => hasWordClip(word.normalized)) ? (
+        <p className="mt-2 text-center text-[0.7rem] font-bold text-white/45">
+          Tap a word to hear it on its own
+        </p>
+      ) : null}
 
-      <button
-        type="button"
-        onClick={() => playExampleSentence(sentence)}
-        className="mt-4 flex w-full items-center justify-center gap-3 rounded-2xl border-4 border-[#8fa8ff] bg-[#1b2450] px-4 py-3.5 text-base font-black text-[#cfe0ff] active:scale-[0.98]"
-      >
-        <Image
-          src="/characters/miss-maya.png"
-          alt=""
-          aria-hidden
-          width={32}
-          height={32}
-          className="h-8 w-8 shrink-0 rounded-full border-2 border-[#8fa8ff] object-cover"
-        />
-        🔊 Hear Miss Maya say the sentence
-      </button>
+      {/* Shown only once this sentence has been recorded — a speaker button
+          that makes no sound is worse than no button. */}
+      {hasSentenceClip(sentence) ? (
+        <button
+          type="button"
+          onClick={() => playExampleSentence(sentence)}
+          className="mt-4 flex w-full items-center justify-center gap-3 rounded-2xl border-4 border-[#8fa8ff] bg-[#1b2450] px-4 py-3.5 text-base font-black text-[#cfe0ff] active:scale-[0.98]"
+        >
+          <Image
+            src="/characters/miss-maya.png"
+            alt=""
+            aria-hidden
+            width={32}
+            height={32}
+            className="h-8 w-8 shrink-0 rounded-full border-2 border-[#8fa8ff] object-cover"
+          />
+          🔊 Hear Miss Maya say the sentence
+        </button>
+      ) : null}
 
       {useMic ? (
         listening ? (

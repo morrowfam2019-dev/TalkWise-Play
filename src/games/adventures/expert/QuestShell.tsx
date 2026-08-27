@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { ExpertQuest } from "@/content/speech/expert";
-import { playExampleSentence } from "@/speech/maya-voice";
+import { hasSentenceClip, playExampleSentence } from "@/speech/maya-voice";
 import { getQuestProgress } from "@/player/storage";
 import { spendableCoins } from "@/player/types";
 import { usePlayerProfile } from "@/player/usePlayerProfile";
@@ -67,13 +67,10 @@ export function QuestShell({
   // record the child walked in with, not the one this run just wrote.
   const [previousBest] = useState(() => getQuestProgress(profile, quest.id));
 
-  // The character reads the situation aloud as each scene opens, so a child
-  // who reads slowly is never waiting on the text to catch up.
-  useEffect(() => {
-    if (phase !== "setup" || !scene) return;
-    const timer = window.setTimeout(() => playExampleSentence(scene.setup), 400);
-    return () => window.clearTimeout(timer);
-  }, [phase, scene]);
+  // Nothing is read aloud on its own any more. A scene's situation is text
+  // on screen, and the only sound is Miss Maya's own recording when a child
+  // presses "Read it to me" — and only when that line has been recorded.
+  // See `speech/maya-voice.ts` for why automatic narration was removed.
 
   const handleSentenceComplete = useCallback(() => {
     if (!scene) return;
@@ -214,13 +211,15 @@ export function QuestShell({
                 {scene.setup}
               </p>
 
-              <button
-                type="button"
-                onClick={() => playExampleSentence(scene.setup)}
-                className="mt-3 rounded-xl border-2 border-[#c4b48c] px-3 py-2 text-xs font-black text-[#6a5c38]"
-              >
-                🔊 Read it to me
-              </button>
+              {hasSentenceClip(scene.setup) ? (
+                <button
+                  type="button"
+                  onClick={() => playExampleSentence(scene.setup)}
+                  className="mt-3 rounded-xl border-2 border-[#c4b48c] px-3 py-2 text-xs font-black text-[#6a5c38]"
+                >
+                  🔊 Read it to me
+                </button>
+              ) : null}
             </section>
 
             {phase === "setup" ? (
