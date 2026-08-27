@@ -14,7 +14,7 @@
  *   4. The session engine's scoring, combo and accuracy rules.
  *   5. The coin formula, including its cap, its daily decay and its
  *      anti-farming guard.
- *   6. The six save namespaces stay isolated, migrate additively, and
+ *   6. The five save namespaces stay isolated, migrate additively, and
  *      sanitise idempotently.
  *
  * Usage:
@@ -72,7 +72,6 @@ try {
           "../src/games/minigames/soundmatch/core/rounds.ts",
           "../src/games/minigames/colorshapehunt/core/scene.ts",
           "../src/games/minigames/guessthesound/core/rounds.ts",
-          "../src/games/minigames/actiondash/core/rounds.ts",
           "../src/games/minigames/storybuilder/core/story.ts",
         ],
       },
@@ -110,7 +109,6 @@ try {
   const match = require(join(outDir, "games/minigames/soundmatch/core/rounds.js"));
   const hunt = require(join(outDir, "games/minigames/colorshapehunt/core/scene.js"));
   const guess = require(join(outDir, "games/minigames/guessthesound/core/rounds.js"));
-  const dash = require(join(outDir, "games/minigames/actiondash/core/rounds.js"));
   const story = require(join(outDir, "games/minigames/storybuilder/core/story.js"));
 
   const LEVELS = ["beginner", "intermediate", "expert"];
@@ -182,7 +180,6 @@ try {
     "GAME-004": (packId, level, seed) => match.planSession({ packId, level, seed }),
     "GAME-005": (packId, level, seed) => hunt.planHunt({ packId, level, seed }),
     "GAME-006": (packId, level, seed) => guess.planSounds({ packId, level, seed }),
-    "GAME-007": (packId, level, seed) => dash.planActions({ packId, level, seed }),
     "GAME-008": (packId, level, seed) => story.planStory({ packId, level, seed }),
   };
 
@@ -346,9 +343,9 @@ try {
   );
 
   // --- 6. Save namespaces ---------------------------------------------------
-  console.log("\n=== 6. six namespaces, isolated and additive ===");
+  console.log("\n=== 6. five namespaces, isolated and additive ===");
   const MINI_IDS = platform.MINI_GAME_IDS;
-  check("six mini-game ids registered", MINI_IDS.length === 6);
+  check("five mini-game ids registered", MINI_IDS.length === 5);
 
   // A profile saved before this collection existed.
   const preCollection = {
@@ -385,7 +382,7 @@ try {
     migrated.games["GAME-002"].highScores.m.bestScore === 40,
   );
   check(
-    "all six mini-game namespaces present and empty",
+    "all five mini-game namespaces present and empty",
     MINI_IDS.every(
       (id) =>
         migrated.games[id] &&
@@ -394,7 +391,7 @@ try {
     ),
   );
 
-  // Six independent objects, not one shared by reference.
+  // Five independent objects, not one shared by reference.
   const shared = MINI_IDS.some((a) =>
     MINI_IDS.some((b) => a !== b && migrated.games[a] === migrated.games[b]),
   );

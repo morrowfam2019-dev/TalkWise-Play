@@ -32,11 +32,15 @@ const script = `
 from PIL import Image
 import sys, os
 src = Image.open(sys.argv[1]).convert("RGB")
+# The sheet still has six cells; cell 5 was Action Dash, which was cut from
+# the collection, so that cell is skipped rather than written.
 keys = [["bubble-blast","sound-match","color-shape-hunt"],
-        ["guess-the-sound","action-dash","story-builder"]]
+        ["guess-the-sound",None,"story-builder"]]
 CELL, ART_H = 512, 314
 for cy, row in enumerate(keys):
     for cx, key in enumerate(row):
+        if key is None:
+            continue
         panel = src.crop((cx*CELL, cy*CELL, (cx+1)*CELL, cy*CELL+ART_H))
         out = os.path.join(sys.argv[2], key + ".webp")
         panel.save(out, "WEBP", quality=88, method=6)

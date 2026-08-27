@@ -2,7 +2,7 @@ import type { ContentPack } from "../types";
 import { buildItems } from "./build";
 
 /**
- * ACTION TIME — the pack Action Dash is built on.
+ * ACTION TIME — the action-verb pack.
  *
  * Every item carries an `action`, which is what makes a *spoken word* able
  * to drive a character animation: the child says "jump", GAME-007 looks up

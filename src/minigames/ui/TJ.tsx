@@ -5,8 +5,8 @@
  *
  * The library cards use the approved illustrated covers, because a card is
  * a fixed image a child recognises. In-game TJ is different: he has to
- * *act*. Action Dash animates him per verb (jump, run, spin, clap …) and
- * Story Builder has him react to a finished sentence. A vector character
+ * *act*. Story Builder poses him per verb (jump, run, spin, clap …) and
+ * has him react to a finished sentence. A vector character
  * recolours, squashes, rotates and scales on the compositor for the cost of
  * one class name, and never has to be re-rendered per pose.
  *
