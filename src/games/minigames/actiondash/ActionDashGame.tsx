@@ -8,15 +8,22 @@
  * it, and the saying is what makes TJ perform it on his course. §7's brief
  * in one sentence: the speech creates the action.
  *
- * ## Why the animation is CSS and TJ is an SVG
+ * ## The course is 3D, and TJ actually travels
+ *
+ * The first version stood a flat cartoon still in the middle of a large
+ * empty gradient: a game called *Dash* with no dashing in it, and two
+ * thirds of a phone screen given to sky. It is now a side-on 3D course —
+ * TJ runs on the spot at a fixed point on screen while the world slides
+ * past him, which reads as him dashing **left** to the next command.
  *
  * §29's acceptance test says Action Dash must have no GAME-001 engine
- * dependency, and §31 says not to build 3D where 2D performs better on
- * mobile. TJ is a few hundred bytes of inline SVG and each action is a
- * transform keyframe in `globals.css` — so a "character animation" here
- * costs one class name, runs on the compositor, and shares nothing with the
- * adventure engine's WebGL world. Ten action verbs, ten keyframes, no
- * sprite sheets and no model files.
+ * dependency, and it still has none: `scene/` here is its own small R3F
+ * scene, sharing nothing with the adventure engine's world, controller or
+ * collision. §31 says not to build 3D where 2D performs better on mobile —
+ * that holds for a static character, and stops holding the moment the
+ * character has to travel through a scene and perform ten different
+ * actions. TJ is built from primitives, so he weighs nothing to download
+ * and every verb is a few numbers in the frame loop.
  *
  * ## The speech moment cannot be a wall
  *
@@ -47,16 +54,21 @@ import { MiniGameResults } from "@/minigames/ui/MiniGameResults";
 import { MiniSpeechGate } from "@/minigames/ui/MiniSpeechGate";
 import { ParticleLayer, useParticles } from "@/minigames/ui/Particles";
 import { PowerUpBadge } from "@/minigames/ui/PowerUpBadge";
-import { TJ } from "@/minigames/ui/TJ";
+import { DashScene } from "./scene/DashScene";
+import type { TJPose } from "./scene/TJModel";
 import { GAME_ACTION_DASH, getGame } from "@/platform/games/registry";
 import { spendableCoins } from "@/player/types";
 import { usePlayerProfile } from "@/player/usePlayerProfile";
 import { planActions, type ActionChoice } from "./core/rounds";
 
-/** How long TJ performs before the round moves on. */
+/** How long TJ performs the action before he sets off again. */
 const PERFORM_MS = 2100;
 
-type Stage = "choosing" | "speaking" | "performing";
+/** How long he dashes to the next command. Long enough to read as travel,
+ * short enough that it never becomes a wait. */
+const DASH_MS = 1400;
+
+type Stage = "choosing" | "speaking" | "performing" | "dashing";
 
 function ActionCard({
   choice,
@@ -139,7 +151,8 @@ export function ActionDashGame({
   const startedRef = useRef(false);
 
   const rounds = useMemo(
-    () => planActions({ packId, level, seed: dailySeed() + sessionIndex * 857 }),
+    () =>
+      planActions({ packId, level, seed: dailySeed() + sessionIndex * 857 }),
     [packId, level, sessionIndex],
   );
   const round = rounds?.[roundIndex] ?? null;
@@ -211,13 +224,20 @@ export function ActionDashGame({
     [round, stage, run.session, particles],
   );
 
-  /** The speech moment closing is what starts TJ performing. */
+  /**
+   * The speech moment closing is what starts TJ performing — then he dashes
+   * off to the next command. The dash is what carries the child between
+   * rounds, so there is never a frame where nothing is happening.
+   */
   const handleUnlock = useCallback(
     (spoke: boolean) => {
       if (spoke) run.markSpoke();
       setStage("performing");
       miniAudio.correct(2);
-      window.setTimeout(advance, PERFORM_MS);
+      window.setTimeout(() => {
+        setStage("dashing");
+        window.setTimeout(advance, DASH_MS);
+      }, PERFORM_MS);
     },
     [run, advance],
   );
@@ -253,9 +273,13 @@ export function ActionDashGame({
   }
 
   const performing = stage === "performing";
+  const dashing = stage === "dashing";
+
+  /** What TJ is doing in the scene right now. */
+  const pose: TJPose = performing ? round.action : dashing ? "dash" : "idle";
 
   return (
-    <main className="relative flex h-[100dvh] flex-col overflow-hidden bg-gradient-to-b from-[#cfeaff] via-[#ffe9b8] to-[#8ee08a]">
+    <main className="relative flex h-[100dvh] flex-col overflow-hidden bg-[#bfe9ff]">
       <MiniGameHud
         score={run.session.state.score}
         combo={run.session.state.combo}
@@ -265,53 +289,46 @@ export function ActionDashGame({
         onExit={handleExit}
       />
 
-      <div className="relative flex flex-1 flex-col overflow-hidden px-4 py-3">
-        <div className="mx-auto w-full max-w-md">
-          <MayaCoach line={round.prompt} speak={speakerFor(speechTarget)} />
+      <div className="relative flex flex-1 flex-col overflow-hidden">
+        {/* The course fills everything between the coach bar and the cards.
+            No gradient dead space: whatever is not UI is scene. */}
+        <div className="absolute inset-0">
+          <DashScene pose={pose} dashing={dashing} />
         </div>
 
-        {/* TJ's course. The ground line and a couple of props are drawn, so
-            the whole scene is one SVG character over two gradients.
-            Laid out bottom-up: the shout sits just above TJ's head rather
-            than pinned to the top of the stage, so a phone in portrait does
-            not put a hand's width of empty sky between the two things a
-            child is actually looking at. */}
-        <div className="relative flex flex-1 flex-col items-center justify-end pb-5">
-          <div
-            className="pointer-events-none absolute inset-x-0 bottom-4 h-1.5 rounded-full bg-[#5aa85f]/70"
-            aria-hidden
-          />
+        <div className="relative z-10 px-4 pt-3">
+          <div className="mx-auto w-full max-w-md">
+            <MayaCoach line={round.prompt} speak={speakerFor(speechTarget)} />
+          </div>
+        </div>
 
+        {/* The shout, over the scene while he performs. */}
+        <div className="pointer-events-none relative z-10 flex flex-1 items-start justify-center pt-4">
           <p
-            className={`tw-pop mb-2 rounded-full border-4 border-white bg-[#2ecc71] px-5 py-2 text-2xl font-black text-white shadow-xl transition-opacity ${
+            className={`tw-pop rounded-full border-4 border-white bg-[#2ecc71] px-6 py-2.5 text-2xl font-black text-white shadow-xl transition-opacity ${
               performing ? "opacity-100" : "invisible opacity-0"
             }`}
           >
             {round.sayText.toUpperCase()}!
           </p>
-
-          <div className="relative flex items-end gap-4">
-            <span className="mb-4 text-4xl opacity-70" aria-hidden>
-              🌳
-            </span>
-            <div
-              className={`origin-bottom ${performing ? action.animation : "tw-float"}`}
-            >
-              <TJ
-                mood={performing ? "cheer" : "happy"}
-                className="h-44 w-36 sm:h-56 sm:w-44"
-                accessory={run.powerUps.active?.definition.glyph}
-              />
-            </div>
-            <span className="mb-4 text-4xl opacity-70" aria-hidden>
-              📦
-            </span>
-          </div>
         </div>
 
-        {/* The choices. */}
+        {/* Where he is off to next. */}
+        <div className="pointer-events-none relative z-10 flex justify-center pb-2">
+          <p
+            className={`rounded-full bg-[#141420]/55 px-4 py-1.5 text-sm font-black tracking-wide text-white uppercase backdrop-blur-sm transition-opacity ${
+              dashing ? "opacity-100" : "opacity-0"
+            }`}
+          >
+            ← Dashing to the next one!
+          </p>
+        </div>
+
+        {/* The choices. They need `relative z-10` of their own: the scene
+            behind them is absolutely positioned, so an unpositioned grid
+            paints *underneath* the canvas and the cards vanish. */}
         <div
-          className={`mx-auto grid w-full max-w-md gap-2 pb-1 ${
+          className={`relative z-10 mx-auto grid w-full max-w-md gap-2 px-3 pb-3 ${
             round.choices.length > 3 ? "grid-cols-2" : "grid-cols-3"
           }`}
         >
