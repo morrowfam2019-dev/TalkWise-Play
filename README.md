@@ -7,21 +7,42 @@ separate Next.js app, and separate Vercel project from
 [TalkWise-Website](https://github.com/morrowfam2019-dev/TalkWise-Website) — no
 shared deployment config, environment variables, or domains.
 
-**Phase 1 ships one complete adventure: M Adventure (`/M/`).**
-See [`docs/ROADMAP.md`](docs/ROADMAP.md) for what comes next.
+TalkWise Play is a **platform with a library of independent games**, not one
+game. See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for the shape of the
+codebase and [`docs/ROADMAP.md`](docs/ROADMAP.md) for what comes next.
 
-## The gameplay loop
+## The library
 
-Home → pick an adventure → control an original character → explore the Mountain
-of M → find five speech checkpoints → say each word out loud → earn coins →
-climb to the summit portal → celebrate → replay.
+**Featured** — longer experiences with deeper progression:
 
-### No fake speech AI
+| Id | Game | What it is |
+| --- | --- | --- |
+| `GAME-001` | Speech Adventures | A 3D world in three stages: sounds, words, sentences |
+| `GAME-002` | Speech Basketball | Say the word, unlock the shot — Shootout and Time Attack |
 
-There is **no pronunciation scoring in Phase 1** and nothing pretends to
-listen. The child practices the word out loud and confirms it themselves with
-a large **I SAID IT!** button. Real microphone interaction arrives in Phase 4,
-and the flow is shaped so it can slot in without redesign.
+**Quick Play** — short, replayable mini-games (30 seconds to 4 minutes), all
+six built on the shared framework in `src/minigames`. See
+[`docs/MINIGAMES-LAUNCH-01.md`](docs/MINIGAMES-LAUNCH-01.md):
+
+| Id | Game | Core mechanic |
+| --- | --- | --- |
+| `GAME-003` | Bubble Blast | Pop the bubbles that match your sound |
+| `GAME-004` | Sound Match | Drag the right picture into the backpack |
+| `GAME-005` | Colour & Shape Hunt | Listen, then find it in the scene |
+| `GAME-006` | Guess the Sound | Which one made that noise? |
+| `GAME-007` | Action Dash | Say the action word and watch TJ do it |
+| `GAME-008` | Story Builder | Pick the words, build the sentence |
+
+Coins are a **universal wallet** spendable in any shop; what coins buy stays
+in the buying game's own inventory. Every game owns its own save namespace.
+
+### Speech, honestly
+
+The microphone confirms that a child *said the word*, using the browser's own
+speech recognition. There is **no pronunciation scoring** anywhere and nothing
+pretends to grade an accent or a speech difference. Every speech moment can
+also be passed with a large **I SAID IT!** button, from the first second — a
+bad microphone must never be able to stop a child playing.
 
 ## Stack
 
@@ -49,6 +70,9 @@ Port 3002 keeps it clear of the main site's dev server on 3001.
 | `npm run lint` | ESLint |
 | `npm run typecheck` | TypeScript, no emit |
 | `npm run verify:world` | Level validation — see below |
+| `npm run verify:progress` | Saved-progress migration and namespace isolation |
+| `npm run verify:speech` | Recognition rules and the sound → word → sentence ladder |
+| `npm run verify:minigames` | Mini-game content, scoring, coin formula and saves |
 
 ### Controls
 

@@ -95,3 +95,339 @@ canvas {
     animation: none;
   }
 }
+
+/* ---------------------------------------------------------------------------
+   Mini Games — Launch Collection 01
+   ---------------------------------------------------------------------------
+   Shared animation vocabulary for GAME-003 … GAME-008. Every mini-game draws
+   from this one set rather than defining its own, which is what makes the six
+   read as one family (§11) instead of six unrelated web games.
+
+   All of it is transform/opacity only, so the compositor animates it and a
+   thirty-second round stays smooth on a phone (§31). Every animation is
+   switched off under prefers-reduced-motion at the bottom of this file.
+   --------------------------------------------------------------------------- */
+
+/* Feedback particles. Bounded lifetime, driven by CSS custom properties the
+   particle layer sets per particle. */
+@keyframes tw-particle-fly {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(0.5);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(
+        calc(-50% + var(--tw-particle-x, 0px)),
+        calc(-50% + var(--tw-particle-y, 0px))
+      )
+      scale(1.35);
+  }
+}
+
+.tw-particle {
+  animation: tw-particle-fly 700ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+
+/* The listening indicator. Bars rise and fall so a child can see the
+   microphone is open — §17's "voice detected → sound wave animates". */
+@keyframes tw-wave-bar {
+  0%,
+  100% {
+    height: 0.5rem;
+  }
+  50% {
+    height: 2rem;
+  }
+}
+
+.tw-wave {
+  height: 0.5rem;
+  animation: tw-wave-bar 900ms ease-in-out infinite;
+}
+
+/* A bubble drifting up through the field. Distance and duration come from
+   per-bubble custom properties so one keyframe serves the whole field. */
+@keyframes tw-bubble-rise {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(var(--tw-drift, 0px), var(--tw-rise, -120vh), 0);
+  }
+}
+
+.tw-bubble {
+  animation: tw-bubble-rise var(--tw-bubble-duration, 9s) linear both;
+}
+
+/* A bubble popping. Runs once, then the element is removed. */
+@keyframes tw-bubble-pop {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.65);
+  }
+}
+
+.tw-popped {
+  animation: tw-bubble-pop 260ms ease-out both;
+}
+
+/* A found object celebrating. */
+@keyframes tw-found {
+  0% {
+    transform: scale(1) rotate(0deg);
+  }
+  35% {
+    transform: scale(1.35) rotate(-9deg);
+  }
+  70% {
+    transform: scale(1.15) rotate(7deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+.tw-found {
+  animation: tw-found 620ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* A card snapping home into a drop target. */
+@keyframes tw-snap {
+  0% {
+    transform: scale(1.1);
+  }
+  60% {
+    transform: scale(0.9);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.tw-snap {
+  animation: tw-snap 280ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* A gentle "not that one" nudge. Small and soft on purpose: §17 rules out
+   failure language, and a violent shake is failure language without words. */
+@keyframes tw-nudge {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-5px);
+  }
+  75% {
+    transform: translateX(5px);
+  }
+}
+
+.tw-nudge {
+  animation: tw-nudge 240ms ease-in-out both;
+}
+
+/* Action Dash — the character animations a spoken word triggers. One per
+   action verb in `content/minigames/attributes.ts`. */
+@keyframes tw-act-jump {
+  0%,
+  100% {
+    transform: translateY(0) scaleY(1);
+  }
+  15% {
+    transform: translateY(0) scaleY(0.82);
+  }
+  45% {
+    transform: translateY(-58%) scaleY(1.08);
+  }
+  75% {
+    transform: translateY(0) scaleY(0.9);
+  }
+}
+
+@keyframes tw-act-run {
+  0% {
+    transform: translateX(-38%) rotate(-5deg);
+  }
+  50% {
+    transform: translateX(38%) rotate(5deg);
+  }
+  100% {
+    transform: translateX(-38%) rotate(-5deg);
+  }
+}
+
+@keyframes tw-act-clap {
+  0%,
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+  25% {
+    transform: scale(1.12) rotate(-6deg);
+  }
+  50% {
+    transform: scale(0.94) rotate(0deg);
+  }
+  75% {
+    transform: scale(1.12) rotate(6deg);
+  }
+}
+
+@keyframes tw-act-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(720deg);
+  }
+}
+
+@keyframes tw-act-eat {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  30% {
+    transform: translateY(4%) scale(1.06);
+  }
+  60% {
+    transform: translateY(0) scale(0.96);
+  }
+}
+
+@keyframes tw-act-sleep {
+  0%,
+  100% {
+    transform: rotate(-16deg) translateY(6%);
+  }
+  50% {
+    transform: rotate(-16deg) translateY(10%);
+  }
+}
+
+@keyframes tw-act-wave {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-11deg);
+  }
+  75% {
+    transform: rotate(11deg);
+  }
+}
+
+@keyframes tw-act-dance {
+  0%,
+  100% {
+    transform: translateX(0) rotate(0deg);
+  }
+  25% {
+    transform: translateX(-13%) rotate(-11deg);
+  }
+  75% {
+    transform: translateX(13%) rotate(11deg);
+  }
+}
+
+@keyframes tw-act-drink {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  40% {
+    transform: rotate(-15deg);
+  }
+}
+
+@keyframes tw-act-sit {
+  0% {
+    transform: translateY(0) scaleY(1);
+  }
+  100% {
+    transform: translateY(14%) scaleY(0.84);
+  }
+}
+
+.tw-act-jump {
+  animation: tw-act-jump 900ms cubic-bezier(0.3, 0.9, 0.4, 1) 2 both;
+}
+.tw-act-run {
+  animation: tw-act-run 900ms ease-in-out 2 both;
+}
+.tw-act-clap {
+  animation: tw-act-clap 480ms ease-in-out 4 both;
+}
+.tw-act-spin {
+  animation: tw-act-spin 1200ms cubic-bezier(0.4, 0, 0.3, 1) 1 both;
+}
+.tw-act-eat {
+  animation: tw-act-eat 620ms ease-in-out 3 both;
+}
+.tw-act-sleep {
+  animation: tw-act-sleep 1500ms ease-in-out 2 both;
+}
+.tw-act-wave {
+  animation: tw-act-wave 520ms ease-in-out 4 both;
+}
+.tw-act-dance {
+  animation: tw-act-dance 620ms ease-in-out 3 both;
+}
+.tw-act-drink {
+  animation: tw-act-drink 900ms ease-in-out 2 both;
+}
+.tw-act-sit {
+  animation: tw-act-sit 700ms cubic-bezier(0.34, 1.3, 0.64, 1) 1 both;
+}
+
+/* A story scene playing out. */
+@keyframes tw-scene-in {
+  0% {
+    opacity: 0;
+    transform: translateY(18px) scale(0.94);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.tw-scene {
+  animation: tw-scene-in 420ms cubic-bezier(0.34, 1.4, 0.64, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tw-particle,
+  .tw-wave,
+  .tw-bubble,
+  .tw-popped,
+  .tw-found,
+  .tw-snap,
+  .tw-nudge,
+  .tw-scene,
+  .tw-act-jump,
+  .tw-act-run,
+  .tw-act-clap,
+  .tw-act-spin,
+  .tw-act-eat,
+  .tw-act-sleep,
+  .tw-act-wave,
+  .tw-act-dance,
+  .tw-act-drink,
+  .tw-act-sit {
+    animation: none;
+  }
+
+  /* A bubble with no rise animation must still be somewhere sensible, so
+     the field places it at its end position rather than off-screen. */
+  .tw-bubble {
+    transform: translate3d(var(--tw-drift, 0px), calc(var(--tw-rise, -120vh) / 2), 0);
+  }
+}

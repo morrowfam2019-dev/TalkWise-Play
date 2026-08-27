@@ -36,3 +36,6 @@ yarn-error.log*
 
 # speech verification build output
 /.verify-speech-tmp
+
+# mini-game verification build output
+/.verify-minigames-tmp

@@ -10,7 +10,8 @@
     "typecheck": "tsc --noEmit",
     "verify:world": "node scripts/verify-world.mjs",
     "verify:progress": "node scripts/verify-progress.mjs",
-    "verify:speech": "node scripts/verify-speech.mjs"
+    "verify:speech": "node scripts/verify-speech.mjs",
+    "verify:minigames": "node scripts/verify-minigames.mjs"
   },
   "dependencies": {
     "@react-three/fiber": "^9.7.0",
