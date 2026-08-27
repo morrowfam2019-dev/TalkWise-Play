@@ -53,7 +53,7 @@ export function MiniGameResults({
 
   return (
     <div className="absolute inset-0 z-40 flex items-start justify-center overflow-y-auto bg-[#141420]/75 p-4 backdrop-blur-sm">
-      <div className="tw-pop my-auto w-full max-w-sm rounded-[2rem] border-8 border-[#f5c33b] bg-white p-5 text-center shadow-2xl">
+      <div className="tw-pop my-auto w-full max-w-sm rounded-[2rem] border-8 border-[#f5c33b] bg-white p-4 text-center shadow-2xl">
         <p className="text-xs font-black tracking-[0.22em] text-[#8a8aa0] uppercase">
           {title}
         </p>
@@ -64,7 +64,7 @@ export function MiniGameResults({
           </p>
         ) : null}
 
-        <p className="mt-2 text-6xl font-black text-[#141420] tabular-nums">
+        <p className="mt-1 text-5xl font-black text-[#141420] tabular-nums">
           {summary.score}
         </p>
         <p className="text-xs font-black tracking-widest text-[#8a8aa0] uppercase">
@@ -75,9 +75,9 @@ export function MiniGameResults({
           <p className="mt-2 text-lg font-black text-[#2ecc71]">{highlight}</p>
         ) : null}
 
-        <div className="mt-4 rounded-2xl border-4 border-[#f5c33b] bg-[#fffaef] p-3">
-          <p className="flex items-center justify-center gap-2 text-4xl font-black text-[#141420] tabular-nums">
-            <CoinIcon className="h-8 w-8" />+{reward.coins}
+        <div className="mt-3 rounded-2xl border-4 border-[#f5c33b] bg-[#fffaef] p-2.5">
+          <p className="flex items-center justify-center gap-2 text-3xl font-black text-[#141420] tabular-nums">
+            <CoinIcon className="h-7 w-7" />+{reward.coins}
           </p>
           <p className="text-xs font-black tracking-widest text-[#8a8aa0] uppercase">
             Coins earned
@@ -163,7 +163,7 @@ export function MiniGameResults({
         <button
           type="button"
           onClick={onReplay}
-          className="mt-4 w-full rounded-2xl border-b-8 border-[#25a25a] bg-[#2ecc71] px-6 py-5 text-2xl font-black text-white shadow-lg transition-transform active:translate-y-1 active:border-b-4"
+          className="mt-3 w-full rounded-2xl border-b-8 border-[#25a25a] bg-[#2ecc71] px-6 py-4 text-2xl font-black text-white shadow-lg transition-transform active:translate-y-1 active:border-b-4"
         >
           PLAY AGAIN
         </button>

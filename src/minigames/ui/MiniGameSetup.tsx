@@ -93,7 +93,7 @@ export function MiniGameSetup({
   return (
     <main className="min-h-[100dvh] bg-gradient-to-b from-[#8fd8f5] via-[#bfeafb] to-[#eaf8e6]">
       <PlatformHeader
-        eyebrow="TalkWise Play · Quick Play"
+        eyebrow="Quick Play"
         title={
           <>
             {game.glyph} {game.displayName}
