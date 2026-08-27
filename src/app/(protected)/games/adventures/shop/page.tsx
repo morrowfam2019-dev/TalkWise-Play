@@ -70,7 +70,9 @@ function CrestGlyph({ look }: { look: CharacterLook }) {
             <span
               key={i}
               className="block h-2.5 w-2.5 rounded-full"
-              style={{ background: look.skinDark }}
+              // `hair` where a character has one, so the preview shows the
+              // afro in its real colour rather than in skin shading.
+              style={{ background: look.hair ?? look.skinDark }}
             />
           ))}
         </div>
@@ -93,6 +95,14 @@ function CharacterPreview({ look }: { look: CharacterLook }) {
   return (
     <div className="relative mx-auto h-16 w-16" aria-hidden>
       <CrestGlyph look={look} />
+      {/* A collar of hoodie under the chin, for characters who wear one —
+          otherwise TJ previews as a floating head in the wrong colours. */}
+      {look.build === "tj" ? (
+        <span
+          className="absolute -bottom-1 left-1/2 block h-5 w-14 -translate-x-1/2 rounded-t-xl"
+          style={{ background: look.belly }}
+        />
+      ) : null}
       <div
         className="relative grid h-16 w-16 place-items-center rounded-full"
         style={{ background: look.skin }}

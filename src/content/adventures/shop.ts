@@ -29,6 +29,22 @@ export interface CharacterLook {
   cheek: string;
   /** What sits on top of the head. */
   crest: "antenna" | "ears" | "halo" | "leaf" | "curls";
+  /**
+   * Which set of meshes fills the rig.
+   *
+   * `blob` is the original rounded creature every character shared: one
+   * silhouette, recoloured. `tj` is a real boy — hoodie, joggers, trainers,
+   * afro — drawn to the founder-approved TJ, because he is a named
+   * character from the covers rather than a palette swap and looked wrong
+   * wearing a generic body.
+   *
+   * The *rig* is identical either way: same joint positions, same refs, same
+   * animation. A build changes what hangs off the skeleton, never how it
+   * moves, so no character costs anything in gameplay terms.
+   */
+  build?: "blob" | "tj";
+  /** Hair colour, where a build draws hair separately from skin shading. */
+  hair?: string;
 }
 
 export interface CharacterItem extends ShopItem {
@@ -132,14 +148,20 @@ export const CHARACTERS: CharacterItem[] = [
     name: "TJ",
     blurb: "TalkWise's own crew captain, hoodie and all. A big unlock!",
     price: 300,
+    // The founder-approved palette, straight off the cover art: warm brown
+    // skin, dark-brown afro, royal-blue hoodie, navy joggers, blue-and-white
+    // trainers. He used to be drawn in invented colours on the generic body,
+    // which made the TJ a child unlocked look like nobody in particular.
     look: {
-      skin: "#a9744f",
-      skinDark: "#8a5c3d",
-      belly: "#141a3d",
-      limb: "#1c2454",
-      boot: "#f5c33b",
-      cheek: "#ff9ec4",
+      skin: "#c98a5b",
+      skinDark: "#a86f45",
+      hair: "#3d2517",
+      belly: "#1f6fe0",
+      limb: "#1e2a44",
+      boot: "#2f8bf0",
+      cheek: "#b5714a",
       crest: "curls",
+      build: "tj",
     },
   },
 ];
