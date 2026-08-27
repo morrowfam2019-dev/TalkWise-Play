@@ -20,7 +20,6 @@ import type { ContentPackId, MiniLearningLevel } from "@/content/minigames/types
 import { listContentPacks } from "@/content/minigames";
 import type { ContentCapability } from "@/content/minigames/types";
 import {
-  GAME_ACTION_DASH,
   GAME_BUBBLE_BLAST,
   GAME_COLOR_SHAPE_HUNT,
   GAME_GUESS_THE_SOUND,
@@ -33,11 +32,10 @@ import {
  * How a mini-game uses the child's voice.
  *
  * §17 and §5 both push against forcing an identical speech structure onto
- * six different games. So each declares its own cadence:
+ * every game. So each declares its own cadence:
  *
  * - `gate-once` — one speech target before the round starts, then play.
- *   Bubble Blast and Action Dash. Keeps a thirty-second arcade round
- *   arcade-paced.
+ *   Bubble Blast, so a thirty-second arcade round stays arcade-paced.
  * - `per-round` — a speech moment on each round of the game. Sound Match
  *   and Story Builder, where the rounds are already slow enough to carry it.
  * - `optional` — the game runs on touch and offers the speech moment as a
@@ -137,19 +135,6 @@ const MINI_GAMES: MiniGameDefinition[] = [
     pointsPerCorrect: 100,
     pointsPerCoin: 90,
     powerUps: false,
-  },
-  {
-    id: GAME_ACTION_DASH,
-    number: "07",
-    levels: ["beginner", "intermediate", "expert"],
-    requires: ["action"],
-    packs: ["action-time"],
-    defaultPack: "action-time",
-    speech: "gate-once",
-    sessionLabel: "8 actions",
-    pointsPerCorrect: 100,
-    pointsPerCoin: 90,
-    powerUps: true,
   },
   {
     id: GAME_STORY_BUILDER,

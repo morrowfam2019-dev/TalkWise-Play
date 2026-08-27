@@ -72,8 +72,12 @@ read from it.
 | `GAME-004` | Sound Match | `/games/sound-match` | Quick Play |
 | `GAME-005` | Colour & Shape Hunt | `/games/color-shape-hunt` | Quick Play |
 | `GAME-006` | Guess the Sound | `/games/guess-the-sound` | Quick Play |
-| `GAME-007` | Action Dash | `/games/action-dash` | Quick Play |
 | `GAME-008` | Story Builder | `/games/story-builder` | Quick Play |
+
+`GAME-007` is absent on purpose. Action Dash was built, shipped, and then
+cut on founder review; its id is **retired, not free**. A future game takes
+the next unused number, because a saved profile out there may still carry a
+`GAME-007` slice and reusing the id would hand one game another's records.
 
 **Permanent ids are immutable.** They are written into saved progress,
 inventories and high scores. `displayName` is the only thing marketing may
@@ -479,7 +483,7 @@ construction and keeps a listening game measured in kilobytes.
 ### Touch safety (§16)
 
 The competitor complaint §16 names — resting a finger advances the activity —
-is answered in `minigames/touch.ts` and inherited by all six games:
+is answered in `minigames/touch.ts` and inherited by every mini-game:
 
 1. actions fire on **release**, not press, so a resting palm advances nothing;
 2. the release must land near the press, or it was a scroll;

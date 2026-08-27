@@ -1,13 +1,14 @@
 # Mini Games — Launch Collection 01
 
-Six new TalkWise Play games (GAME-003 … GAME-008) on one shared framework.
+Five new TalkWise Play games (GAME-003 … GAME-008, less GAME-007) on one
+shared framework.
 
 > Restore point: [`docs/RESTORE-POINT-MINIGAMES-01.md`](./RESTORE-POINT-MINIGAMES-01.md)
 > Architecture: [`docs/ARCHITECTURE.md` → Mini Games](./ARCHITECTURE.md#mini-games--launch-collection-01)
 
 ---
 
-## The six games
+## The games
 
 | Id | Name | Route | Session | Core mechanic | Speech cadence |
 | --- | --- | --- | --- | --- | --- |
@@ -15,11 +16,17 @@ Six new TalkWise Play games (GAME-003 … GAME-008) on one shared framework.
 | GAME-004 | Sound Match | `/games/sound-match` | 8 rounds | Drag into the backpack | Every round |
 | GAME-005 | Colour & Shape Hunt | `/games/color-shape-hunt` | 8 finds | Search a scene and tap | Finds 1, 4, 7 |
 | GAME-006 | Guess the Sound | `/games/guess-the-sound` | 8 sounds | Listen and choose | Rounds 1, 4, 7 |
-| GAME-007 | Action Dash | `/games/action-dash` | 8 actions | Speech drives the animation | Every round |
 | GAME-008 | Story Builder | `/games/story-builder` | 4 scenes | Build a sentence from parts | Every scene |
 
 Each is separately registered, routed, and saved. None is a mode inside a
 wrapper game.
+
+**GAME-007 Action Dash was cut.** It shipped as a 3D side-scrolling course
+and did not clear founder review, so it was removed rather than iterated on
+further. Its id is retired, not recycled — see
+[`ARCHITECTURE.md`](./ARCHITECTURE.md#the-game-registry). The content it
+used is untouched: the `action-time` pack and the action attributes still
+feed Story Builder, and TJ still appears there.
 
 ## Learning modes
 
@@ -41,7 +48,7 @@ My Body · Around the House · Outside Adventures · Feelings
 ## Persistence namespaces
 
 ```
-games["GAME-003"] … games["GAME-008"]
+games["GAME-003"] … games["GAME-008"]   (no GAME-007 — Action Dash was cut)
   records      keyed `${packId}:${level}` → bestScore, bestAccuracy, bestCombo, plays
   collected    game-defined ids (stories built, objects found)
   achievements
@@ -162,33 +169,7 @@ For **every** one of the six:
 - [ ] At Beginner the three choices are obviously different kinds of thing.
 - [ ] At Expert there are four choices and they are all similar.
 
-## H. Action Dash (GAME-007)
-
-- [ ] TJ appears in 3D on the course and idles, **facing left**.
-- [ ] The three action cards are visible at the bottom of the screen.
-- [ ] Picking the right action opens the speech moment.
-- [ ] **Saying the word makes TJ perform it** — the animation matches the verb.
-- [ ] TJ performs even if you tap "I SAID IT!" instead of speaking.
-- [ ] After he performs, he **dashes to the left**: the ground, props, hills
-      and clouds all slide past him, and "← Dashing to the next one!" shows.
-- [ ] A power-up puts an accessory above TJ's head.
-
-### Dropping in the Higgsfield mesh
-
-A textured, rigged, run-animated GLB of TJ was generated in Higgsfield from
-the approved covers (job `bb2d2b76-bf55-4c95-9fc2-93343620186b`). It could
-not be downloaded from this environment — the agent proxy blocks the
-CloudFront host that serves it — so it is not in the repo.
-
-To use it: download the GLB from the Higgsfield job, save it as
-`public/models/tj.glb`, and set `TJ_GLB` to `true` in
-`src/games/minigames/actiondash/scene/TJModel.tsx`.
-
-Keep the procedural rig in that file either way. It is the thing that can
-perform all ten action verbs on demand; the generated GLB carries a single
-run clip, which is one tenth of what this game asks TJ to do.
-
-## I. Story Builder (GAME-008)
+## H. Story Builder (GAME-008)
 
 - [ ] Choices appear one slot at a time and the sentence grows visibly.
 - [ ] At Expert the finished sentence reads properly
@@ -198,7 +179,7 @@ run clip, which is one tenth of what this game asks TJ to do.
 - [ ] Four scenes, then results, and the results name how many stories you
       built.
 
-## J. Economy and anti-farming
+## I. Economy and anti-farming
 
 - [ ] Play the **same** mini-game four times in a row. The fourth round pays
       noticeably fewer coins than the first — this is intentional.
@@ -258,8 +239,8 @@ run clip, which is one tenth of what this game asks TJ to do.
    The `ContentItem.glyph` field is the seam for replacing them.
 
    Card art is the founder-approved TJ cover set. In-game TJ is drawn as
-   vector in his approved colours, because he has to animate per action
-   verb; a transparent photographic render of him exists in Higgsfield
+   vector in his approved colours; a transparent photographic render of him
+   exists in Higgsfield
    (element `tj-talkwise-play`) and can be swapped in by saving it as
    `public/characters/tj.png` and flipping `TJ_PHOTO` in
    `src/minigames/ui/TJ.tsx`.
@@ -274,7 +255,7 @@ run clip, which is one tenth of what this game asks TJ to do.
    full-rate sessions of Bubble Blast *and* three of Sound Match are both
    available in one day. That is deliberate — playing six different games is
    the behaviour worth rewarding — but it means a determined day across all
-   six earns roughly 250–300 coins. Worth watching against real usage.
+   five earns roughly 200–250 coins. Worth watching against real usage.
 
 7. **No pack/level combination is hidden when a pack is thin.** Sound Match
    at Beginner and Guess the Sound at Expert top up their choices from the

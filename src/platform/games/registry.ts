@@ -30,7 +30,6 @@ export const GAME_BUBBLE_BLAST = "GAME-003" as const;
 export const GAME_SOUND_MATCH = "GAME-004" as const;
 export const GAME_COLOR_SHAPE_HUNT = "GAME-005" as const;
 export const GAME_GUESS_THE_SOUND = "GAME-006" as const;
-export const GAME_ACTION_DASH = "GAME-007" as const;
 export const GAME_STORY_BUILDER = "GAME-008" as const;
 
 export type MiniGameId =
@@ -38,7 +37,6 @@ export type MiniGameId =
   | typeof GAME_SOUND_MATCH
   | typeof GAME_COLOR_SHAPE_HUNT
   | typeof GAME_GUESS_THE_SOUND
-  | typeof GAME_ACTION_DASH
   | typeof GAME_STORY_BUILDER;
 
 export type GameId =
@@ -67,7 +65,6 @@ export const MINI_GAME_IDS: MiniGameId[] = [
   GAME_SOUND_MATCH,
   GAME_COLOR_SHAPE_HUNT,
   GAME_GUESS_THE_SOUND,
-  GAME_ACTION_DASH,
   GAME_STORY_BUILDER,
 ];
 
@@ -99,8 +96,7 @@ export type GameTag =
   | "sound-games"
   | "word-games"
   | "language-games"
-  | "listening-games"
-  | "movement-games";
+  | "listening-games";
 
 export interface GameDefinition {
   /** Permanent id. Never changes, never reused. */
@@ -221,20 +217,6 @@ const GAMES: GameDefinition[] = [
     artKey: "guess-the-sound",
     sessionLength: "1–2 min",
     namespace: GAME_GUESS_THE_SOUND,
-  },
-  {
-    id: GAME_ACTION_DASH,
-    displayName: "Action Dash",
-    tagline: "Say the action word and watch TJ do it.",
-    glyph: "\u{1F3C3}",
-    cardGradient: "from-[#ffe066] to-[#f0973d]",
-    status: "live",
-    route: "/games/action-dash",
-    section: "quick-play",
-    tags: ["quick-play", "word-games", "movement-games"],
-    artKey: "action-dash",
-    sessionLength: "1–3 min",
-    namespace: GAME_ACTION_DASH,
   },
   {
     id: GAME_STORY_BUILDER,

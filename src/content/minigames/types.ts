@@ -126,7 +126,7 @@ export type ShapeId =
   | "diamond"
   | "oval";
 
-/** Permanent action-verb ids, used by Action Dash and the Actions pack. */
+/** Permanent action-verb ids, used by the Actions pack and Story Builder. */
 export type ActionId =
   | "jump"
   | "run"

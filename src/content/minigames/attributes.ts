@@ -1,7 +1,7 @@
 /**
  * Colours, shapes and action verbs — the vocabulary Colour & Shape Hunt and
- * Action Dash teach, and the descriptors every other mini-game can layer on
- * top of a content item.
+ * Story Builder teach, and the descriptors every other mini-game can layer
+ * on top of a content item.
  *
  * Kept out of the packs so that "blue" is defined exactly once. A pack item
  * says `color: "blue"`; what blue *looks like*, what it is called, and how
