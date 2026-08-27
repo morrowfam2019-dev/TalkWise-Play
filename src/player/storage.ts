@@ -1,7 +1,9 @@
 import {
   GAME_ADVENTURES,
   GAME_BASKETBALL,
-  type GameId,
+  MINI_GAME_IDS,
+  type MiniGameId,
+  type ShopGameId,
 } from "@/platform/games/registry";
 import {
   getMapProgressFrom,
@@ -25,8 +27,17 @@ import {
   type BasketballRoundOutcome,
 } from "./games/basketball";
 import {
+  getMiniPlaysToday,
+  isMiniPersonalBest,
+  mergeMiniGameSession,
+  sanitizeMiniGameState,
+  type MiniGameSessionOutcome,
+  type MiniGameState,
+} from "./games/minigames";
+import {
   DEFAULT_PROFILE,
   spendableCoins,
+  type GameStates,
   type Household,
   type PlayerProfile,
 } from "./types";
@@ -69,6 +80,39 @@ function makeChildId(): string {
 }
 
 /**
+ * The six empty mini-game slices, for a profile that has never played one.
+ *
+ * Built fresh each call rather than shared: `DEFAULT_MINIGAME_STATE` holds
+ * a `records` object and a `collected` array, and handing the same instance
+ * to six namespaces would let a write to one silently appear in the other
+ * five. Cheap insurance against the exact bug §20 forbids.
+ */
+function emptyMiniGameStates(): Pick<GameStates, MiniGameId> {
+  return Object.fromEntries(
+    MINI_GAME_IDS.map((id) => [id, sanitizeMiniGameState(null)]),
+  ) as Pick<GameStates, MiniGameId>;
+}
+
+/**
+ * Reads the six mini-game slices out of a saved `games` object.
+ *
+ * Purely additive: a profile saved before Launch Collection 01 has none of
+ * these keys, each one gets the empty default, and nothing existing is read,
+ * moved or recomputed. The same migration shape as v1→v2 and the GAME-002
+ * mode expansion.
+ */
+function sanitizeMiniGameStates(
+  namespaced: Record<string, unknown> | null,
+): Pick<GameStates, MiniGameId> {
+  return Object.fromEntries(
+    MINI_GAME_IDS.map((id) => [
+      id,
+      sanitizeMiniGameState(namespaced ? namespaced[id] : null),
+    ]),
+  ) as Pick<GameStates, MiniGameId>;
+}
+
+/**
  * Rebuilds a trustworthy profile from whatever was in storage.
  *
  * Handles both shapes:
@@ -87,6 +131,7 @@ export function sanitizeProfile(raw: unknown): PlayerProfile {
       games: {
         [GAME_ADVENTURES]: sanitizeAdventuresState(null),
         [GAME_BASKETBALL]: sanitizeBasketballState(null),
+        ...emptyMiniGameStates(),
       },
     };
   }
@@ -115,6 +160,7 @@ export function sanitizeProfile(raw: unknown): PlayerProfile {
     games: {
       [GAME_ADVENTURES]: sanitizeAdventuresState(adventuresRaw),
       [GAME_BASKETBALL]: sanitizeBasketballState(basketballRaw),
+      ...sanitizeMiniGameStates(namespaced),
     },
   };
 }
@@ -472,11 +518,75 @@ export function mergeBasketballResult(
 }
 
 // ---------------------------------------------------------------------------
+// GAME-003 … GAME-008 — Mini Games Launch Collection 01
+// ---------------------------------------------------------------------------
+
+/** One mini-game's isolated slice. */
+export function miniGameState(
+  profile: PlayerProfile,
+  gameId: MiniGameId,
+): MiniGameState {
+  return profile.games[gameId];
+}
+
+/** How many sessions of one mini-game have been finished today. */
+export function miniGamePlaysToday(
+  profile: PlayerProfile,
+  gameId: MiniGameId,
+  now: Date = new Date(),
+): number {
+  return getMiniPlaysToday(profile.games[gameId], now);
+}
+
+/** Whether a score would be a new personal best for one mini-game's
+ * (pack, level). Read before merging — see `isMiniPersonalBest`. */
+export function isMiniGamePersonalBest(
+  profile: PlayerProfile,
+  gameId: MiniGameId,
+  packId: string,
+  level: string,
+  score: number,
+): boolean {
+  return isMiniPersonalBest(profile.games[gameId], packId, level, score);
+}
+
+/**
+ * Folds a finished mini-game session into a profile.
+ *
+ * Exactly the same split as every other game on this platform: coins into
+ * the shared wallet, the daily streak onto the platform, records into the
+ * *named* mini-game's namespace and nowhere else. `gameId` is required, so
+ * a Bubble Blast session physically cannot write a Story Builder record.
+ *
+ * The streak advances here for the same reason a Beginner sound station
+ * advances it: a child who spent ninety seconds saying words into Sound
+ * Match practised today. It advances on any completed session, whether or
+ * not that session counted toward the *coin* cap — the cap exists to bound
+ * the economy, and a child's practice streak is not part of the economy.
+ */
+export function mergeMiniGameResult(
+  profile: PlayerProfile,
+  gameId: MiniGameId,
+  outcome: MiniGameSessionOutcome & { coinsEarned: number },
+  now: Date = new Date(),
+): PlayerProfile {
+  return {
+    ...profile,
+    ...advanceStreak(profile, now),
+    totalCoins: profile.totalCoins + Math.max(0, outcome.coinsEarned),
+    games: {
+      ...profile.games,
+      [gameId]: mergeMiniGameSession(profile.games[gameId], outcome, now),
+    },
+  };
+}
+
+// ---------------------------------------------------------------------------
 // Shops — one shared wallet, strictly per-game ownership
 // ---------------------------------------------------------------------------
 
 /** Which loadout slot a purchased item auto-equips into, per game. */
-function equipSlotFor(gameId: GameId, kind: string): string | null {
+function equipSlotFor(gameId: ShopGameId, kind: string): string | null {
   if (gameId === GAME_ADVENTURES) {
     if (kind === "character") return "characterId";
     if (kind === "aura") return "auraId";
@@ -490,7 +600,7 @@ function equipSlotFor(gameId: GameId, kind: string): string | null {
 }
 
 /** Slots a child must always have filled, so a game is never unplayable. */
-function isRequiredSlot(gameId: GameId, slot: string): boolean {
+function isRequiredSlot(gameId: ShopGameId, slot: string): boolean {
   return (
     (gameId === GAME_ADVENTURES && slot === "characterId") ||
     (gameId === GAME_BASKETBALL && slot === "ballerId")
@@ -507,7 +617,7 @@ function isRequiredSlot(gameId: GameId, slot: string): boolean {
  */
 export function purchaseItem(
   profile: PlayerProfile,
-  gameId: GameId,
+  gameId: ShopGameId,
   item: { id: string; price: number; kind: string },
 ): { profile: PlayerProfile; bought: boolean } {
   const state = profile.games[gameId];
@@ -542,7 +652,7 @@ export function purchaseItem(
  */
 export function equipItem(
   profile: PlayerProfile,
-  gameId: GameId,
+  gameId: ShopGameId,
   kind: string,
   id: string | null,
 ): PlayerProfile {
@@ -608,4 +718,6 @@ export type {
   LevelProgress,
   QuestProgress,
   StationProgress,
+  MiniGameSessionOutcome,
+  MiniGameState,
 };

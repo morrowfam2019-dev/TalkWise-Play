@@ -1,0 +1,44 @@
+import type { ContentPack } from "../types";
+import { buildItems } from "./build";
+
+/**
+ * ANIMAL WORLD — the pack four mini-games share.
+ *
+ * Bubble Blast pops the ones that start with a sound, Sound Match drags them
+ * into the chest, Guess the Sound plays the noise they make, and Story
+ * Builder makes them the subject of a sentence. One dataset, four games,
+ * exactly as §9 asks.
+ *
+ * Sentences are deliberately simple present-progressive ("The dog is
+ * running"), because that is the structure the Expert tier of every
+ * mini-game builds toward and the one GAME-001's sentence quests already
+ * use. Phrases are adjective + noun, the two-word combination Intermediate
+ * targets.
+ */
+export const ANIMAL_WORLD: ContentPack = {
+  id: "animal-world",
+  title: "Animal World",
+  blurb: "Furry, feathery and noisy friends.",
+  glyph: "🦁",
+  gradient: "from-[#7ed957] to-[#2f9e52]",
+  items: buildItems("animal-world", [
+    { id: "monkey", word: "monkey", glyph: "🐒", sound: "m", phrase: "silly monkey", sentence: "The monkey is eating.", color: "brown", tags: ["animal", "jungle"] },
+    { id: "mouse", word: "mouse", glyph: "🐭", sound: "m", phrase: "tiny mouse", sentence: "The mouse is running.", color: "brown", tags: ["animal", "small"] },
+    { id: "bear", word: "bear", glyph: "🐻", sound: "b", phrase: "big bear", sentence: "The bear is sleeping.", color: "brown", tags: ["animal", "forest"] },
+    { id: "bird", word: "bird", glyph: "🐦", sound: "b", phrase: "little bird", sentence: "The bird is singing.", color: "blue", listen: "bird-tweet", tags: ["animal", "sky"] },
+    { id: "pig", word: "pig", glyph: "🐷", sound: "p", phrase: "pink pig", sentence: "The pig is eating.", color: "pink", tags: ["animal", "farm"] },
+    { id: "panda", word: "panda", glyph: "🐼", sound: "p", phrase: "sleepy panda", sentence: "The panda is sleeping.", tags: ["animal", "zoo"] },
+    { id: "sheep", word: "sheep", glyph: "🐑", sound: "s", phrase: "soft sheep", sentence: "The sheep is walking.", listen: "sheep-baa", tags: ["animal", "farm"] },
+    { id: "snake", word: "snake", glyph: "🐍", sound: "s", phrase: "long snake", sentence: "The snake is sleeping.", color: "green", tags: ["animal", "zoo"] },
+    { id: "lion", word: "lion", glyph: "🦁", sound: "l", phrase: "loud lion", sentence: "The lion is roaring.", color: "orange", listen: "lion-roar", tags: ["animal", "zoo"] },
+    { id: "lamb", word: "lamb", glyph: "🐏", sound: "l", phrase: "little lamb", sentence: "The lamb is jumping.", tags: ["animal", "farm"] },
+    { id: "fish", word: "fish", glyph: "🐠", sound: "f", phrase: "fast fish", sentence: "The fish is swimming.", color: "orange", tags: ["animal", "water"] },
+    { id: "frog", word: "frog", glyph: "🐸", sound: "f", phrase: "green frog", sentence: "The frog is jumping.", color: "green", listen: "frog-ribbit", tags: ["animal", "pond"] },
+    { id: "whale", word: "whale", glyph: "🐳", sound: "w", phrase: "wide whale", sentence: "The whale is swimming.", color: "blue", tags: ["animal", "water"] },
+    { id: "worm", word: "worm", glyph: "🪱", sound: "w", phrase: "wiggly worm", sentence: "The worm is wiggling.", color: "pink", tags: ["animal", "garden"] },
+    { id: "dog", word: "dog", glyph: "🐶", phrase: "happy dog", sentence: "The dog is running.", listen: "dog-woof", tags: ["animal", "pet"] },
+    { id: "cat", word: "cat", glyph: "🐱", phrase: "soft cat", sentence: "The cat is sleeping.", listen: "cat-meow", tags: ["animal", "pet"] },
+    { id: "cow", word: "cow", glyph: "🐮", phrase: "big cow", sentence: "The cow is eating.", listen: "cow-moo", tags: ["animal", "farm"] },
+    { id: "duck", word: "duck", glyph: "🦆", phrase: "yellow duck", sentence: "The duck is swimming.", color: "yellow", listen: "duck-quack", tags: ["animal", "pond"] },
+  ]),
+};

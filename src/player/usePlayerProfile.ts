@@ -4,7 +4,8 @@ import { useCallback, useSyncExternalStore } from "react";
 import {
   GAME_ADVENTURES,
   GAME_BASKETBALL,
-  type GameId,
+  type MiniGameId,
+  type ShopGameId,
 } from "@/platform/games/registry";
 import {
   addChild as addChildToHousehold,
@@ -12,6 +13,7 @@ import {
   householdStore,
   markMapCelebration,
   mergeBasketballResult,
+  mergeMiniGameResult,
   mergeExplorerCoins,
   mergeQuestResult,
   mergeRunResult,
@@ -21,6 +23,7 @@ import {
   setAssistMode as setAssistModeOnProfile,
 } from "./storage";
 import type { BasketballRoundOutcome } from "./games/basketball";
+import type { MiniGameSessionOutcome } from "./games/minigames";
 import { DEFAULT_PROFILE, type PlayerProfile } from "./types";
 
 /**
@@ -146,11 +149,30 @@ export function usePlayerProfile() {
   );
 
   /**
+   * Records a finished mini-game session, whichever mini-game it was.
+   *
+   * One entry point for all six rather than six near-identical ones: the
+   * outcome carries everything that differs, and `gameId` names the
+   * namespace it lands in — so a seventh mini-game needs no change here at
+   * all. Typed to `MiniGameId`, so a call site cannot write a mini-game
+   * session into GAME-001 or GAME-002.
+   */
+  const recordMiniGameSession = useCallback(
+    (
+      gameId: MiniGameId,
+      outcome: MiniGameSessionOutcome & { coinsEarned: number },
+    ) => {
+      updateActive((p) => mergeMiniGameResult(p, gameId, outcome));
+    },
+    [updateActive],
+  );
+
+  /**
    * Buys a shop item into `gameId`'s inventory and equips it. Returns false
    * if it wasn't affordable or was already owned in that game.
    */
   const buyItem = useCallback(
-    (gameId: GameId, item: { id: string; price: number; kind: string }) => {
+    (gameId: ShopGameId, item: { id: string; price: number; kind: string }) => {
       const current = householdStore.getSnapshot();
       const activeProfile =
         current.children[current.activeChildId] ?? DEFAULT_PROFILE;
@@ -168,7 +190,7 @@ export function usePlayerProfile() {
 
   /** Equips an owned item within one game. */
   const equip = useCallback(
-    (gameId: GameId, kind: string, id: string | null) => {
+    (gameId: ShopGameId, kind: string, id: string | null) => {
       updateActive((p) => equipItem(p, gameId, kind, id));
     },
     [updateActive],
@@ -220,6 +242,7 @@ export function usePlayerProfile() {
     recordMapCelebration,
     recordQuestRun,
     recordBasketballRound,
+    recordMiniGameSession,
     buyItem,
     equip,
     setMicEnabled,
