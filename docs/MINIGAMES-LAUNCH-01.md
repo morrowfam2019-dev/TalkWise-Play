@@ -164,11 +164,29 @@ For **every** one of the six:
 
 ## H. Action Dash (GAME-007)
 
-- [ ] TJ appears and idles.
+- [ ] TJ appears in 3D on the course and idles, **facing left**.
+- [ ] The three action cards are visible at the bottom of the screen.
 - [ ] Picking the right action opens the speech moment.
 - [ ] **Saying the word makes TJ perform it** — the animation matches the verb.
 - [ ] TJ performs even if you tap "I SAID IT!" instead of speaking.
+- [ ] After he performs, he **dashes to the left**: the ground, props, hills
+      and clouds all slide past him, and "← Dashing to the next one!" shows.
 - [ ] A power-up puts an accessory above TJ's head.
+
+### Dropping in the Higgsfield mesh
+
+A textured, rigged, run-animated GLB of TJ was generated in Higgsfield from
+the approved covers (job `bb2d2b76-bf55-4c95-9fc2-93343620186b`). It could
+not be downloaded from this environment — the agent proxy blocks the
+CloudFront host that serves it — so it is not in the repo.
+
+To use it: download the GLB from the Higgsfield job, save it as
+`public/models/tj.glb`, and set `TJ_GLB` to `true` in
+`src/games/minigames/actiondash/scene/TJModel.tsx`.
+
+Keep the procedural rig in that file either way. It is the thing that can
+perform all ten action verbs on demand; the generated GLB carries a single
+run clip, which is one tenth of what this game asks TJ to do.
 
 ## I. Story Builder (GAME-008)
 
