@@ -41,7 +41,7 @@ import { getMiniGame } from "@/minigames/registry";
 import type { MiniSpeechTarget } from "@/minigames/speech";
 import { useGestureLock, useIntentionalTap } from "@/minigames/touch";
 import { useMiniGameRun } from "@/minigames/useMiniGameRun";
-import { MayaCoach, speakInstruction } from "@/minigames/ui/MayaCoach";
+import { MayaCoach, speakerFor } from "@/minigames/ui/MayaCoach";
 import { MiniGameHud } from "@/minigames/ui/MiniGameHud";
 import { MiniGameResults } from "@/minigames/ui/MiniGameResults";
 import { MiniSpeechGate } from "@/minigames/ui/MiniSpeechGate";
@@ -209,9 +209,9 @@ export function StoryBuilderGame({
       // completeness — the tap is the event, and reacting to it in an effect
       // would just be the same transition one render later.
       if (nextPicked.length >= scene.slots.length) {
-        const finished = scene.sentenceFor(nextPicked);
+        // The finished sentence is shown, not read aloud — the child hears
+        // it only if they press the speaker, and only if it is recorded.
         setStage("modelling");
-        speakInstruction(finished);
         window.setTimeout(() => setStage("speaking"), 1600);
       }
     },
@@ -324,10 +324,7 @@ export function StoryBuilderGame({
         {/* The slot being filled. */}
         {stage === "building" && slot ? (
           <div className="mx-auto w-full max-w-md">
-            <MayaCoach
-              line={slot.question}
-              onSpeak={() => speakInstruction(slot.question)}
-            />
+            <MayaCoach line={slot.question} />
             <div className="mt-2 grid grid-cols-3 gap-2">
               {slot.choices.map((choice) => (
                 <WordCard
@@ -345,7 +342,7 @@ export function StoryBuilderGame({
           <div className="mx-auto w-full max-w-md">
             <MayaCoach
               line={sentence}
-              onSpeak={() => speakInstruction(sentence)}
+              speak={speakerFor(speechTarget)}
               tone="praise"
             />
           </div>

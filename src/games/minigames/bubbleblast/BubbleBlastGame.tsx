@@ -45,7 +45,7 @@ import { useGestureLock } from "@/minigames/touch";
 import { useCountdown } from "@/minigames/useCountdown";
 import { useMiniGameRun } from "@/minigames/useMiniGameRun";
 import { CountdownOverlay } from "@/minigames/ui/CountdownOverlay";
-import { MayaCoach, speakInstruction } from "@/minigames/ui/MayaCoach";
+import { MayaCoach, speakerFor } from "@/minigames/ui/MayaCoach";
 import { MiniGameHud } from "@/minigames/ui/MiniGameHud";
 import { MiniGameResults } from "@/minigames/ui/MiniGameResults";
 import { MiniSpeechGate } from "@/minigames/ui/MiniSpeechGate";
@@ -175,8 +175,7 @@ export function BubbleBlastGame({
     setStage("playing");
     run.begin();
     clock.start();
-    if (plan) speakInstruction(plan.spoken);
-  }, [run, clock, plan]);
+  }, [run, clock]);
 
   const handleExit = useCallback(() => {
     clock.stop();
@@ -289,10 +288,7 @@ export function BubbleBlastGame({
         {stage === "gate" && !speechTarget ? (
           <div className="absolute inset-0 z-40 flex items-center justify-center bg-[#141420]/70 p-4">
             <div className="tw-pop w-full max-w-sm rounded-[2rem] border-8 border-[#f5c33b] bg-white p-5 text-center">
-              <MayaCoach
-                line={plan.prompt}
-                onSpeak={() => speakInstruction(plan.spoken)}
-              />
+              <MayaCoach line={plan.prompt} speak={speakerFor(speechTarget)} />
               <button
                 type="button"
                 onClick={() => handleUnlock(false)}

@@ -25,10 +25,13 @@ import { PlatformHeader } from "@/ui/PlatformHeader";
 function GameCard({
   game,
   compact = false,
+  priority = false,
 }: {
   game: GameDefinition;
   /** Quick Play cards are smaller — six of them share the shelf. */
   compact?: boolean;
+  /** Eagerly load this card's art: it is above the fold on a phone. */
+  priority?: boolean;
 }) {
   const comingSoon = game.status === "coming-soon";
   const art = hasCardArt(game.artKey);
@@ -47,7 +50,7 @@ function GameCard({
         {/* Original card art where a game has it; GAME-001 and GAME-002 keep
             the glyph cards the founder already approved. */}
         {art ? (
-          <GameCardArt artKey={game.artKey} />
+          <GameCardArt artKey={game.artKey} priority={priority} />
         ) : (
           <span
             className={`${compact ? "text-4xl" : "text-6xl"} drop-shadow-lg ${
@@ -270,8 +273,13 @@ export default function TalkWisePlayHome() {
         </p>
 
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-          {quickPlay.map((game) => (
-            <GameCard key={game.id} game={game} compact />
+          {quickPlay.map((game, index) => (
+            <GameCard
+              key={game.id}
+              game={game}
+              compact
+              priority={index < 2}
+            />
           ))}
 
           {Array.from({ length: FUTURE_GAME_SLOTS }).map((_, index) => (

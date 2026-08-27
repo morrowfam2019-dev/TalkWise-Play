@@ -37,7 +37,7 @@ import { getMiniGame } from "@/minigames/registry";
 import { speechTargetWithFallback } from "@/minigames/speech";
 import { useGestureLock, useIntentionalTap } from "@/minigames/touch";
 import { useMiniGameRun } from "@/minigames/useMiniGameRun";
-import { MayaCoach, speakInstruction } from "@/minigames/ui/MayaCoach";
+import { MayaCoach, speakerFor } from "@/minigames/ui/MayaCoach";
 import { MiniGameHud } from "@/minigames/ui/MiniGameHud";
 import { MiniGameResults } from "@/minigames/ui/MiniGameResults";
 import { MiniSpeechGate } from "@/minigames/ui/MiniSpeechGate";
@@ -209,7 +209,6 @@ export function GuessTheSoundGame({
       run.session.correct();
       particles.burst(50, 62, "🎉", "#2ecc71");
       setStage("revealed");
-      speakInstruction(round.reveal);
 
       if (SPEECH_ON_ROUNDS.includes(roundIndex)) {
         window.setTimeout(() => setStage("speaking"), 1500);
@@ -350,7 +349,7 @@ export function GuessTheSoundGame({
             <div className="tw-pop w-full max-w-md">
               <MayaCoach
                 line={round.reveal}
-                onSpeak={() => speakInstruction(round.reveal)}
+                speak={speakerFor(speechTarget)}
                 tone="praise"
               />
             </div>

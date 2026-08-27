@@ -211,12 +211,23 @@ For **every** one of the six:
 
 ## Known limitations
 
-1. **Miss Maya's voice is browser text-to-speech for most mini-game
-   content.** Recorded clips exist for the seven Beginner sounds and a set
-   of GAME-001 words; everything else (colours, instructions, sentences,
-   action verbs, the 152 pack words) falls back to the device voice. That is
-   a content-recording job, not a code change — dropping
-   `public/audio/maya/<word>.mp3` in picks it up automatically.
+1. **Speech is recorded-only, so most of it is currently silent.** Browser
+   text-to-speech was removed entirely after founder testing: it read as a
+   robot, and in a speech-practice app whatever comes out of the speaker is
+   the target a child imitates. The rule is now Miss Maya's real voice or
+   nothing, and nothing is ever narrated automatically.
+
+   Recorded today: **35 words and the 7 Beginner sounds.** Not recorded: the
+   152 mini-game pack words, every instruction line ("Find something blue"),
+   every reveal, and every sentence. Where there is no recording the UI
+   hides the speaker button rather than offering a silent one — so several
+   mini-games currently show Miss Maya's line as text with no 🔊 at all.
+
+   **This is the single highest-value thing to fix next**, and it is a
+   recording session, not code: drop mp3s into `public/audio/maya/`
+   (words), `sounds/` or `sentences/`, run `npm run gen:maya-clips`, and the
+   buttons appear on their own. Sentence files are named by slug —
+   "I see the big moon." → `i-see-the-big-moon.mp3`.
 
 2. **Guess the Sound's audio is deliberately stylised.** These are cartoon
    impressions synthesised from oscillators, not field recordings. That is
@@ -224,10 +235,16 @@ For **every** one of the six:
    few (wind, rain, thunder) are more suggestive than recognisable in
    isolation — they work because the choices on screen frame them.
 
-3. **Emoji artwork is the content stand-in**, as it is throughout the
-   platform. Card art and characters are original vector; the objects inside
-   the games are emoji. Replacing them with illustration is a content job
-   the `ContentItem.glyph` field is already the seam for.
+3. **Emoji artwork is the content stand-in** for the objects inside the
+   games (bubbles, cards, scene objects), as it is throughout the platform.
+   The `ContentItem.glyph` field is the seam for replacing them.
+
+   Card art is the founder-approved TJ cover set. In-game TJ is drawn as
+   vector in his approved colours, because he has to animate per action
+   verb; a transparent photographic render of him exists in Higgsfield
+   (element `tj-talkwise-play`) and can be swapped in by saving it as
+   `public/characters/tj.png` and flipping `TJ_PHOTO` in
+   `src/minigames/ui/TJ.tsx`.
 
 4. **Accuracy in Story Builder is always 100%.** It has no wrong actions to
    count, by design. It is reported honestly rather than hidden.

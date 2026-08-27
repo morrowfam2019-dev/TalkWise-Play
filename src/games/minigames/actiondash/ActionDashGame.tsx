@@ -41,7 +41,7 @@ import { getMiniGame } from "@/minigames/registry";
 import type { MiniSpeechTarget } from "@/minigames/speech";
 import { useGestureLock, useIntentionalTap } from "@/minigames/touch";
 import { useMiniGameRun } from "@/minigames/useMiniGameRun";
-import { MayaCoach, speakInstruction } from "@/minigames/ui/MayaCoach";
+import { MayaCoach, speakerFor } from "@/minigames/ui/MayaCoach";
 import { MiniGameHud } from "@/minigames/ui/MiniGameHud";
 import { MiniGameResults } from "@/minigames/ui/MiniGameResults";
 import { MiniSpeechGate } from "@/minigames/ui/MiniSpeechGate";
@@ -267,10 +267,7 @@ export function ActionDashGame({
 
       <div className="relative flex flex-1 flex-col overflow-hidden px-4 py-3">
         <div className="mx-auto w-full max-w-md">
-          <MayaCoach
-            line={round.prompt}
-            onSpeak={() => speakInstruction(round.spoken)}
-          />
+          <MayaCoach line={round.prompt} speak={speakerFor(speechTarget)} />
         </div>
 
         {/* TJ's course. The ground line and a couple of props are drawn, so

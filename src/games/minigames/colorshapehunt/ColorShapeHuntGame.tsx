@@ -40,7 +40,7 @@ import { getMiniGame } from "@/minigames/registry";
 import type { MiniSpeechTarget } from "@/minigames/speech";
 import { useIntentionalTap, useGestureLock } from "@/minigames/touch";
 import { useMiniGameRun } from "@/minigames/useMiniGameRun";
-import { MayaCoach, speakInstruction } from "@/minigames/ui/MayaCoach";
+import { MayaCoach, speakerFor } from "@/minigames/ui/MayaCoach";
 import { MiniGameHud } from "@/minigames/ui/MiniGameHud";
 import { MiniGameResults } from "@/minigames/ui/MiniGameResults";
 import { MiniSpeechGate } from "@/minigames/ui/MiniSpeechGate";
@@ -229,7 +229,7 @@ export function ColorShapeHuntGame({
       if (wantsSpeech) {
         window.setTimeout(() => setStage("speaking"), 700);
       } else {
-        speakInstruction(`You found ${object.item.word}!`);
+        // The celebration is on screen, not spoken — see MayaCoach.
         setStage("found");
         window.setTimeout(advance, 1400);
       }
@@ -289,10 +289,7 @@ export function ColorShapeHuntGame({
 
       <div className="relative z-20 px-3 py-2">
         <div className="mx-auto max-w-md">
-          <MayaCoach
-            line={round.prompt}
-            onSpeak={() => speakInstruction(round.spoken)}
-          />
+          <MayaCoach line={round.prompt} speak={speakerFor(speechTarget)} />
         </div>
       </div>
 
