@@ -90,12 +90,15 @@ export function SoundMatchGame({
     null,
   );
 
-  const dragStartRef = useRef<{ id: string; x: number; y: number } | null>(null);
+  const dragStartRef = useRef<{ id: string; x: number; y: number } | null>(
+    null,
+  );
   const chestRef = useRef<HTMLDivElement | null>(null);
   const startedRef = useRef(false);
 
   const rounds = useMemo(
-    () => planSession({ packId, level, seed: dailySeed() + sessionIndex * 613 }),
+    () =>
+      planSession({ packId, level, seed: dailySeed() + sessionIndex * 613 }),
     [packId, level, sessionIndex],
   );
   const round = rounds?.[roundIndex] ?? null;
@@ -141,7 +144,10 @@ export function SoundMatchGame({
 
   // --- Dragging ------------------------------------------------------------
 
-  const handleCardPointerDown = (choice: MatchChoice, event: React.PointerEvent) => {
+  const handleCardPointerDown = (
+    choice: MatchChoice,
+    event: React.PointerEvent,
+  ) => {
     if (stage !== "matching") return;
     dragStartRef.current = {
       id: choice.id,
@@ -160,7 +166,10 @@ export function SoundMatchGame({
     setDrag({ id: start.id, x: event.clientX, y: event.clientY });
   };
 
-  const handleCardPointerUp = (choice: MatchChoice, event: React.PointerEvent) => {
+  const handleCardPointerUp = (
+    choice: MatchChoice,
+    event: React.PointerEvent,
+  ) => {
     const start = dragStartRef.current;
     dragStartRef.current = null;
     const wasDragging = drag !== null;
@@ -174,8 +183,12 @@ export function SoundMatchGame({
     }
 
     const chest = chestRef.current?.getBoundingClientRect() ?? null;
-    if (isInsideRect(chest, event.clientX, event.clientY, CHEST_FORGIVENESS_PX)) {
-      const stage_ = document.getElementById("match-stage")?.getBoundingClientRect();
+    if (
+      isInsideRect(chest, event.clientX, event.clientY, CHEST_FORGIVENESS_PX)
+    ) {
+      const stage_ = document
+        .getElementById("match-stage")
+        ?.getBoundingClientRect();
       resolveDrop(
         choice,
         stage_ ? ((event.clientX - stage_.left) / stage_.width) * 100 : 50,
@@ -337,9 +350,7 @@ export function SoundMatchGame({
                   setDrag(null);
                 }}
                 className={`flex touch-none flex-col items-center justify-center rounded-2xl border-4 bg-white p-3 shadow-lg transition-transform ${
-                  isSelected
-                    ? "border-[#2ecc71] scale-105"
-                    : "border-white"
+                  isSelected ? "border-[#2ecc71] scale-105" : "border-white"
                 } ${isDragging ? "opacity-30" : ""} ${
                   isReturning ? "tw-nudge" : ""
                 } ${isGone ? "opacity-0" : ""}`}

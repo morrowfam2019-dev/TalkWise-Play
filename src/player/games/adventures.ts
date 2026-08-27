@@ -318,7 +318,9 @@ export function getStationProgressFrom(
   mapId: string,
   soundId: string,
 ): StationProgress {
-  return getMapProgressFrom(state, mapId).stations[soundId] ?? EMPTY_STATION_PROGRESS;
+  return (
+    getMapProgressFrom(state, mapId).stations[soundId] ?? EMPTY_STATION_PROGRESS
+  );
 }
 
 /** A whole map's finished turns, for the map card and the parent view. */
@@ -331,7 +333,8 @@ export function countMapCompletions(map: BeginnerMapProgress): number {
 
 /** How many of a map's stations the child has walked up to. */
 export function countMapVisited(map: BeginnerMapProgress): number {
-  return Object.values(map.stations).filter((station) => station.visited).length;
+  return Object.values(map.stations).filter((station) => station.visited)
+    .length;
 }
 
 /**

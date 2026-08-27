@@ -31,11 +31,11 @@
  * ## `collected` — the one game-defined field
  *
  * Some mini-games have a completion concept beyond a high score: Sound Match
- * finishes *sets*, Story Builder finishes *stories*, Colour & Shape Hunt
- * finds *objects*. Rather than three bespoke keys, each game writes its own
- * permanent ids into `collected`. The framework never interprets them; only
- * the game that wrote them does. That keeps one sanitizer honest for six
- * games without pretending the games are the same.
+ * finishes *sets*, Colour & Shape Hunt finds *objects*. Rather than a bespoke
+ * key each, every game writes its own permanent ids into `collected`. The
+ * framework never interprets them; only the game that wrote them does. That
+ * keeps one sanitizer honest for every game without pretending the games are
+ * the same.
  *
  * ## Backward and forward compatibility
  *

@@ -98,6 +98,9 @@ export function getProgressStore(): ProgressStore {
   if (cached) return cached;
   const url = process.env.KV_REST_API_URL;
   const token = process.env.KV_REST_API_TOKEN;
-  cached = url && token ? new KvProgressStore(url, token) : new UnavailableProgressStore();
+  cached =
+    url && token
+      ? new KvProgressStore(url, token)
+      : new UnavailableProgressStore();
   return cached;
 }

@@ -16,7 +16,10 @@
  * gets edited.
  */
 
-import type { ContentPackId, MiniLearningLevel } from "@/content/minigames/types";
+import type {
+  ContentPackId,
+  MiniLearningLevel,
+} from "@/content/minigames/types";
 import { listContentPacks } from "@/content/minigames";
 import type { ContentCapability } from "@/content/minigames/types";
 import {
@@ -24,7 +27,6 @@ import {
   GAME_COLOR_SHAPE_HUNT,
   GAME_GUESS_THE_SOUND,
   GAME_SOUND_MATCH,
-  GAME_STORY_BUILDER,
   type MiniGameId,
 } from "@/platform/games/registry";
 
@@ -36,8 +38,8 @@ import {
  *
  * - `gate-once` — one speech target before the round starts, then play.
  *   Bubble Blast, so a thirty-second arcade round stays arcade-paced.
- * - `per-round` — a speech moment on each round of the game. Sound Match
- *   and Story Builder, where the rounds are already slow enough to carry it.
+ * - `per-round` — a speech moment on each round of the game. Sound Match,
+ *   where the rounds are already slow enough to carry it.
  * - `optional` — the game runs on touch and offers the speech moment as a
  *   celebration rather than a gate. Colour & Shape Hunt and Guess the Sound,
  *   where §5 explicitly warns that requiring the microphone on every tap
@@ -128,25 +130,17 @@ const MINI_GAMES: MiniGameDefinition[] = [
     number: "06",
     levels: ["beginner", "intermediate", "expert"],
     requires: ["listen"],
-    packs: ["animal-world", "things-that-go", "around-the-house", "outside-adventures"],
+    packs: [
+      "animal-world",
+      "things-that-go",
+      "around-the-house",
+      "outside-adventures",
+    ],
     defaultPack: "animal-world",
     speech: "optional",
     sessionLabel: "8 sounds",
     pointsPerCorrect: 100,
     pointsPerCoin: 90,
-    powerUps: false,
-  },
-  {
-    id: GAME_STORY_BUILDER,
-    number: "08",
-    levels: ["beginner", "intermediate", "expert"],
-    requires: ["sentence"],
-    packs: ["animal-world", "food-fun", "things-that-go", "outside-adventures", "action-time"],
-    defaultPack: "animal-world",
-    speech: "per-round",
-    sessionLabel: "4 scenes",
-    pointsPerCorrect: 100,
-    pointsPerCoin: 60,
     powerUps: false,
   },
 ];

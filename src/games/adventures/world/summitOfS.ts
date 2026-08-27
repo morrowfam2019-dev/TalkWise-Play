@@ -1,9 +1,4 @@
-import type {
-  Collectible,
-  Decoration,
-  Solid,
-  WorldDefinition,
-} from "./types";
+import type { Collectible, Decoration, Solid, WorldDefinition } from "./types";
 
 /**
  * SUMMIT OF S — a switchback ridge. Action: JUMP.
@@ -98,19 +93,85 @@ const decorations: Decoration[] = [
   { id: "sr6", kind: "rock", position: [11, T4, -10], scale: 0.8 },
   { id: "sr7", kind: "rock", position: [-14, PEAK, -19], scale: 0.9 },
 
-  { id: "sf1", kind: "flower", position: [-6, 0, 22], scale: 1, color: "#c7a6ff" },
-  { id: "sf2", kind: "flower", position: [7, T1, 18], scale: 1, color: "#ffd76a" },
-  { id: "sf3", kind: "flower", position: [-7, T2, 10], scale: 1, color: "#c7a6ff" },
+  {
+    id: "sf1",
+    kind: "flower",
+    position: [-6, 0, 22],
+    scale: 1,
+    color: "#c7a6ff",
+  },
+  {
+    id: "sf2",
+    kind: "flower",
+    position: [7, T1, 18],
+    scale: 1,
+    color: "#ffd76a",
+  },
+  {
+    id: "sf3",
+    kind: "flower",
+    position: [-7, T2, 10],
+    scale: 1,
+    color: "#c7a6ff",
+  },
 
   // Ice spires flanking every switchback, so the next turn is findable.
-  { id: "sc1", kind: "crystal", position: [-17, T1, 15.4], scale: 0.9, color: "#dff3ff" },
-  { id: "sc2", kind: "crystal", position: [-12.4, T1, 13], scale: 0.9, color: "#dff3ff" },
-  { id: "sc3", kind: "crystal", position: [17, T2, 7.4], scale: 0.9, color: "#dff3ff" },
-  { id: "sc4", kind: "crystal", position: [12.4, T2, 5], scale: 0.9, color: "#dff3ff" },
-  { id: "sc5", kind: "crystal", position: [-17, T3, -0.6], scale: 0.9, color: "#dff3ff" },
-  { id: "sc6", kind: "crystal", position: [-12.4, T3, -3], scale: 0.9, color: "#dff3ff" },
-  { id: "sc7", kind: "crystal", position: [17, T4, -8.6], scale: 0.9, color: "#dff3ff" },
-  { id: "sc8", kind: "crystal", position: [12.4, T4, -11], scale: 0.9, color: "#dff3ff" },
+  {
+    id: "sc1",
+    kind: "crystal",
+    position: [-17, T1, 15.4],
+    scale: 0.9,
+    color: "#dff3ff",
+  },
+  {
+    id: "sc2",
+    kind: "crystal",
+    position: [-12.4, T1, 13],
+    scale: 0.9,
+    color: "#dff3ff",
+  },
+  {
+    id: "sc3",
+    kind: "crystal",
+    position: [17, T2, 7.4],
+    scale: 0.9,
+    color: "#dff3ff",
+  },
+  {
+    id: "sc4",
+    kind: "crystal",
+    position: [12.4, T2, 5],
+    scale: 0.9,
+    color: "#dff3ff",
+  },
+  {
+    id: "sc5",
+    kind: "crystal",
+    position: [-17, T3, -0.6],
+    scale: 0.9,
+    color: "#dff3ff",
+  },
+  {
+    id: "sc6",
+    kind: "crystal",
+    position: [-12.4, T3, -3],
+    scale: 0.9,
+    color: "#dff3ff",
+  },
+  {
+    id: "sc7",
+    kind: "crystal",
+    position: [17, T4, -8.6],
+    scale: 0.9,
+    color: "#dff3ff",
+  },
+  {
+    id: "sc8",
+    kind: "crystal",
+    position: [12.4, T4, -11],
+    scale: 0.9,
+    color: "#dff3ff",
+  },
 
   { id: "scl1", kind: "cloud", position: [-18, 14, 8], scale: 2.6 },
   { id: "scl2", kind: "cloud", position: [17, 17, -4], scale: 3 },

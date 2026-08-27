@@ -33,7 +33,9 @@ export default async function ProtectedLayout({
   }
 
   if (!access.allowed) {
-    redirect(access.mode === "not-entitled" ? "/locked?reason=membership" : "/locked");
+    redirect(
+      access.mode === "not-entitled" ? "/locked?reason=membership" : "/locked",
+    );
   }
 
   return (

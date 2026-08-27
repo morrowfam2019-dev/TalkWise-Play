@@ -52,8 +52,8 @@ export default async function LockedPage({
         <p className="mt-2 text-base font-semibold text-[#4a4a60]">{body}</p>
 
         <p className="mt-6 text-xs font-semibold text-[#8a8aa0]">
-          Already a member? Open TalkWise Play from inside your TalkWise
-          Academy account and it will launch here automatically.
+          Already a member? Open TalkWise Play from inside your TalkWise Academy
+          account and it will launch here automatically.
         </p>
       </div>
     </main>

@@ -168,7 +168,13 @@ function normalize(scene: THREE.Object3D) {
  * normalizes the model, and positions the held-ball prop. There is no
  * per-limb animation for any baller — see `stripSkinning` for why.
  */
-function BallerModel({ ballerId, phase }: { ballerId: string; phase: ShotPhase }) {
+function BallerModel({
+  ballerId,
+  phase,
+}: {
+  ballerId: string;
+  phase: ShotPhase;
+}) {
   const url = MODEL_URL[ballerId] ?? MODEL_URL.cosmo;
   const gltf = useLoader(GLTFLoader, url, (loader) => {
     (loader as GLTFLoader).setDRACOLoader(getDracoLoader());
@@ -253,11 +259,15 @@ export function BallerAvatar({
     }
     prevPhase.current = phase;
 
-    const elapsed = celebrateStart.current === null ? Infinity : t - celebrateStart.current;
+    const elapsed =
+      celebrateStart.current === null ? Infinity : t - celebrateStart.current;
     const celebrating = elapsed < CELEBRATION_SECONDS;
     const progress = celebrating ? elapsed / CELEBRATION_SECONDS : null;
 
-    const idleBob = phase === "idle" || phase === "aiming" ? Math.sin(bob.current * 2.4) * 0.02 : 0;
+    const idleBob =
+      phase === "idle" || phase === "aiming"
+        ? Math.sin(bob.current * 2.4) * 0.02
+        : 0;
 
     if (root.current) {
       if (progress !== null) {
@@ -265,7 +275,8 @@ export function BallerAvatar({
         // celebration is a jump-and-spin of the whole body rather than an
         // arm pump — one full 360, landing back at `facing` exactly as the
         // jump completes.
-        root.current.position.y = Math.sin(progress * Math.PI) * CELEBRATION_JUMP_HEIGHT;
+        root.current.position.y =
+          Math.sin(progress * Math.PI) * CELEBRATION_JUMP_HEIGHT;
         root.current.rotation.y = facing + progress * Math.PI * 2;
       } else {
         root.current.position.y = idleBob;
@@ -281,7 +292,12 @@ export function BallerAvatar({
     if (face.current && faceMaterial.current) {
       if (progress !== null) {
         face.current.visible = true;
-        const fade = progress < 0.15 ? progress / 0.15 : progress > 0.85 ? (1 - progress) / 0.15 : 1;
+        const fade =
+          progress < 0.15
+            ? progress / 0.15
+            : progress > 0.85
+              ? (1 - progress) / 0.15
+              : 1;
         faceMaterial.current.opacity = Math.max(0, fade);
         const scale = 0.32 + Math.min(1, progress / 0.15) * 0.1;
         face.current.scale.setScalar(scale);
@@ -292,7 +308,8 @@ export function BallerAvatar({
 
     // Every baller is a rigid mesh now (see stripSkinning), so "shooting"
     // reads as a lean into the shot rather than an arm raise.
-    const targetLean = phase === "aiming" ? -0.18 : phase === "releasing" ? -0.32 : 0;
+    const targetLean =
+      phase === "aiming" ? -0.18 : phase === "releasing" ? -0.32 : 0;
     if (lean.current) {
       lean.current.rotation.x += (targetLean - lean.current.rotation.x) * lerp;
     }
@@ -304,7 +321,11 @@ export function BallerAvatar({
         <BallerModel ballerId={ballerId} phase={phase} />
       </group>
       {/* Celebration face — see the imperative toggle above. */}
-      <sprite ref={face} position={[0, TARGET_HEIGHT + 0.32, 0]} visible={false}>
+      <sprite
+        ref={face}
+        position={[0, TARGET_HEIGHT + 0.32, 0]}
+        visible={false}
+      >
         <spriteMaterial
           ref={faceMaterial}
           map={getSmileyTexture()}

@@ -32,11 +32,46 @@ export interface CourtSpot {
  * genuinely different shot, not a repeat.
  */
 export const COURT_SPOTS: CourtSpot[] = [
-  { id: "close", tier: "close", label: "Close", points: 1, angle: 0, distance: 3.2 },
-  { id: "wing-right", tier: "wing", label: "Wing", points: 2, angle: 0.55, distance: 5.4 },
-  { id: "wing-left", tier: "wing", label: "Opposite Wing", points: 2, angle: -0.55, distance: 5.4 },
-  { id: "corner-right", tier: "corner", label: "Corner", points: 2, angle: 1.15, distance: 6.2 },
-  { id: "long", tier: "long", label: "Long Range", points: 3, angle: 0.25, distance: 8.4 },
+  {
+    id: "close",
+    tier: "close",
+    label: "Close",
+    points: 1,
+    angle: 0,
+    distance: 3.2,
+  },
+  {
+    id: "wing-right",
+    tier: "wing",
+    label: "Wing",
+    points: 2,
+    angle: 0.55,
+    distance: 5.4,
+  },
+  {
+    id: "wing-left",
+    tier: "wing",
+    label: "Opposite Wing",
+    points: 2,
+    angle: -0.55,
+    distance: 5.4,
+  },
+  {
+    id: "corner-right",
+    tier: "corner",
+    label: "Corner",
+    points: 2,
+    angle: 1.15,
+    distance: 6.2,
+  },
+  {
+    id: "long",
+    tier: "long",
+    label: "Long Range",
+    points: 3,
+    angle: 0.25,
+    distance: 8.4,
+  },
 ];
 
 /** Playing order for one 10-shot round: each spot twice, easiest first. */

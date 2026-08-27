@@ -209,7 +209,8 @@ export function GameShell({ level, onExit }: GameShellProps) {
     );
   }
 
-  const activeChallenge = activeIndex === null ? null : level.challenges[activeIndex];
+  const activeChallenge =
+    activeIndex === null ? null : level.challenges[activeIndex];
 
   return (
     <div className="relative h-[100dvh] w-full overflow-hidden overscroll-none bg-[#8fd8f5] select-none">
@@ -244,7 +245,9 @@ export function GameShell({ level, onExit }: GameShellProps) {
           totalCheckpoints={total}
           coins={coins}
           nearWord={
-            nearIndex === null ? null : (level.challenges[nearIndex]?.word ?? null)
+            nearIndex === null
+              ? null
+              : (level.challenges[nearIndex]?.word ?? null)
           }
           action={world.action}
           finishUnlocked={completedCount === total}

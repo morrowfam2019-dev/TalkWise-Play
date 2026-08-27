@@ -1,5 +1,8 @@
 import { notFound } from "next/navigation";
-import { getExplorerMap, listExplorerMaps } from "@/games/adventures/explorer/maps";
+import {
+  getExplorerMap,
+  listExplorerMaps,
+} from "@/games/adventures/explorer/maps";
 import { ExplorerRunner } from "./ExplorerRunner";
 
 export function generateStaticParams() {

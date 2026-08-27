@@ -1,9 +1,4 @@
-import type {
-  Collectible,
-  Decoration,
-  Solid,
-  WorldDefinition,
-} from "./types";
+import type { Collectible, Decoration, Solid, WorldDefinition } from "./types";
 
 /**
  * PARTY PLAZA OF P — a hub and four stalls. Action: SLIDE.
@@ -59,9 +54,7 @@ function slab(
 }
 
 /** One walled stall with a banner across its mouth, built along an axis. */
-function stall(
-  side: "south" | "east" | "north" | "west",
-): Solid[] {
+function stall(side: "south" | "east" | "north" | "west"): Solid[] {
   const wall = (a: number, b: number, c: number, d: number) =>
     slab(a, b, c, d, BANNER_TOP_Y, -1, STALL, STALL_TOP);
   const banner = (a: number, b: number, c: number, d: number) =>
@@ -124,24 +117,120 @@ const decorations: Decoration[] = [
   { id: "pt10", kind: "pine", position: [24, 0, -2], scale: 0.9 },
 
   // Balloon-bright flowers lining the four lanes into the stalls.
-  { id: "pf1", kind: "flower", position: [-6, 0, 10], scale: 1, color: "#ff6f91" },
-  { id: "pf2", kind: "flower", position: [6, 0, 10], scale: 1, color: "#ffb347" },
-  { id: "pf3", kind: "flower", position: [10, 0, -6], scale: 1, color: "#7fd8ff" },
-  { id: "pf4", kind: "flower", position: [10, 0, 6], scale: 1, color: "#ff6f91" },
-  { id: "pf5", kind: "flower", position: [-6, 0, -10], scale: 1, color: "#ffb347" },
-  { id: "pf6", kind: "flower", position: [6, 0, -10], scale: 1, color: "#7fd8ff" },
-  { id: "pf7", kind: "flower", position: [-10, 0, 6], scale: 1, color: "#ff6f91" },
-  { id: "pf8", kind: "flower", position: [-10, 0, -6], scale: 1, color: "#ffb347" },
+  {
+    id: "pf1",
+    kind: "flower",
+    position: [-6, 0, 10],
+    scale: 1,
+    color: "#ff6f91",
+  },
+  {
+    id: "pf2",
+    kind: "flower",
+    position: [6, 0, 10],
+    scale: 1,
+    color: "#ffb347",
+  },
+  {
+    id: "pf3",
+    kind: "flower",
+    position: [10, 0, -6],
+    scale: 1,
+    color: "#7fd8ff",
+  },
+  {
+    id: "pf4",
+    kind: "flower",
+    position: [10, 0, 6],
+    scale: 1,
+    color: "#ff6f91",
+  },
+  {
+    id: "pf5",
+    kind: "flower",
+    position: [-6, 0, -10],
+    scale: 1,
+    color: "#ffb347",
+  },
+  {
+    id: "pf6",
+    kind: "flower",
+    position: [6, 0, -10],
+    scale: 1,
+    color: "#7fd8ff",
+  },
+  {
+    id: "pf7",
+    kind: "flower",
+    position: [-10, 0, 6],
+    scale: 1,
+    color: "#ff6f91",
+  },
+  {
+    id: "pf8",
+    kind: "flower",
+    position: [-10, 0, -6],
+    scale: 1,
+    color: "#ffb347",
+  },
 
   // Crystals flanking every banner, marking where to duck.
-  { id: "pc1", kind: "crystal", position: [-5, 0, 13], scale: 0.85, color: "#ffb3d1" },
-  { id: "pc2", kind: "crystal", position: [5, 0, 13], scale: 0.85, color: "#ffb3d1" },
-  { id: "pc3", kind: "crystal", position: [13, 0, -5], scale: 0.85, color: "#ffb3d1" },
-  { id: "pc4", kind: "crystal", position: [13, 0, 5], scale: 0.85, color: "#ffb3d1" },
-  { id: "pc5", kind: "crystal", position: [-5, 0, -13], scale: 0.85, color: "#ffb3d1" },
-  { id: "pc6", kind: "crystal", position: [5, 0, -13], scale: 0.85, color: "#ffb3d1" },
-  { id: "pc7", kind: "crystal", position: [-13, 0, -5], scale: 0.85, color: "#ffb3d1" },
-  { id: "pc8", kind: "crystal", position: [-13, 0, 5], scale: 0.85, color: "#ffb3d1" },
+  {
+    id: "pc1",
+    kind: "crystal",
+    position: [-5, 0, 13],
+    scale: 0.85,
+    color: "#ffb3d1",
+  },
+  {
+    id: "pc2",
+    kind: "crystal",
+    position: [5, 0, 13],
+    scale: 0.85,
+    color: "#ffb3d1",
+  },
+  {
+    id: "pc3",
+    kind: "crystal",
+    position: [13, 0, -5],
+    scale: 0.85,
+    color: "#ffb3d1",
+  },
+  {
+    id: "pc4",
+    kind: "crystal",
+    position: [13, 0, 5],
+    scale: 0.85,
+    color: "#ffb3d1",
+  },
+  {
+    id: "pc5",
+    kind: "crystal",
+    position: [-5, 0, -13],
+    scale: 0.85,
+    color: "#ffb3d1",
+  },
+  {
+    id: "pc6",
+    kind: "crystal",
+    position: [5, 0, -13],
+    scale: 0.85,
+    color: "#ffb3d1",
+  },
+  {
+    id: "pc7",
+    kind: "crystal",
+    position: [-13, 0, -5],
+    scale: 0.85,
+    color: "#ffb3d1",
+  },
+  {
+    id: "pc8",
+    kind: "crystal",
+    position: [-13, 0, 5],
+    scale: 0.85,
+    color: "#ffb3d1",
+  },
 
   // Stage dressing.
   { id: "pr1", kind: "rock", position: [-4.5, STAGE_TOP_Y, 4.5], scale: 0.6 },

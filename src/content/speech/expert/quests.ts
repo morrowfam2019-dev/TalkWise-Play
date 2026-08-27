@@ -250,7 +250,8 @@ function questFromShell(shell: QuestShell): ExpertQuest | undefined {
       setup: shell.setups[index] ?? shell.setups[shell.setups.length - 1],
       ask: ASK_BY_KIND[kind],
       sentence,
-      outcome: shell.outcomes[index] ?? shell.outcomes[shell.outcomes.length - 1],
+      outcome:
+        shell.outcomes[index] ?? shell.outcomes[shell.outcomes.length - 1],
       glyph: shell.characterGlyph,
       reward: SCENE_REWARD,
     };
@@ -292,6 +293,8 @@ export function getExpertQuest(id: string): ExpertQuest | undefined {
   return QUESTS.find((quest) => quest.id === id);
 }
 
-export function getExpertQuestForSound(soundId: string): ExpertQuest | undefined {
+export function getExpertQuestForSound(
+  soundId: string,
+): ExpertQuest | undefined {
   return QUESTS.find((quest) => quest.soundId === soundId);
 }

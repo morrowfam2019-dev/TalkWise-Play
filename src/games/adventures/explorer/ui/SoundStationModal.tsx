@@ -259,9 +259,7 @@ export function SoundStationModal({
         <p className="mt-3 text-3xl font-black tracking-tight text-[#141420]">
           Say {sound.model}
         </p>
-        <p className="mt-1 text-base font-bold text-[#6b6b80]">
-          {sound.cue}
-        </p>
+        <p className="mt-1 text-base font-bold text-[#6b6b80]">{sound.cue}</p>
 
         <Repetitions done={done} total={sound.repetitions} />
 

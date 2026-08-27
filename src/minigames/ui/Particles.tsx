@@ -36,7 +36,12 @@ export interface Burst {
 export interface ParticleApi {
   bursts: Burst[];
   /** Fires a burst at a point given as stage percentages. */
-  burst: (xPercent: number, yPercent: number, glyph?: string, tint?: string) => void;
+  burst: (
+    xPercent: number,
+    yPercent: number,
+    glyph?: string,
+    tint?: string,
+  ) => void;
   clear: () => void;
 }
 
@@ -47,11 +52,19 @@ export function useParticles(): ParticleApi {
   const burst = useCallback(
     (xPercent: number, yPercent: number, glyph = "✨", tint = "#f5c33b") => {
       keyRef.current += 1;
-      const entry: Burst = { key: keyRef.current, xPercent, yPercent, glyph, tint };
+      const entry: Burst = {
+        key: keyRef.current,
+        xPercent,
+        yPercent,
+        glyph,
+        tint,
+      };
       setBursts((current) => {
         const next = [...current, entry];
         // Ring buffer: drop the oldest rather than letting the list grow.
-        return next.length > MAX_BURSTS ? next.slice(next.length - MAX_BURSTS) : next;
+        return next.length > MAX_BURSTS
+          ? next.slice(next.length - MAX_BURSTS)
+          : next;
       });
     },
     [],
@@ -69,7 +82,10 @@ export function useParticles(): ParticleApi {
  */
 export function ParticleLayer({ bursts }: { bursts: Burst[] }) {
   return (
-    <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
+    <div
+      className="pointer-events-none absolute inset-0 overflow-hidden"
+      aria-hidden
+    >
       {bursts.map((entry) => (
         <div
           key={entry.key}

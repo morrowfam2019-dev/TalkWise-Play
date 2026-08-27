@@ -106,7 +106,9 @@ try {
   ].filter((entry) => !filter || entry.world.id === filter);
 
   if (levels.length === 0) {
-    throw new Error(filter ? `world '${filter}' not found` : "no worlds registered");
+    throw new Error(
+      filter ? `world '${filter}' not found` : "no worlds registered",
+    );
   }
 
   let totalProblems = 0;
@@ -145,7 +147,8 @@ function verifyWorld(
   // --- 1. Placement audit ---------------------------------------------------
   console.log("PLACEMENT AUDIT");
 
-  const surfaceAt = (x, z) => groundHeightAt(boxes, x, z, Number.POSITIVE_INFINITY);
+  const surfaceAt = (x, z) =>
+    groundHeightAt(boxes, x, z, Number.POSITIVE_INFINITY);
 
   for (const anchor of world.checkpoints) {
     const [x, y, z] = anchor.position;
@@ -452,7 +455,11 @@ function buildRoute(world) {
     });
   } else {
     for (let i = 2; i < cp.length; i += 1) {
-      route.push({ name: `CP${i + 1} ${cp[i].id}`, target: cp[i].position, goal: 2.0 });
+      route.push({
+        name: `CP${i + 1} ${cp[i].id}`,
+        target: cp[i].position,
+        goal: 2.0,
+      });
     }
   }
 

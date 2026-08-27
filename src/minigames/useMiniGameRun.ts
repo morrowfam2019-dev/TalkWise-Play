@@ -47,7 +47,10 @@ import {
   type MiniGameReward,
 } from "./rewards";
 import type { MiniSessionSummary } from "./session";
-import { useMiniGameSession, type MiniGameSessionApi } from "./useMiniGameSession";
+import {
+  useMiniGameSession,
+  type MiniGameSessionApi,
+} from "./useMiniGameSession";
 import type { MiniGameDefinition } from "./registry";
 
 export type RunPhase = "intro" | "playing" | "results";
@@ -135,7 +138,12 @@ export function useMiniGameRun(options: {
 
       // Read both of these off the *pre-merge* profile. See the ordering
       // note at the top of this file.
-      const personalBest = isMiniPersonalBest(state, packId, level, finished.score);
+      const personalBest = isMiniPersonalBest(
+        state,
+        packId,
+        level,
+        finished.score,
+      );
       const sessionsToday = getMiniPlaysToday(state);
 
       const earned = computeMiniGameReward({

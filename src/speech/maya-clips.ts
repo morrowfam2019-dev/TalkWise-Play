@@ -60,5 +60,4 @@ export const MAYA_SOUND_CLIPS: readonly string[] = [
 ];
 
 /** Sentence slugs with a clip at `/audio/maya/sentences/<slug>.mp3`. */
-export const MAYA_SENTENCE_CLIPS: readonly string[] = [
-];
+export const MAYA_SENTENCE_CLIPS: readonly string[] = [];

@@ -145,7 +145,11 @@ class MiniGameAudio {
     for (let i = 0; i < length; i += 1) {
       const t = i / length;
       const envelope =
-        shape === "decay" ? 1 - t : shape === "swell" ? Math.sin(Math.PI * t) : 1;
+        shape === "decay"
+          ? 1 - t
+          : shape === "swell"
+            ? Math.sin(Math.PI * t)
+            : 1;
       data[i] = (Math.random() * 2 - 1) * envelope;
     }
 
@@ -193,18 +197,36 @@ class MiniGameAudio {
    * registers, which is exactly the brief.
    */
   gentleMiss(): void {
-    this.tone({ freq: 300, duration: 0.1, type: "sine", gain: 0.045, sweepTo: 240 });
+    this.tone({
+      freq: 300,
+      duration: 0.1,
+      type: "sine",
+      gain: 0.045,
+      sweepTo: 240,
+    });
   }
 
   /** A bubble popping. */
   pop(): void {
-    this.tone({ freq: 620, duration: 0.06, type: "sine", gain: 0.07, sweepTo: 1200 });
+    this.tone({
+      freq: 620,
+      duration: 0.06,
+      type: "sine",
+      gain: 0.07,
+      sweepTo: 1200,
+    });
     this.noise({ duration: 0.05, gain: 0.03, filterHz: 2200, shape: "decay" });
   }
 
   /** An object snapping into a drop target. */
   snap(): void {
-    this.tone({ freq: 480, duration: 0.07, type: "square", gain: 0.05, sweepTo: 760 });
+    this.tone({
+      freq: 480,
+      duration: 0.07,
+      type: "square",
+      gain: 0.05,
+      sweepTo: 760,
+    });
   }
 
   /** One tick of the 3-2-1 lead-in. */
@@ -215,7 +237,13 @@ class MiniGameAudio {
   /** The "GO!" that starts a timed round. */
   countdownGo(): void {
     this.tone({ freq: 784, duration: 0.16, type: "triangle", gain: 0.09 });
-    this.tone({ freq: 1047, duration: 0.22, type: "triangle", gain: 0.08, delay: 0.1 });
+    this.tone({
+      freq: 1047,
+      duration: 0.22,
+      type: "triangle",
+      gain: 0.08,
+      delay: 0.1,
+    });
   }
 
   /** Urgency pip for each of the final seconds. */
@@ -239,7 +267,13 @@ class MiniGameAudio {
 
   /** A power-up switching on. */
   powerUp(): void {
-    this.tone({ freq: 392, duration: 0.5, type: "triangle", gain: 0.08, sweepTo: 1568 });
+    this.tone({
+      freq: 392,
+      duration: 0.5,
+      type: "triangle",
+      gain: 0.08,
+      sweepTo: 1568,
+    });
     this.noise({ duration: 0.4, gain: 0.03, filterHz: 3000, shape: "swell" });
   }
 

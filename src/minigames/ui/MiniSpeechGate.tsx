@@ -223,7 +223,8 @@ export function MiniSpeechGate({
     onMicEnabledChange(false);
   };
 
-  const listening = micPermission === "granted" && listeningStatus === "listening";
+  const listening =
+    micPermission === "granted" && listeningStatus === "listening";
 
   return (
     <div
@@ -282,7 +283,10 @@ export function MiniSpeechGate({
         {/* §17's voice-detected reaction: the wave animates while the
             microphone is open, so a child can see that it is listening. */}
         {listening ? (
-          <div className="mt-3 flex h-8 items-end justify-center gap-1" aria-hidden>
+          <div
+            className="mt-3 flex h-8 items-end justify-center gap-1"
+            aria-hidden
+          >
             {[0, 1, 2, 3, 4].map((bar) => (
               <span
                 key={bar}

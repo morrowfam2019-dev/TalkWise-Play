@@ -16,7 +16,7 @@ the platform, and neither can reach into the other.
 src/
   platform/          Whop identity, entitlement, launch bridge, game registry
   speech/            Shared speech services: recognition + Miss Maya's voice
-  minigames/         The Mini Game framework (SDK) shared by GAME-003…008
+  minigames/         The Mini Game framework (SDK) shared by the mini-games
                      registry.ts  what each mini-game needs
                      session.ts   scoring, combos, accuracy (pure)
                      rewards.ts   the one coin formula + anti-farming
@@ -38,7 +38,7 @@ src/
                      explorer/  BEGINNER — open maps, sound stations
                      expert/    EXPERT — sentence story shell
     basketball/      GAME-002 engine — court, shot meter, round logic
-    minigames/       GAME-003…008 — one folder per mini-game, gameplay only
+    minigames/       GAME-003…006 — one folder per mini-game, gameplay only
   player/            Child profiles, wallet, per-game namespaces, persistence
   ui/                Platform-level shared components
     gameArt/         Original inline-SVG card art for the mini-games
@@ -72,12 +72,12 @@ read from it.
 | `GAME-004` | Sound Match | `/games/sound-match` | Quick Play |
 | `GAME-005` | Colour & Shape Hunt | `/games/color-shape-hunt` | Quick Play |
 | `GAME-006` | Guess the Sound | `/games/guess-the-sound` | Quick Play |
-| `GAME-008` | Story Builder | `/games/story-builder` | Quick Play |
 
-`GAME-007` is absent on purpose. Action Dash was built, shipped, and then
-cut on founder review; its id is **retired, not free**. A future game takes
-the next unused number, because a saved profile out there may still carry a
-`GAME-007` slice and reusing the id would hand one game another's records.
+`GAME-007` and `GAME-008` are absent on purpose. Action Dash and Story
+Builder were both built, shipped, and then cut on founder review; their ids
+are **retired, not free**. A future game takes `GAME-009`, because a saved
+profile out there may still carry a `GAME-007` or `GAME-008` slice and
+reusing either id would hand one game another's records.
 
 **Permanent ids are immutable.** They are written into saved progress,
 inventories and high scores. `displayName` is the only thing marketing may
@@ -97,7 +97,7 @@ Household
         └── games
               ├── GAME-001 → { owned, loadout, levels, beginner, expert }
               ├── GAME-002 → { owned, loadout, highScores, modes, … }
-              └── GAME-003…008 → { records, collected, dailyPlays, … }
+              └── GAME-003…006 → { records, collected, dailyPlays, … }
 ```
 
 Anything that belongs to the *child* is platform-level. Anything that
@@ -592,7 +592,7 @@ transcript or audio. There is no field to put one in.
    namespace via `buyItem(GAME_00N, item)` — and widen `ShopGameId`, which is
    deliberately narrow so that adding a shop is an explicit decision.
 6. Add it to the planners table in `scripts/verify-minigames.mjs`, so its
-   pack × level × seed coverage is checked like the other six.
+   pack × level × seed coverage is checked like the others.
 
 Nothing in an existing game should need editing. If it does, the abstraction
 is wrong — fix that rather than working around it.

@@ -1,7 +1,7 @@
 /**
- * Colours, shapes and action verbs — the vocabulary Colour & Shape Hunt and
- * Story Builder teach, and the descriptors every other mini-game can layer
- * on top of a content item.
+ * Colours, shapes and action verbs — the vocabulary Colour & Shape Hunt
+ * teaches, and the descriptors every other mini-game can layer on top of a
+ * content item.
  *
  * Kept out of the packs so that "blue" is defined exactly once. A pack item
  * says `color: "blue"`; what blue *looks like*, what it is called, and how
@@ -27,14 +27,62 @@ export interface ColorDefinition {
 }
 
 export const COLORS: ColorDefinition[] = [
-  { id: "red", label: "red", swatch: "#f0483d", shade: "#b32b22", ink: "#ffffff" },
-  { id: "blue", label: "blue", swatch: "#2f7fd4", shade: "#1c5292", ink: "#ffffff" },
-  { id: "yellow", label: "yellow", swatch: "#f5c33b", shade: "#c2921a", ink: "#141420" },
-  { id: "green", label: "green", swatch: "#3fbf62", shade: "#248441", ink: "#ffffff" },
-  { id: "orange", label: "orange", swatch: "#ff8a3d", shade: "#c95c17", ink: "#141420" },
-  { id: "purple", label: "purple", swatch: "#a273e8", shade: "#6f45b0", ink: "#ffffff" },
-  { id: "pink", label: "pink", swatch: "#ff87c2", shade: "#cc5090", ink: "#141420" },
-  { id: "brown", label: "brown", swatch: "#a5713f", shade: "#6f4a26", ink: "#ffffff" },
+  {
+    id: "red",
+    label: "red",
+    swatch: "#f0483d",
+    shade: "#b32b22",
+    ink: "#ffffff",
+  },
+  {
+    id: "blue",
+    label: "blue",
+    swatch: "#2f7fd4",
+    shade: "#1c5292",
+    ink: "#ffffff",
+  },
+  {
+    id: "yellow",
+    label: "yellow",
+    swatch: "#f5c33b",
+    shade: "#c2921a",
+    ink: "#141420",
+  },
+  {
+    id: "green",
+    label: "green",
+    swatch: "#3fbf62",
+    shade: "#248441",
+    ink: "#ffffff",
+  },
+  {
+    id: "orange",
+    label: "orange",
+    swatch: "#ff8a3d",
+    shade: "#c95c17",
+    ink: "#141420",
+  },
+  {
+    id: "purple",
+    label: "purple",
+    swatch: "#a273e8",
+    shade: "#6f45b0",
+    ink: "#ffffff",
+  },
+  {
+    id: "pink",
+    label: "pink",
+    swatch: "#ff87c2",
+    shade: "#cc5090",
+    ink: "#141420",
+  },
+  {
+    id: "brown",
+    label: "brown",
+    swatch: "#a5713f",
+    shade: "#6f4a26",
+    ink: "#ffffff",
+  },
 ];
 
 const COLOR_BY_ID = new Map(COLORS.map((color) => [color.id, color]));
@@ -133,16 +181,86 @@ export interface ActionDefinition {
 }
 
 export const ACTIONS: ActionDefinition[] = [
-  { id: "jump", label: "jump", progressive: "jumping", phrase: "jump high", glyph: "🦘", animation: "tw-act-jump" },
-  { id: "run", label: "run", progressive: "running", phrase: "run fast", glyph: "🏃", animation: "tw-act-run" },
-  { id: "clap", label: "clap", progressive: "clapping", phrase: "clap loud", glyph: "👏", animation: "tw-act-clap" },
-  { id: "spin", label: "spin", progressive: "spinning", phrase: "spin around", glyph: "🌀", animation: "tw-act-spin" },
-  { id: "eat", label: "eat", progressive: "eating", phrase: "eat lunch", glyph: "🍎", animation: "tw-act-eat" },
-  { id: "sleep", label: "sleep", progressive: "sleeping", phrase: "sleep well", glyph: "😴", animation: "tw-act-sleep" },
-  { id: "wave", label: "wave", progressive: "waving", phrase: "wave hello", glyph: "👋", animation: "tw-act-wave" },
-  { id: "dance", label: "dance", progressive: "dancing", phrase: "dance along", glyph: "💃", animation: "tw-act-dance" },
-  { id: "drink", label: "drink", progressive: "drinking", phrase: "drink water", glyph: "🥤", animation: "tw-act-drink" },
-  { id: "sit", label: "sit", progressive: "sitting", phrase: "sit down", glyph: "🪑", animation: "tw-act-sit" },
+  {
+    id: "jump",
+    label: "jump",
+    progressive: "jumping",
+    phrase: "jump high",
+    glyph: "🦘",
+    animation: "tw-act-jump",
+  },
+  {
+    id: "run",
+    label: "run",
+    progressive: "running",
+    phrase: "run fast",
+    glyph: "🏃",
+    animation: "tw-act-run",
+  },
+  {
+    id: "clap",
+    label: "clap",
+    progressive: "clapping",
+    phrase: "clap loud",
+    glyph: "👏",
+    animation: "tw-act-clap",
+  },
+  {
+    id: "spin",
+    label: "spin",
+    progressive: "spinning",
+    phrase: "spin around",
+    glyph: "🌀",
+    animation: "tw-act-spin",
+  },
+  {
+    id: "eat",
+    label: "eat",
+    progressive: "eating",
+    phrase: "eat lunch",
+    glyph: "🍎",
+    animation: "tw-act-eat",
+  },
+  {
+    id: "sleep",
+    label: "sleep",
+    progressive: "sleeping",
+    phrase: "sleep well",
+    glyph: "😴",
+    animation: "tw-act-sleep",
+  },
+  {
+    id: "wave",
+    label: "wave",
+    progressive: "waving",
+    phrase: "wave hello",
+    glyph: "👋",
+    animation: "tw-act-wave",
+  },
+  {
+    id: "dance",
+    label: "dance",
+    progressive: "dancing",
+    phrase: "dance along",
+    glyph: "💃",
+    animation: "tw-act-dance",
+  },
+  {
+    id: "drink",
+    label: "drink",
+    progressive: "drinking",
+    phrase: "drink water",
+    glyph: "🥤",
+    animation: "tw-act-drink",
+  },
+  {
+    id: "sit",
+    label: "sit",
+    progressive: "sitting",
+    phrase: "sit down",
+    glyph: "🪑",
+    animation: "tw-act-sit",
+  },
 ];
 
 const ACTION_BY_ID = new Map(ACTIONS.map((action) => [action.id, action]));

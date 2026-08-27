@@ -26,7 +26,9 @@ import { useCallback, useState } from "react";
  * to the real browser" than a script-driven popup or redirect ever is.
  */
 export function LaunchScreen() {
-  const [state, setState] = useState<"idle" | "opening" | "ready" | "error">("idle");
+  const [state, setState] = useState<"idle" | "opening" | "ready" | "error">(
+    "idle",
+  );
   const [message, setMessage] = useState<string | null>(null);
   const [launchUrl, setLaunchUrl] = useState<string | null>(null);
 
@@ -77,8 +79,8 @@ export function LaunchScreen() {
         </div>
 
         <p className="mt-4 text-base font-semibold text-[#4a4a60]">
-          TalkWise Play opens in your normal browser, where the microphone
-          works properly for speech practice.
+          TalkWise Play opens in your normal browser, where the microphone works
+          properly for speech practice.
         </p>
 
         {state === "ready" && launchUrl ? (
@@ -128,8 +130,8 @@ export function LaunchScreen() {
         ) : null}
 
         <p className="mt-4 text-xs font-semibold text-[#8a8aa0]">
-          Your progress is saved to your TalkWise Academy account, so it
-          follows you between devices.
+          Your progress is saved to your TalkWise Academy account, so it follows
+          you between devices.
         </p>
       </div>
     </main>

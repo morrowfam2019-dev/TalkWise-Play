@@ -1,14 +1,21 @@
 /**
  * TJ — TalkWise Play's kid explorer, in his founder-approved colours.
  *
+ * ## Nothing renders him right now
+ *
+ * Action Dash and Story Builder were the two games that put TJ on screen,
+ * and both were cut on founder review. He survives on the library card art
+ * only. This component is kept, unused, because he is an approved character
+ * asset rather than leftover game code: the next game that needs a kid who
+ * *acts* should start from this file, not redraw him.
+ *
  * ## Why he is vector here and photographic on the cards
  *
  * The library cards use the approved illustrated covers, because a card is
  * a fixed image a child recognises. In-game TJ is different: he has to
- * *act*. Story Builder poses him per verb (jump, run, spin, clap …) and
- * has him react to a finished sentence. A vector character
- * recolours, squashes, rotates and scales on the compositor for the cost of
- * one class name, and never has to be re-rendered per pose.
+ * *act* — pose per verb (jump, run, spin, clap …) and react. A vector
+ * character recolours, squashes, rotates and scales on the compositor for
+ * the cost of one class name, and never has to be re-rendered per pose.
  *
  * What changed here is the *design*: he was a generic placeholder kid, and
  * he is now drawn to the approved TJ — warm brown skin, tall rounded
@@ -20,9 +27,8 @@
  *
  * A transparent full-body render of TJ exists (generated from the approved
  * covers via the `tj-talkwise-play` Higgsfield element). To use it instead,
- * save it as `public/characters/tj.png` and set `TJ_PHOTO` below to true —
- * every game picks it up with no other change. It is off by default because
- * the file is not in the repo yet.
+ * save it as `public/characters/tj.png` and set `TJ_PHOTO` below to true.
+ * It is off by default because the file is not in the repo yet.
  */
 
 import Image from "next/image";
@@ -63,7 +69,10 @@ export function TJ({
           priority
         />
         {accessory ? (
-          <span className="absolute -top-2 left-1/2 -translate-x-1/2 text-3xl" aria-hidden>
+          <span
+            className="absolute -top-2 left-1/2 -translate-x-1/2 text-3xl"
+            aria-hidden
+          >
             {accessory}
           </span>
         ) : null}
@@ -74,8 +83,20 @@ export function TJ({
   const eyes =
     mood === "sleep" ? (
       <>
-        <path d="M35 45q6 5 12 0" stroke="#141420" strokeWidth="3" fill="none" strokeLinecap="round" />
-        <path d="M53 45q6 5 12 0" stroke="#141420" strokeWidth="3" fill="none" strokeLinecap="round" />
+        <path
+          d="M35 45q6 5 12 0"
+          stroke="#141420"
+          strokeWidth="3"
+          fill="none"
+          strokeLinecap="round"
+        />
+        <path
+          d="M53 45q6 5 12 0"
+          stroke="#141420"
+          strokeWidth="3"
+          fill="none"
+          strokeLinecap="round"
+        />
       </>
     ) : (
       <>
@@ -110,7 +131,15 @@ export function TJ({
       {/* Legs — navy joggers with the white side stripe from the covers. */}
       <rect x="40" y="92" width="8" height="19" rx="4" fill={JOGGERS} />
       <rect x="52" y="92" width="8" height="19" rx="4" fill={JOGGERS} />
-      <rect x="40.6" y="95" width="1.6" height="12" rx="0.8" fill="#ffffff" opacity="0.75" />
+      <rect
+        x="40.6"
+        y="95"
+        width="1.6"
+        height="12"
+        rx="0.8"
+        fill="#ffffff"
+        opacity="0.75"
+      />
       {/* Trainers */}
       <ellipse cx="43" cy="113" rx="7.5" ry="4.6" fill={SHOE} />
       <ellipse cx="57" cy="113" rx="7.5" ry="4.6" fill={SHOE} />
@@ -162,11 +191,30 @@ export function TJ({
       <circle cx="50" cy="22" r="8.5" fill={HAIR} />
 
       {/* Brows */}
-      <path d="M35 36q6-3.5 11-1" stroke={HAIR} strokeWidth="2.6" fill="none" strokeLinecap="round" />
-      <path d="M65 36q-6-3.5-11-1" stroke={HAIR} strokeWidth="2.6" fill="none" strokeLinecap="round" />
+      <path
+        d="M35 36q6-3.5 11-1"
+        stroke={HAIR}
+        strokeWidth="2.6"
+        fill="none"
+        strokeLinecap="round"
+      />
+      <path
+        d="M65 36q-6-3.5-11-1"
+        stroke={HAIR}
+        strokeWidth="2.6"
+        fill="none"
+        strokeLinecap="round"
+      />
 
       {eyes}
-      <ellipse cx="50" cy="51" rx="3" ry="2.2" fill={SKIN_SHADOW} opacity="0.55" />
+      <ellipse
+        cx="50"
+        cy="51"
+        rx="3"
+        ry="2.2"
+        fill={SKIN_SHADOW}
+        opacity="0.55"
+      />
       {mouth}
       <circle cx="31" cy="54" r="4.4" fill="#e07a6a" opacity="0.4" />
       <circle cx="69" cy="54" r="4.4" fill="#e07a6a" opacity="0.4" />

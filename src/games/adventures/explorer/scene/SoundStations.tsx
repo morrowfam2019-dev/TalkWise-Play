@@ -4,7 +4,11 @@ import { useFrame } from "@react-three/fiber";
 import { useRef } from "react";
 import * as THREE from "three";
 import { getBeginnerSound } from "@/content/speech/beginner";
-import { LABEL_ASPECT, LABEL_DONE, LABEL_PENDING } from "../../core/labelTexture";
+import {
+  LABEL_ASPECT,
+  LABEL_DONE,
+  LABEL_PENDING,
+} from "../../core/labelTexture";
 import { useLabelTexture } from "../../scene/useLabelTexture";
 import type { SoundStationAnchor } from "../maps";
 
@@ -73,7 +77,8 @@ function Station({ anchor, completions, repetitions, isNear }: StationProps) {
 
     if (sign.current) {
       sign.current.quaternion.copy(state.camera.quaternion);
-      const bob = isNear && !lit ? Math.sin(t * 5) * 0.1 : Math.sin(t * 1.6) * 0.06;
+      const bob =
+        isNear && !lit ? Math.sin(t * 5) * 0.1 : Math.sin(t * 1.6) * 0.06;
       sign.current.position.y = 3.5 + bob;
     }
   });
@@ -90,7 +95,11 @@ function Station({ anchor, completions, repetitions, isNear }: StationProps) {
       </mesh>
       <mesh position={[0, 0.72, 0]}>
         <cylinderGeometry args={[1.05, 1.25, 0.28, 16]} />
-        <meshLambertMaterial color={color} emissive={color} emissiveIntensity={0.4} />
+        <meshLambertMaterial
+          color={color}
+          emissive={color}
+          emissiveIntensity={0.4}
+        />
       </mesh>
 
       {/* Ground ring */}
@@ -98,7 +107,11 @@ function Station({ anchor, completions, repetitions, isNear }: StationProps) {
         {/* Radius matches ExplorerScene's STATION_RADIUS, so the ring a
             child can see is exactly the ring that opens the station. */}
         <torusGeometry args={[3.2, 0.18, 8, 32]} />
-        <meshLambertMaterial color={color} emissive={color} emissiveIntensity={0.55} />
+        <meshLambertMaterial
+          color={color}
+          emissive={color}
+          emissiveIntensity={0.55}
+        />
       </mesh>
 
       {/* Sign post */}

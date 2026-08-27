@@ -1,9 +1,4 @@
-import type {
-  Collectible,
-  Decoration,
-  Solid,
-  WorldDefinition,
-} from "./types";
+import type { Collectible, Decoration, Solid, WorldDefinition } from "./types";
 
 /**
  * FERN FALLS OF F — a spiral staircase of ledges. Action: JUMP.
@@ -101,16 +96,64 @@ const decorations: Decoration[] = [
   { id: "fr4", kind: "rock", position: [-11, 0, -14], scale: 0.95 },
   { id: "fr5", kind: "rock", position: [0, 0, 13], scale: 0.8 },
 
-  { id: "ff1", kind: "flower", position: [-8, 0, 12], scale: 1, color: "#ffd76a" },
-  { id: "ff2", kind: "flower", position: [8, 0, 12], scale: 1, color: "#ff9ec4" },
-  { id: "ff3", kind: "flower", position: [-16, 0, -8], scale: 1, color: "#c7a6ff" },
-  { id: "ff4", kind: "flower", position: [16, 0, 2], scale: 1, color: "#ffd76a" },
+  {
+    id: "ff1",
+    kind: "flower",
+    position: [-8, 0, 12],
+    scale: 1,
+    color: "#ffd76a",
+  },
+  {
+    id: "ff2",
+    kind: "flower",
+    position: [8, 0, 12],
+    scale: 1,
+    color: "#ff9ec4",
+  },
+  {
+    id: "ff3",
+    kind: "flower",
+    position: [-16, 0, -8],
+    scale: 1,
+    color: "#c7a6ff",
+  },
+  {
+    id: "ff4",
+    kind: "flower",
+    position: [16, 0, 2],
+    scale: 1,
+    color: "#ffd76a",
+  },
 
   // Spray crystals at the pillar's foot.
-  { id: "fc1", kind: "crystal", position: [0, 0, 11], scale: 0.9, color: "#bff2ff" },
-  { id: "fc2", kind: "crystal", position: [-11, 0, 0], scale: 0.9, color: "#bff2ff" },
-  { id: "fc3", kind: "crystal", position: [11, 0, 0], scale: 0.9, color: "#bff2ff" },
-  { id: "fc4", kind: "crystal", position: [0, 0, -11], scale: 0.9, color: "#bff2ff" },
+  {
+    id: "fc1",
+    kind: "crystal",
+    position: [0, 0, 11],
+    scale: 0.9,
+    color: "#bff2ff",
+  },
+  {
+    id: "fc2",
+    kind: "crystal",
+    position: [-11, 0, 0],
+    scale: 0.9,
+    color: "#bff2ff",
+  },
+  {
+    id: "fc3",
+    kind: "crystal",
+    position: [11, 0, 0],
+    scale: 0.9,
+    color: "#bff2ff",
+  },
+  {
+    id: "fc4",
+    kind: "crystal",
+    position: [0, 0, -11],
+    scale: 0.9,
+    color: "#bff2ff",
+  },
 
   { id: "fcl1", kind: "cloud", position: [-15, 15, 10], scale: 2.4 },
   { id: "fcl2", kind: "cloud", position: [16, 17, -8], scale: 2.8 },
@@ -156,7 +199,13 @@ export const fallsOfF: WorldDefinition = {
   // Boost tuned against the controller's real physics: run west off this pad
   // and it lands on the east ledge, a third of the way up the spiral.
   jumpPads: [
-    { id: "f-pad-rescue", position: [13, 0, 0], radius: 1.8, boost: 12, aimYaw: Math.PI / 2 },
+    {
+      id: "f-pad-rescue",
+      position: [13, 0, 0],
+      radius: 1.8,
+      boost: 12,
+      aimYaw: Math.PI / 2,
+    },
   ],
   // One waypoint per ledge, straight around the corkscrew.
   verifyRoute: [

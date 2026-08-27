@@ -32,7 +32,9 @@ export interface BrowserSession {
   verifiedAt: number;
 }
 
-export async function encodeSession(session: BrowserSession): Promise<string | null> {
+export async function encodeSession(
+  session: BrowserSession,
+): Promise<string | null> {
   const secret = getLaunchSecret();
   if (!secret) return null;
   const payload = `${session.whopUserId}.${session.issuedAt}.${session.verifiedAt}`;
@@ -40,7 +42,9 @@ export async function encodeSession(session: BrowserSession): Promise<string | n
   return `${payload}.${signature}`;
 }
 
-export async function decodeSession(raw: string | undefined): Promise<BrowserSession | null> {
+export async function decodeSession(
+  raw: string | undefined,
+): Promise<BrowserSession | null> {
   if (!raw) return null;
   const secret = getLaunchSecret();
   if (!secret) return null;

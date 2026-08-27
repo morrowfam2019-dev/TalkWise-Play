@@ -35,7 +35,9 @@ let checks = 0;
 function check(name, condition, detail = "") {
   checks += 1;
   if (!condition) failures += 1;
-  console.log(`  ${condition ? "OK  " : "FAIL"} ${name}${detail ? `  ${detail}` : ""}`);
+  console.log(
+    `  ${condition ? "OK  " : "FAIL"} ${name}${detail ? `  ${detail}` : ""}`,
+  );
 }
 
 try {
@@ -73,7 +75,11 @@ try {
   const resolveFilename = Module._resolveFilename;
   Module._resolveFilename = function (request, ...rest) {
     if (request.startsWith("@/")) {
-      return resolveFilename.call(this, join(outDir, request.slice(2)), ...rest);
+      return resolveFilename.call(
+        this,
+        join(outDir, request.slice(2)),
+        ...rest,
+      );
     }
     return resolveFilename.call(this, request, ...rest);
   };
@@ -114,9 +120,18 @@ try {
     },
   };
   const fromV1 = sanitizeProfile(v1);
-  check("wallet carried across", fromV1.totalCoins === 240 && fromV1.spentCoins === 60);
-  check("streak carried across", fromV1.currentStreak === 4 && fromV1.bestStreak === 9);
-  check("settings carried across", fromV1.micEnabled === false && fromV1.assistMode === true);
+  check(
+    "wallet carried across",
+    fromV1.totalCoins === 240 && fromV1.spentCoins === 60,
+  );
+  check(
+    "streak carried across",
+    fromV1.currentStreak === 4 && fromV1.bestStreak === 9,
+  );
+  check(
+    "settings carried across",
+    fromV1.micEnabled === false && fromV1.assistMode === true,
+  );
   check(
     "m-adventure record intact",
     getLevelProgress(fromV1, "m-adventure").bestCoins === 78 &&
@@ -128,11 +143,19 @@ try {
       getLevelProgress(fromV1, "p-party").completed === false,
   );
   check("owned hat kept", fromV1.games[GAME_001].owned.includes("hat-crown"));
-  check("beginner tier defaulted", Object.keys(fromV1.games[GAME_001].beginner.maps).length === 0);
-  check("expert tier defaulted", Object.keys(fromV1.games[GAME_001].expert.quests).length === 0);
+  check(
+    "beginner tier defaulted",
+    Object.keys(fromV1.games[GAME_001].beginner.maps).length === 0,
+  );
+  check(
+    "expert tier defaulted",
+    Object.keys(fromV1.games[GAME_001].expert.quests).length === 0,
+  );
 
   // --- 2. pre-tier v2 profile ----------------------------------------------
-  console.log("\n=== 2. namespaced pre-tier profile gains the two new tiers ===");
+  console.log(
+    "\n=== 2. namespaced pre-tier profile gains the two new tiers ===",
+  );
   const v2 = {
     name: "Bo",
     totalCoins: 500,
@@ -159,7 +182,10 @@ try {
     },
   };
   const fromV2 = sanitizeProfile(v2);
-  check("b-bay record intact", getLevelProgress(fromV2, "b-bay").bestCoins === 90);
+  check(
+    "b-bay record intact",
+    getLevelProgress(fromV2, "b-bay").bestCoins === 90,
+  );
   check("beginner tier present", fromV2.games[GAME_001].beginner !== undefined);
   check("expert tier present", fromV2.games[GAME_001].expert !== undefined);
   check(
@@ -167,37 +193,58 @@ try {
     fromV2.games[GAME_002].highScores.m?.bestScore === 7,
     JSON.stringify(fromV2.games[GAME_002].highScores),
   );
-  check("wallet unchanged", fromV2.totalCoins === 500 && fromV2.spentCoins === 120);
+  check(
+    "wallet unchanged",
+    fromV2.totalCoins === 500 && fromV2.spentCoins === 120,
+  );
 
   // --- 3. idempotence -------------------------------------------------------
   console.log("\n=== 3. sanitising is idempotent ===");
   const once = sanitizeProfile(v2);
   const twice = sanitizeProfile(once);
   const thrice = sanitizeProfile(twice);
-  check("second pass identical", JSON.stringify(once) === JSON.stringify(twice));
-  check("third pass identical", JSON.stringify(twice) === JSON.stringify(thrice));
+  check(
+    "second pass identical",
+    JSON.stringify(once) === JSON.stringify(twice),
+  );
+  check(
+    "third pass identical",
+    JSON.stringify(twice) === JSON.stringify(thrice),
+  );
 
   const v1Once = sanitizeProfile(v1);
   const v1Twice = sanitizeProfile(v1Once);
-  check("v1 migration idempotent", JSON.stringify(v1Once) === JSON.stringify(v1Twice));
+  check(
+    "v1 migration idempotent",
+    JSON.stringify(v1Once) === JSON.stringify(v1Twice),
+  );
 
   // A save written by a future build that moved the key is read, not dropped.
-  console.log("\n=== 3b. an `intermediate.levels` shape merges rather than drops ===");
+  console.log(
+    "\n=== 3b. an `intermediate.levels` shape merges rather than drops ===",
+  );
   const nested = sanitizeProfile({
     ...v2,
     games: {
       ...v2.games,
       [GAME_001]: {
         ...v2.games[GAME_001],
-        levels: { "b-bay": { bestCheckpoints: 5, bestCoins: 90, completed: true } },
+        levels: {
+          "b-bay": { bestCheckpoints: 5, bestCoins: 90, completed: true },
+        },
         intermediate: {
-          levels: { "w-woods": { bestCheckpoints: 4, bestCoins: 55, completed: false } },
+          levels: {
+            "w-woods": { bestCheckpoints: 4, bestCoins: 55, completed: false },
+          },
         },
       },
     },
   });
   check("legacy key read", getLevelProgress(nested, "b-bay").bestCoins === 90);
-  check("nested key read", getLevelProgress(nested, "w-woods").bestCoins === 55);
+  check(
+    "nested key read",
+    getLevelProgress(nested, "w-woods").bestCoins === 55,
+  );
 
   // --- 4. tier isolation ----------------------------------------------------
   console.log("\n=== 4. tier and game isolation ===");
@@ -270,7 +317,10 @@ try {
 
   const celebrated = markMapCelebration(profile, "sunny-park");
   const celebratedTwice = markMapCelebration(celebrated, "sunny-park");
-  check("map celebration recorded", getMapProgress(celebrated, "sunny-park").celebrated === true);
+  check(
+    "map celebration recorded",
+    getMapProgress(celebrated, "sunny-park").celebrated === true,
+  );
   check("map celebration idempotent", celebrated === celebratedTwice);
 
   // --- 5. a full round trip through storage --------------------------------

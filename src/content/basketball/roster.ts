@@ -18,7 +18,16 @@ export interface BallerLook {
   skin: string;
   skinDark: string;
   hair: string;
-  hairStyle: "fade" | "puff" | "braids" | "bun" | "curly" | "short" | "bald" | "spiky" | "visor";
+  hairStyle:
+    | "fade"
+    | "puff"
+    | "braids"
+    | "bun"
+    | "curly"
+    | "short"
+    | "bald"
+    | "spiky"
+    | "visor";
   /** Second and third hair tones — only read by multi-tone styles ("spiky"). */
   hairAccent?: string;
   hairAccent2?: string;

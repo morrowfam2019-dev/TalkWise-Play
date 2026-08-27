@@ -115,7 +115,11 @@ function ReadyBall({ visible }: { visible: boolean }) {
   return (
     <mesh position={[...RACK_POSITION]} visible={visible}>
       <sphereGeometry args={[BALL_RADIUS, 16, 14]} />
-      <meshLambertMaterial color="#f08a3c" emissive="#7a3a10" emissiveIntensity={0.25} />
+      <meshLambertMaterial
+        color="#f08a3c"
+        emissive="#7a3a10"
+        emissiveIntensity={0.25}
+      />
     </mesh>
   );
 }
@@ -155,7 +159,11 @@ export function ArcadeScene({
       <ambientLight intensity={1.1} />
       <hemisphereLight args={[SKY, "#7a5230", 0.5]} />
       <directionalLight position={[8, 12, 6]} intensity={1.2} />
-      <directionalLight position={[-6, 8, -4]} intensity={0.35} color="#ffe6bd" />
+      <directionalLight
+        position={[-6, 8, -4]}
+        intensity={0.35}
+        color="#ffe6bd"
+      />
 
       <Court />
       <Hoop x={rimX} />

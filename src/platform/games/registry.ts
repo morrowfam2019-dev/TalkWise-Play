@@ -30,14 +30,12 @@ export const GAME_BUBBLE_BLAST = "GAME-003" as const;
 export const GAME_SOUND_MATCH = "GAME-004" as const;
 export const GAME_COLOR_SHAPE_HUNT = "GAME-005" as const;
 export const GAME_GUESS_THE_SOUND = "GAME-006" as const;
-export const GAME_STORY_BUILDER = "GAME-008" as const;
 
 export type MiniGameId =
   | typeof GAME_BUBBLE_BLAST
   | typeof GAME_SOUND_MATCH
   | typeof GAME_COLOR_SHAPE_HUNT
-  | typeof GAME_GUESS_THE_SOUND
-  | typeof GAME_STORY_BUILDER;
+  | typeof GAME_GUESS_THE_SOUND;
 
 export type GameId =
   | typeof GAME_ADVENTURES
@@ -65,7 +63,6 @@ export const MINI_GAME_IDS: MiniGameId[] = [
   GAME_SOUND_MATCH,
   GAME_COLOR_SHAPE_HUNT,
   GAME_GUESS_THE_SOUND,
-  GAME_STORY_BUILDER,
 ];
 
 export function isMiniGameId(id: string): id is MiniGameId {
@@ -218,20 +215,6 @@ const GAMES: GameDefinition[] = [
     sessionLength: "1–2 min",
     namespace: GAME_GUESS_THE_SOUND,
   },
-  {
-    id: GAME_STORY_BUILDER,
-    displayName: "Story Builder",
-    tagline: "Pick the words, build the sentence, watch it happen.",
-    glyph: "\u{1F4D6}",
-    cardGradient: "from-[#c3a4ff] to-[#6d3fd4]",
-    status: "live",
-    route: "/games/story-builder",
-    section: "quick-play",
-    tags: ["quick-play", "language-games", "word-games"],
-    artKey: "story-builder",
-    sessionLength: "2–4 min",
-    namespace: GAME_STORY_BUILDER,
-  },
 ];
 
 export function listGames(): GameDefinition[] {
@@ -254,8 +237,11 @@ export function getGame(id: GameId): GameDefinition {
  * collection that keeps growing" rather than a fixed set. Deliberately
  * unnamed — inventing fake future titles would be a promise, not a tease.
  *
- * Dropped from two to one now that Quick Play carries six real games: the
- * shelf no longer needs padding to look alive, and every empty card is a
- * card a child can tap and be disappointed by.
+ * Now zero. The shelf is a two-column grid and Quick Play carries four real
+ * games, so it already closes at a clean 2x2. One placeholder would leave a
+ * lone card on a third row and two would be a whole row of identical grey
+ * cards — which reads as something having been taken out, not as a
+ * collection that keeps growing. Every empty card is a card a child can tap
+ * and be disappointed by; four real ones need no padding.
  */
-export const FUTURE_GAME_SLOTS = 1;
+export const FUTURE_GAME_SLOTS = 0;

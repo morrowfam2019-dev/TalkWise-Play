@@ -14,7 +14,7 @@
  *   4. The session engine's scoring, combo and accuracy rules.
  *   5. The coin formula, including its cap, its daily decay and its
  *      anti-farming guard.
- *   6. The five save namespaces stay isolated, migrate additively, and
+ *   6. The four save namespaces stay isolated, migrate additively, and
  *      sanitise idempotently.
  *
  * Usage:
@@ -38,7 +38,9 @@ function check(name, condition, detail = "") {
   checks += 1;
   if (!condition) failures += 1;
   if (!condition || process.env.VERBOSE) {
-    console.log(`  ${condition ? "OK  " : "FAIL"} ${name}${detail ? `  ${detail}` : ""}`);
+    console.log(
+      `  ${condition ? "OK  " : "FAIL"} ${name}${detail ? `  ${detail}` : ""}`,
+    );
   }
 }
 
@@ -72,7 +74,6 @@ try {
           "../src/games/minigames/soundmatch/core/rounds.ts",
           "../src/games/minigames/colorshapehunt/core/scene.ts",
           "../src/games/minigames/guessthesound/core/rounds.ts",
-          "../src/games/minigames/storybuilder/core/story.ts",
         ],
       },
       null,
@@ -89,7 +90,11 @@ try {
   const resolveFilename = Module._resolveFilename;
   Module._resolveFilename = function (request, ...rest) {
     if (request.startsWith("@/")) {
-      return resolveFilename.call(this, join(outDir, request.slice(2)), ...rest);
+      return resolveFilename.call(
+        this,
+        join(outDir, request.slice(2)),
+        ...rest,
+      );
     }
     return resolveFilename.call(this, request, ...rest);
   };
@@ -105,11 +110,18 @@ try {
   const minigameState = require(join(outDir, "player/games/minigames.js"));
   const platform = require(join(outDir, "platform/games/registry.js"));
 
-  const bubble = require(join(outDir, "games/minigames/bubbleblast/core/field.js"));
-  const match = require(join(outDir, "games/minigames/soundmatch/core/rounds.js"));
-  const hunt = require(join(outDir, "games/minigames/colorshapehunt/core/scene.js"));
-  const guess = require(join(outDir, "games/minigames/guessthesound/core/rounds.js"));
-  const story = require(join(outDir, "games/minigames/storybuilder/core/story.js"));
+  const bubble = require(
+    join(outDir, "games/minigames/bubbleblast/core/field.js"),
+  );
+  const match = require(
+    join(outDir, "games/minigames/soundmatch/core/rounds.js"),
+  );
+  const hunt = require(
+    join(outDir, "games/minigames/colorshapehunt/core/scene.js"),
+  );
+  const guess = require(
+    join(outDir, "games/minigames/guessthesound/core/rounds.js"),
+  );
 
   const LEVELS = ["beginner", "intermediate", "expert"];
 
@@ -124,7 +136,10 @@ try {
     if (ids.has(item.id)) duplicates += 1;
     ids.add(item.id);
   }
-  check(`${items.length} items across ${packs.length} packs`, items.length > 100);
+  check(
+    `${items.length} items across ${packs.length} packs`,
+    items.length > 100,
+  );
   check("no duplicate item ids", duplicates === 0, `${duplicates} duplicates`);
 
   let levelLies = 0;
@@ -159,9 +174,16 @@ try {
       }
     }
   }
-  check("no item claims a level it cannot serve", levelLies === 0, `${levelLies} bad`);
+  check(
+    "no item claims a level it cannot serve",
+    levelLies === 0,
+    `${levelLies} bad`,
+  );
   check("every listen id resolves to a recipe", badRecipes === 0);
-  check("every colour/shape/action id resolves", badColors + badShapes + badActions === 0);
+  check(
+    "every colour/shape/action id resolves",
+    badColors + badShapes + badActions === 0,
+  );
 
   // Every sound recipe must actually make a sound, and terminate.
   let emptyRecipes = 0;
@@ -170,17 +192,22 @@ try {
     if (recipe.layers.length === 0) emptyRecipes += 1;
     if (listen.listenRecipeDurationMs(recipe) > 3000) longRecipes += 1;
   }
-  check(`${listen.LISTEN_RECIPES.length} sound recipes, none empty`, emptyRecipes === 0);
+  check(
+    `${listen.LISTEN_RECIPES.length} sound recipes, none empty`,
+    emptyRecipes === 0,
+  );
   check("no recipe runs longer than 3 seconds", longRecipes === 0);
 
   // --- 2. Every game can fill a session from every pack it offers ----------
   console.log("\n=== 2. every game × pack × level is playable ===");
   const planners = {
-    "GAME-003": (packId, level, seed) => bubble.planRound({ packId, level, seed }),
-    "GAME-004": (packId, level, seed) => match.planSession({ packId, level, seed }),
+    "GAME-003": (packId, level, seed) =>
+      bubble.planRound({ packId, level, seed }),
+    "GAME-004": (packId, level, seed) =>
+      match.planSession({ packId, level, seed }),
     "GAME-005": (packId, level, seed) => hunt.planHunt({ packId, level, seed }),
-    "GAME-006": (packId, level, seed) => guess.planSounds({ packId, level, seed }),
-    "GAME-008": (packId, level, seed) => story.planStory({ packId, level, seed }),
+    "GAME-006": (packId, level, seed) =>
+      guess.planSounds({ packId, level, seed }),
   };
 
   // Several days' worth of seeds, because a plan that works on one day's
@@ -204,7 +231,8 @@ try {
             (Array.isArray(plan) ? plan.length > 0 : true);
           if (!ok) {
             failed += 1;
-            if (failedDetail.length < 4) failedDetail.push(`${packId}/${level}@${seed}`);
+            if (failedDetail.length < 4)
+              failedDetail.push(`${packId}/${level}@${seed}`);
           }
         }
       }
@@ -228,7 +256,8 @@ try {
         distractorRounds += 1;
         for (const choice of round.choices) {
           if (choice.isTarget) continue;
-          if (content.isConfusablePair(round.target, choice.item)) collisions += 1;
+          if (content.isConfusablePair(round.target, choice.item))
+            collisions += 1;
         }
       }
     }
@@ -271,9 +300,17 @@ try {
   console.log("\n=== 4. session scoring, combos and accuracy ===");
   let state = session.EMPTY_SESSION;
   for (let i = 0; i < 2; i += 1) state = session.scoreCorrect(state, 100);
-  check("first two correct are x1", state.score === 200, `score=${state.score}`);
+  check(
+    "first two correct are x1",
+    state.score === 200,
+    `score=${state.score}`,
+  );
   state = session.scoreCorrect(state, 100);
-  check("third correct earns x2 on itself", state.score === 400, `score=${state.score}`);
+  check(
+    "third correct earns x2 on itself",
+    state.score === 400,
+    `score=${state.score}`,
+  );
   for (let i = 0; i < 3; i += 1) state = session.scoreCorrect(state, 100);
   check("sixth correct earns x3", state.score === 400 + 200 + 200 + 300);
   check("best combo tracked", state.bestCombo === 6);
@@ -283,9 +320,19 @@ try {
   check("a wrong action deducts nothing", state.score === beforeWrong);
   check("a wrong action breaks the combo", state.combo === 0);
   check("a wrong action keeps the best combo", state.bestCombo === 6);
-  check("accuracy counts attempts", session.sessionAccuracy(state) === 86, `${session.sessionAccuracy(state)}%`);
-  check("an untouched session is 0%, not 100%", session.sessionAccuracy(session.EMPTY_SESSION) === 0);
-  check("combo multiplier caps", session.comboMultiplier(500) === session.MAX_COMBO_MULTIPLIER);
+  check(
+    "accuracy counts attempts",
+    session.sessionAccuracy(state) === 86,
+    `${session.sessionAccuracy(state)}%`,
+  );
+  check(
+    "an untouched session is 0%, not 100%",
+    session.sessionAccuracy(session.EMPTY_SESSION) === 0,
+  );
+  check(
+    "combo multiplier caps",
+    session.comboMultiplier(500) === session.MAX_COMBO_MULTIPLIER,
+  );
 
   // --- 5. The coin formula --------------------------------------------------
   console.log("\n=== 5. coin formula and anti-farming ===");
@@ -331,21 +378,24 @@ try {
   );
   check(
     "a short session is not meaningful",
-    rewards.isMeaningfulSession({ durationMs: 2000, correctActions: 5 }) === false,
+    rewards.isMeaningfulSession({ durationMs: 2000, correctActions: 5 }) ===
+      false,
   );
   check(
     "a session with nothing right is not meaningful",
-    rewards.isMeaningfulSession({ durationMs: 60000, correctActions: 0 }) === false,
+    rewards.isMeaningfulSession({ durationMs: 60000, correctActions: 0 }) ===
+      false,
   );
   check(
     "a real session is meaningful",
-    rewards.isMeaningfulSession({ durationMs: 30000, correctActions: 4 }) === true,
+    rewards.isMeaningfulSession({ durationMs: 30000, correctActions: 4 }) ===
+      true,
   );
 
   // --- 6. Save namespaces ---------------------------------------------------
-  console.log("\n=== 6. five namespaces, isolated and additive ===");
+  console.log("\n=== 6. four namespaces, isolated and additive ===");
   const MINI_IDS = platform.MINI_GAME_IDS;
-  check("five mini-game ids registered", MINI_IDS.length === 5);
+  check("four mini-game ids registered", MINI_IDS.length === 4);
 
   // A profile saved before this collection existed.
   const preCollection = {
@@ -361,7 +411,9 @@ try {
       "GAME-001": {
         owned: ["character-default", "hat-crown"],
         loadout: { characterId: "character-default", hatId: "hat-crown" },
-        levels: { "m-adventure": { bestCheckpoints: 5, bestCoins: 78, completed: true } },
+        levels: {
+          "m-adventure": { bestCheckpoints: 5, bestCoins: 78, completed: true },
+        },
       },
       "GAME-002": {
         owned: ["baller-tj"],
@@ -372,7 +424,10 @@ try {
   };
   const migrated = storage.sanitizeProfile(preCollection);
   check("wallet untouched by the migration", migrated.totalCoins === 300);
-  check("streak untouched", migrated.currentStreak === 5 && migrated.bestStreak === 11);
+  check(
+    "streak untouched",
+    migrated.currentStreak === 5 && migrated.bestStreak === 11,
+  );
   check(
     "GAME-001 record intact",
     storage.getLevelProgress(migrated, "m-adventure").bestCoins === 78,
@@ -382,7 +437,7 @@ try {
     migrated.games["GAME-002"].highScores.m.bestScore === 40,
   );
   check(
-    "all five mini-game namespaces present and empty",
+    "all four mini-game namespaces present and empty",
     MINI_IDS.every(
       (id) =>
         migrated.games[id] &&
@@ -391,7 +446,7 @@ try {
     ),
   );
 
-  // Five independent objects, not one shared by reference.
+  // Four independent objects, not one shared by reference.
   const shared = MINI_IDS.some((a) =>
     MINI_IDS.some((b) => a !== b && migrated.games[a] === migrated.games[b]),
   );
@@ -408,7 +463,11 @@ try {
     countsTowardDaily: true,
     coinsEarned: 11,
   };
-  const afterBubble = storage.mergeMiniGameResult(migrated, "GAME-003", outcome);
+  const afterBubble = storage.mergeMiniGameResult(
+    migrated,
+    "GAME-003",
+    outcome,
+  );
   check("coins land in the shared wallet", afterBubble.totalCoins === 311);
   check(
     "the record lands in GAME-003",
@@ -486,7 +545,10 @@ try {
   // Idempotent sanitising, which the household relies on at every layer.
   const once = storage.sanitizeProfile(afterBubble);
   const twice = storage.sanitizeProfile(once);
-  check("sanitising is idempotent", JSON.stringify(once) === JSON.stringify(twice));
+  check(
+    "sanitising is idempotent",
+    JSON.stringify(once) === JSON.stringify(twice),
+  );
   const roundTripped = storage.sanitizeProfile(
     JSON.parse(JSON.stringify(afterBubble)),
   );

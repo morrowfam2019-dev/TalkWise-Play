@@ -19,7 +19,10 @@
  * A rollback likewise loses only the new records, never the old ones.
  */
 
-import { DEFAULT_BALLER_ID, DEFAULT_JERSEY_ID } from "@/content/basketball/roster";
+import {
+  DEFAULT_BALLER_ID,
+  DEFAULT_JERSEY_ID,
+} from "@/content/basketball/roster";
 
 /** What a child is wearing on the court. */
 export interface BasketballLoadout {
@@ -237,7 +240,8 @@ export function sanitizeBasketballState(raw: unknown): BasketballState {
       const count = Number(
         (rawDaily.counts as Record<string, unknown>)[modeKey],
       );
-      if (Number.isFinite(count) && count > 0) counts[modeKey] = Math.floor(count);
+      if (Number.isFinite(count) && count > 0)
+        counts[modeKey] = Math.floor(count);
     }
   }
 

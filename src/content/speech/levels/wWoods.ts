@@ -9,7 +9,8 @@ export const W_SOUND = {
 export const wWoods: SpeechLevel = {
   id: "w-woods",
   title: "W Woods",
-  tagline: "Follow the trail through Whisper Woods and practice your /w/ words.",
+  tagline:
+    "Follow the trail through Whisper Woods and practice your /w/ words.",
   sound: W_SOUND,
   worldId: "whisper-woods-of-w",
   unlockRequires: "b-bay",

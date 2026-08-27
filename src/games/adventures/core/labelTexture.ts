@@ -49,7 +49,10 @@ function roundedRect(
   ctx.closePath();
 }
 
-export function createLabelTexture(text: string, style: LabelStyle): THREE.CanvasTexture {
+export function createLabelTexture(
+  text: string,
+  style: LabelStyle,
+): THREE.CanvasTexture {
   const canvas = document.createElement("canvas");
   canvas.width = WIDTH;
   canvas.height = HEIGHT;

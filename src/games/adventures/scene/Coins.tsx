@@ -70,7 +70,11 @@ function SpeechCoin({
     ref.current.position.y = baseY + Math.sin(t * 2.1 + seed) * 0.18;
     ref.current.rotation.z = Math.sin(t * 1.5 + seed) * 0.07;
     ref.current.quaternion.setFromEuler(
-      new THREE.Euler(0, state.camera.rotation.y, Math.sin(t * 1.5 + seed) * 0.07),
+      new THREE.Euler(
+        0,
+        state.camera.rotation.y,
+        Math.sin(t * 1.5 + seed) * 0.07,
+      ),
     );
   });
 

@@ -124,8 +124,10 @@ export function ShootoutMode({
     (timing: TimingTier) => {
       if (!currentPlan) return;
       const result = resolveShot(currentPlan, timing);
-      const spotX = Math.sin(currentPlan.spot.angle) * currentPlan.spot.distance;
-      const spotZ = Math.cos(currentPlan.spot.angle) * currentPlan.spot.distance;
+      const spotX =
+        Math.sin(currentPlan.spot.angle) * currentPlan.spot.distance;
+      const spotZ =
+        Math.cos(currentPlan.spot.angle) * currentPlan.spot.distance;
 
       hoopAudio.release();
       setAvatarPhase("releasing");

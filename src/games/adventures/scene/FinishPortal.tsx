@@ -24,7 +24,11 @@ interface FinishPortalProps {
  * The summit portal. It stays visibly locked until every speech challenge is
  * done, so the goal is legible from the start of the run.
  */
-export function FinishPortal({ position, unlocked, remaining }: FinishPortalProps) {
+export function FinishPortal({
+  position,
+  unlocked,
+  remaining,
+}: FinishPortalProps) {
   const ring = useRef<THREE.Mesh>(null);
   const inner = useRef<THREE.Mesh>(null);
   const label = useRef<THREE.Mesh>(null);

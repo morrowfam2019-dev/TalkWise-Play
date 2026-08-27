@@ -13,14 +13,13 @@
  * does not carry, is **the object itself**: what colour a ball is, what
  * shape a window is, what a dog sounds like, what verb a character is
  * doing. Bubble Blast needs distractors, Colour & Shape Hunt needs a colour
- * and a shape on the same object, Guess the Sound needs the noise it makes,
- * Story Builder needs a noun that can take a verb. Those are properties of
- * a *thing*, not of a speech target.
+ * and a shape on the same object, Guess the Sound needs the noise it makes.
+ * Those are properties of a *thing*, not of a speech target.
  *
  * So one `ContentItem` describes one thing, completely, and every compatible
  * mini-game reads the fields it cares about. That is the §9 promise in the
- * build plan: animal content feeds Bubble Blast, Sound Match, Guess the
- * Sound and Story Builder from **one** dataset, not four.
+ * build plan: animal content feeds Bubble Blast, Sound Match and Guess the
+ * Sound from **one** dataset, not three.
  *
  * ## Ids are permanent
  *
@@ -126,7 +125,14 @@ export type ShapeId =
   | "diamond"
   | "oval";
 
-/** Permanent action-verb ids, used by the Actions pack and Story Builder. */
+/**
+ * Permanent action-verb ids.
+ *
+ * No launch game reads these today — Action Dash and Story Builder, the two
+ * that did, were both cut. They stay because they are *content*: the Actions
+ * pack is still in the library that thin packs top up from, and the verbs
+ * are the vocabulary any future action game would be built on.
+ */
 export type ActionId =
   | "jump"
   | "run"

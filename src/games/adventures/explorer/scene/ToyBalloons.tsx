@@ -42,7 +42,8 @@ function Balloon({
     const t = state.clock.elapsedTime;
     const material = skin.current.material as THREE.MeshLambertMaterial;
 
-    const elapsed = risingSince === undefined ? Infinity : Date.now() - risingSince;
+    const elapsed =
+      risingSince === undefined ? Infinity : Date.now() - risingSince;
     if (elapsed < TOY_RISE_DURATION_MS) {
       const progress = elapsed / TOY_RISE_DURATION_MS;
       // Quick lift, easing out, and a fade in the second half.
@@ -66,7 +67,11 @@ function Balloon({
     <group ref={group} position={balloon.position}>
       <mesh ref={skin} position={[0, 0.6, 0]} scale={[1, 1.2, 1]}>
         <sphereGeometry args={[0.55, 12, 10]} />
-        <meshLambertMaterial color={color} emissive={color} emissiveIntensity={0.15} />
+        <meshLambertMaterial
+          color={color}
+          emissive={color}
+          emissiveIntensity={0.15}
+        />
       </mesh>
       <mesh position={[0, -0.05, 0]}>
         <coneGeometry args={[0.12, 0.24, 6]} />
@@ -97,7 +102,11 @@ export function ToyBalloons({
   return (
     <group>
       {balloons.map((balloon) => (
-        <Balloon key={balloon.id} balloon={balloon} risingSince={rising[balloon.id]} />
+        <Balloon
+          key={balloon.id}
+          balloon={balloon}
+          risingSince={rising[balloon.id]}
+        />
       ))}
     </group>
   );

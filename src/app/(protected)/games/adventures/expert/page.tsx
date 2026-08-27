@@ -37,8 +37,8 @@ export default function ExpertHome() {
 
       <div className="mx-auto max-w-3xl px-5 pt-6 pb-16">
         <p className="rounded-[1.5rem] border-4 border-[#8fa8ff]/40 bg-white/10 p-5 text-base font-semibold text-[#dbe5ff] backdrop-blur-sm">
-          Talk your way through a story. A character asks you something, you
-          say a whole sentence, and the world answers. Miss Maya will say any
+          Talk your way through a story. A character asks you something, you say
+          a whole sentence, and the world answers. Miss Maya will say any
           sentence — or any single word — whenever you want to hear it.
         </p>
 

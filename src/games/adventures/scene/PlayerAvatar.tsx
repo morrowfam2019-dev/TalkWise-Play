@@ -3,7 +3,12 @@
 import { useFrame } from "@react-three/fiber";
 import { useRef } from "react";
 import * as THREE from "three";
-import { getAura, getCharacter, getHat, type CharacterLook } from "@/content/adventures/shop";
+import {
+  getAura,
+  getCharacter,
+  getHat,
+  type CharacterLook,
+} from "@/content/adventures/shop";
 import type { PlayerController } from "../core/controller";
 
 const GOLD = "#f5c33b";
@@ -11,7 +16,13 @@ const EYE_WHITE = "#ffffff";
 const EYE_DARK = "#1b2233";
 
 /** What sits on top of the head — the fastest read on which character this is. */
-function Crest({ look, wobble }: { look: CharacterLook; wobble: React.RefObject<THREE.Mesh | null> }) {
+function Crest({
+  look,
+  wobble,
+}: {
+  look: CharacterLook;
+  wobble: React.RefObject<THREE.Mesh | null>;
+}) {
   switch (look.crest) {
     case "ears":
       return (
@@ -26,15 +37,27 @@ function Crest({ look, wobble }: { look: CharacterLook; wobble: React.RefObject<
           </mesh>
           <mesh ref={wobble} position={[0, 0.42, 0]}>
             <sphereGeometry args={[0.06, 8, 6]} />
-            <meshLambertMaterial color={look.boot} emissive={look.boot} emissiveIntensity={0.4} />
+            <meshLambertMaterial
+              color={look.boot}
+              emissive={look.boot}
+              emissiveIntensity={0.4}
+            />
           </mesh>
         </>
       );
     case "halo":
       return (
-        <mesh ref={wobble} position={[0, 0.5, 0]} rotation={[Math.PI / 2.3, 0, 0]}>
+        <mesh
+          ref={wobble}
+          position={[0, 0.5, 0]}
+          rotation={[Math.PI / 2.3, 0, 0]}
+        >
           <torusGeometry args={[0.22, 0.035, 8, 20]} />
-          <meshLambertMaterial color={look.boot} emissive={look.boot} emissiveIntensity={0.7} />
+          <meshLambertMaterial
+            color={look.boot}
+            emissive={look.boot}
+            emissiveIntensity={0.7}
+          />
         </mesh>
       );
     case "leaf":
@@ -44,7 +67,12 @@ function Crest({ look, wobble }: { look: CharacterLook; wobble: React.RefObject<
             <cylinderGeometry args={[0.024, 0.024, 0.22, 5]} />
             <meshLambertMaterial color={look.skinDark} />
           </mesh>
-          <mesh ref={wobble} position={[0.1, 0.54, 0]} rotation={[0, 0, -0.7]} scale={[1, 0.4, 0.6]}>
+          <mesh
+            ref={wobble}
+            position={[0.1, 0.54, 0]}
+            rotation={[0, 0, -0.7]}
+            scale={[1, 0.4, 0.6]}
+          >
             <sphereGeometry args={[0.15, 10, 8]} />
             <meshLambertMaterial color="#8ade7c" />
           </mesh>
@@ -60,7 +88,11 @@ function Crest({ look, wobble }: { look: CharacterLook; wobble: React.RefObject<
             [-0.08, 0.35, -0.18],
             [0.08, 0.35, -0.18],
           ].map(([x, y, z], i) => (
-            <mesh key={i} position={[x, y, z]} ref={i === 0 ? wobble : undefined}>
+            <mesh
+              key={i}
+              position={[x, y, z]}
+              ref={i === 0 ? wobble : undefined}
+            >
               <sphereGeometry args={[0.1, 8, 7]} />
               <meshLambertMaterial color={look.skinDark} />
             </mesh>
@@ -77,7 +109,11 @@ function Crest({ look, wobble }: { look: CharacterLook; wobble: React.RefObject<
           </mesh>
           <mesh ref={wobble} position={[0, 0.56, 0]}>
             <sphereGeometry args={[0.085, 10, 8]} />
-            <meshLambertMaterial color={GOLD} emissive={GOLD} emissiveIntensity={0.5} />
+            <meshLambertMaterial
+              color={GOLD}
+              emissive={GOLD}
+              emissiveIntensity={0.5}
+            />
           </mesh>
         </>
       );
@@ -97,7 +133,9 @@ function Hat({ hatId }: { hatId: string | null }) {
     return (
       <group position={[0, 0.28, 0]}>
         <mesh rotation={[0, 0, 0]} scale={[1.02, 0.55, 1.02]}>
-          <sphereGeometry args={[0.37, 16, 10, 0, Math.PI * 2, 0, Math.PI / 2]} />
+          <sphereGeometry
+            args={[0.37, 16, 10, 0, Math.PI * 2, 0, Math.PI / 2]}
+          />
           <meshLambertMaterial color={hat.primary} />
         </mesh>
         <mesh position={[-0.16, 0.1, 0.22]} rotation={[0, 0, -0.3]}>
@@ -110,7 +148,11 @@ function Hat({ hatId }: { hatId: string | null }) {
         </mesh>
         <mesh position={[0, 0.05, 0.34]} scale={[0.5, 0.14, 0.02]}>
           <boxGeometry args={[0.5, 1, 1]} />
-          <meshLambertMaterial color={hat.secondary} emissive={hat.secondary} emissiveIntensity={0.4} />
+          <meshLambertMaterial
+            color={hat.secondary}
+            emissive={hat.secondary}
+            emissiveIntensity={0.4}
+          />
         </mesh>
       </group>
     );
@@ -124,7 +166,11 @@ function Hat({ hatId }: { hatId: string | null }) {
           <meshLambertMaterial color={hat.primary} />
         </mesh>
         {[0, 1, 2, 3].map((i) => (
-          <mesh key={`h${i}`} rotation={[0, 0, (i / 4) * Math.PI]} scale={[1.07, 1.07, 1.07]}>
+          <mesh
+            key={`h${i}`}
+            rotation={[0, 0, (i / 4) * Math.PI]}
+            scale={[1.07, 1.07, 1.07]}
+          >
             <torusGeometry args={[0.37, 0.008, 4, 20, Math.PI]} />
             <meshLambertMaterial color={hat.secondary} />
           </mesh>
@@ -154,9 +200,17 @@ function Hat({ hatId }: { hatId: string | null }) {
       </mesh>
       <mesh position={[0, 0.15, 0.3]} scale={[0.16, 0.16, 0.02]}>
         <boxGeometry args={[1, 1, 1]} />
-        <meshLambertMaterial color={hat.secondary} emissive={hat.secondary} emissiveIntensity={0.35} />
+        <meshLambertMaterial
+          color={hat.secondary}
+          emissive={hat.secondary}
+          emissiveIntensity={0.35}
+        />
       </mesh>
-      <mesh position={[0, -0.75, -0.32]} rotation={[0.25, 0, 0]} scale={[0.62, 0.9, 1]}>
+      <mesh
+        position={[0, -0.75, -0.32]}
+        rotation={[0.25, 0, 0]}
+        scale={[0.62, 0.9, 1]}
+      >
         <planeGeometry args={[0.6, 0.9]} />
         <meshLambertMaterial color={hat.secondary} side={THREE.DoubleSide} />
       </mesh>
@@ -288,7 +342,8 @@ export function PlayerAvatar({
 
   useFrame((_, rawDelta) => {
     const delta = Math.min(rawDelta, 0.05);
-    const { speedRatio, strideTime, grounded, landingImpact, sliding } = controller;
+    const { speedRatio, strideTime, grounded, landingImpact, sliding } =
+      controller;
 
     if (landingImpact > 3) {
       squash.current = Math.min(1, landingImpact / 14);
@@ -298,7 +353,8 @@ export function PlayerAvatar({
     // Ease into and out of the slide pose so the duck reads as a move rather
     // than a snap between two states.
     const leanTarget = sliding ? 1 : 0;
-    slideLean.current += (leanTarget - slideLean.current) * Math.min(1, delta * 14);
+    slideLean.current +=
+      (leanTarget - slideLean.current) * Math.min(1, delta * 14);
     const lean = slideLean.current;
 
     const swing = Math.sin(strideTime * 9) * speedRatio * 0.75;
@@ -306,10 +362,14 @@ export function PlayerAvatar({
 
     if (sliding || lean > 0.02) {
       // Legs out front, arms swept back — a baseball slide.
-      if (leftLeg.current) leftLeg.current.rotation.x = -1.1 * lean + swing * (1 - lean);
-      if (rightLeg.current) rightLeg.current.rotation.x = -0.9 * lean - swing * (1 - lean);
-      if (leftArm.current) leftArm.current.rotation.x = 1.5 * lean + counterSwing * (1 - lean);
-      if (rightArm.current) rightArm.current.rotation.x = 1.5 * lean - counterSwing * (1 - lean);
+      if (leftLeg.current)
+        leftLeg.current.rotation.x = -1.1 * lean + swing * (1 - lean);
+      if (rightLeg.current)
+        rightLeg.current.rotation.x = -0.9 * lean - swing * (1 - lean);
+      if (leftArm.current)
+        leftArm.current.rotation.x = 1.5 * lean + counterSwing * (1 - lean);
+      if (rightArm.current)
+        rightArm.current.rotation.x = 1.5 * lean - counterSwing * (1 - lean);
     } else if (grounded) {
       if (leftLeg.current) leftLeg.current.rotation.x = swing;
       if (rightLeg.current) rightLeg.current.rotation.x = -swing;
@@ -328,7 +388,8 @@ export function PlayerAvatar({
       const bob = Math.sin(strideTime * 18) * 0.035 * speedRatio;
       const breathe = Math.sin(strideTime * 2.2) * 0.012 * (1 - speedRatio);
       body.current.position.y = (bob + breathe) * (1 - lean);
-      body.current.rotation.z = Math.sin(strideTime * 9) * 0.05 * speedRatio * (1 - lean);
+      body.current.rotation.z =
+        Math.sin(strideTime * 9) * 0.05 * speedRatio * (1 - lean);
     }
 
     if (root.current) {
@@ -341,12 +402,14 @@ export function PlayerAvatar({
     }
 
     if (head.current) {
-      head.current.rotation.z = Math.sin(strideTime * 9 + 0.6) * 0.06 * speedRatio;
+      head.current.rotation.z =
+        Math.sin(strideTime * 9 + 0.6) * 0.06 * speedRatio;
       head.current.rotation.x = -lean * 0.5;
     }
 
     if (crest.current) {
-      crest.current.position.x = Math.sin(strideTime * 7) * 0.05 * (0.4 + speedRatio);
+      crest.current.position.x =
+        Math.sin(strideTime * 7) * 0.05 * (0.4 + speedRatio);
     }
   });
 
@@ -388,7 +451,11 @@ export function PlayerAvatar({
           </mesh>
           <mesh position={[0, 0.84, 0.26]}>
             <sphereGeometry args={[0.07, 10, 8]} />
-            <meshLambertMaterial color={GOLD} emissive={GOLD} emissiveIntensity={0.3} />
+            <meshLambertMaterial
+              color={GOLD}
+              emissive={GOLD}
+              emissiveIntensity={0.3}
+            />
           </mesh>
 
           {/* Arms */}

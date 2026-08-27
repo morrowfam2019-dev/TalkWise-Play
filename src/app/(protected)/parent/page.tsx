@@ -77,8 +77,8 @@ export default function ParentPage() {
       <div className="mx-auto max-w-3xl px-5 pt-7 pb-16">
         <p className="text-sm font-semibold text-[#4a4a60]">
           Practice history for every child profile on this device. This view
-          isn&apos;t password-protected yet — anyone with access to the
-          device can open it.
+          isn&apos;t password-protected yet — anyone with access to the device
+          can open it.
         </p>
 
         <div className="mt-6 flex flex-col gap-5">
@@ -194,7 +194,10 @@ export default function ParentPage() {
                     {levels.map((level) => {
                       const progress = getLevelProgress(profile, level.id);
                       return (
-                        <tr key={level.id} className="border-t border-[#eef0f5]">
+                        <tr
+                          key={level.id}
+                          className="border-t border-[#eef0f5]"
+                        >
                           <td className="py-2 font-bold text-[#141420]">
                             {level.title}
                           </td>
@@ -235,7 +238,10 @@ export default function ParentPage() {
                     {quests.map((quest) => {
                       const progress = getQuestProgress(profile, quest.id);
                       return (
-                        <tr key={quest.id} className="border-t border-[#eef0f5]">
+                        <tr
+                          key={quest.id}
+                          className="border-t border-[#eef0f5]"
+                        >
                           <td className="py-2 font-bold text-[#141420]">
                             {quest.title}
                           </td>
@@ -277,9 +283,14 @@ export default function ParentPage() {
                   <tbody>
                     {levels.map((level) => {
                       const best =
-                        profile.games[GAME_BASKETBALL].highScores[level.sound.id];
+                        profile.games[GAME_BASKETBALL].highScores[
+                          level.sound.id
+                        ];
                       return (
-                        <tr key={level.id} className="border-t border-[#eef0f5]">
+                        <tr
+                          key={level.id}
+                          className="border-t border-[#eef0f5]"
+                        >
                           <td className="py-2 font-bold text-[#141420]">
                             {level.sound.label} Shootout
                           </td>
@@ -301,7 +312,8 @@ export default function ParentPage() {
                 {profile.lastPlayedDate ? (
                   <p className="mt-3 text-xs font-semibold text-[#8a8aa0]">
                     Last played {profile.lastPlayedDate} · best streak{" "}
-                    {profile.bestStreak} day{profile.bestStreak === 1 ? "" : "s"}
+                    {profile.bestStreak} day
+                    {profile.bestStreak === 1 ? "" : "s"}
                   </p>
                 ) : (
                   <p className="mt-3 text-xs font-semibold text-[#8a8aa0]">
@@ -314,13 +326,13 @@ export default function ParentPage() {
         </div>
 
         <p className="mx-auto mt-8 max-w-2xl rounded-2xl border-2 border-[#e2e4ee] bg-white/70 p-4 text-xs leading-relaxed font-semibold text-[#6b6b80]">
-          These are counts of practice, not test results. TalkWise Play does
-          not score pronunciation, assess development, or diagnose anything.
-          Speech Adventures groups its sounds by the order English speech
-          sounds are commonly learned, purely so the worlds have a sensible
-          order to meet them in — children pick sounds up on their own
-          timeline and in their own order, and every level and world in the
-          game is open from the start.
+          These are counts of practice, not test results. TalkWise Play does not
+          score pronunciation, assess development, or diagnose anything. Speech
+          Adventures groups its sounds by the order English speech sounds are
+          commonly learned, purely so the worlds have a sensible order to meet
+          them in — children pick sounds up on their own timeline and in their
+          own order, and every level and world in the game is open from the
+          start.
         </p>
       </div>
     </main>

@@ -8,7 +8,10 @@ import { Checkpoints } from "./Checkpoints";
 import { Coins } from "./Coins";
 import { Decorations } from "./Decorations";
 import { FinishPortal } from "./FinishPortal";
-import { GameplayController, type GameplayCallbacks } from "./GameplayController";
+import {
+  GameplayController,
+  type GameplayCallbacks,
+} from "./GameplayController";
 import { JumpPads } from "./JumpPads";
 import { Terrain } from "./Terrain";
 
@@ -69,7 +72,11 @@ export function GameScene({
       <ambientLight intensity={1.15} />
       <hemisphereLight args={[world.skyColor, "#4c7a3f", 0.55]} />
       <directionalLight position={[18, 30, 14]} intensity={1.25} />
-      <directionalLight position={[-14, 12, -18]} intensity={0.4} color="#ffe6bd" />
+      <directionalLight
+        position={[-14, 12, -18]}
+        intensity={0.4}
+        color="#ffe6bd"
+      />
 
       <Terrain world={world} />
       <Decorations world={world} />

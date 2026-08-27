@@ -119,7 +119,8 @@ export function BubbleBlastGame({
 
   useEffect(() => {
     if (stage !== "playing" || !plan) return;
-    const rng = rngRef.current ?? createRng(dailySeed() + roundIndex * 977 + 13);
+    const rng =
+      rngRef.current ?? createRng(dailySeed() + roundIndex * 977 + 13);
     rngRef.current = rng;
 
     const timer = window.setInterval(() => {
@@ -143,7 +144,9 @@ export function BubbleBlastGame({
       // Retire the popped bubble shortly after its pop animation, so the
       // list never grows unbounded across a thirty-second round.
       window.setTimeout(() => {
-        setBubbles((current) => current.filter((entry) => entry.key !== bubble.key));
+        setBubbles((current) =>
+          current.filter((entry) => entry.key !== bubble.key),
+        );
         setPopped((current) => current.filter((key) => key !== bubble.key));
       }, 300);
 
@@ -220,12 +223,10 @@ export function BubbleBlastGame({
       <MiniGameHud
         score={run.session.state.score}
         combo={run.session.state.combo}
-        multiplier={
-          run.session.state.combo > 0
-            ? run.session.multiplier
-            : 1
+        multiplier={run.session.state.combo > 0 ? run.session.multiplier : 1}
+        secondsRemaining={
+          stage === "playing" ? clock.secondsRemaining : undefined
         }
-        secondsRemaining={stage === "playing" ? clock.secondsRemaining : undefined}
         coins={spendableCoins(profile)}
         onExit={handleExit}
       />

@@ -40,10 +40,6 @@ const ART: Record<string, { src: string; alt: string }> = {
     src: "/characters/games/guess-the-sound.webp",
     alt: "TJ listening, with question marks and three picture choices",
   },
-  "story-builder": {
-    src: "/characters/games/story-builder.webp",
-    alt: "TJ building a sentence from word tiles beside a story book",
-  },
 };
 
 /**

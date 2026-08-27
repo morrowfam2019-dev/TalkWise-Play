@@ -35,7 +35,9 @@ function check(name, condition, detail = "") {
   checks += 1;
   if (!condition) failures += 1;
   if (!condition || process.env.VERBOSE) {
-    console.log(`  ${condition ? "OK  " : "FAIL"} ${name}${detail ? `  ${detail}` : ""}`);
+    console.log(
+      `  ${condition ? "OK  " : "FAIL"} ${name}${detail ? `  ${detail}` : ""}`,
+    );
   }
 }
 
@@ -76,7 +78,11 @@ try {
   const resolveFilename = Module._resolveFilename;
   Module._resolveFilename = function (request, ...rest) {
     if (request.startsWith("@/")) {
-      return resolveFilename.call(this, join(outDir, request.slice(2)), ...rest);
+      return resolveFilename.call(
+        this,
+        join(outDir, request.slice(2)),
+        ...rest,
+      );
     }
     return resolveFilename.call(this, request, ...rest);
   };
@@ -89,8 +95,12 @@ try {
   const { BEGINNER_SOUNDS, BEGINNER_GROUPS } = require(
     join(outDir, "content/speech/beginner/index.js"),
   );
-  const { listExpertQuests } = require(join(outDir, "content/speech/expert/index.js"));
-  const { splitTargetWords } = require(join(outDir, "content/speech/engine.js"));
+  const { listExpertQuests } = require(
+    join(outDir, "content/speech/expert/index.js"),
+  );
+  const { splitTargetWords } = require(
+    join(outDir, "content/speech/engine.js"),
+  );
 
   const configFor = (sound) => ({
     accepted: sound.recognition.accepted,
@@ -158,7 +168,10 @@ try {
   console.log("\n=== 3. sound → word → sentence, for every Beginner sound ===");
   for (const sound of BEGINNER_SOUNDS) {
     const ladder = getSoundCurriculum(sound.id);
-    check(`${sound.phoneme} has a Beginner station record`, ladder.beginner !== undefined);
+    check(
+      `${sound.phoneme} has a Beginner station record`,
+      ladder.beginner !== undefined,
+    );
     check(
       `${sound.phoneme} has an Intermediate word adventure`,
       ladder.intermediate !== undefined,
@@ -177,7 +190,8 @@ try {
     check(
       `${sound.phoneme} anchor word is a real Intermediate target`,
       (ladder.intermediate?.challenges ?? []).some(
-        (challenge) => challenge.word.toLowerCase() === sound.anchorWord.toLowerCase(),
+        (challenge) =>
+          challenge.word.toLowerCase() === sound.anchorWord.toLowerCase(),
       ),
       sound.anchorWord,
     );
@@ -227,7 +241,8 @@ try {
   console.log("\n=== Content inventory ===");
   for (const entry of listSoundCurricula()) {
     const group = entry.beginner
-      ? (BEGINNER_GROUPS.find((g) => g.id === entry.beginner.group)?.title ?? "—")
+      ? (BEGINNER_GROUPS.find((g) => g.id === entry.beginner.group)?.title ??
+        "—")
       : "—";
     console.log(
       `  ${entry.label.padEnd(5)} ${group.padEnd(20)} ` +

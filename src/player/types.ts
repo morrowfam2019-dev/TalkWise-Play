@@ -34,7 +34,6 @@ import {
   GAME_COLOR_SHAPE_HUNT,
   GAME_GUESS_THE_SOUND,
   GAME_SOUND_MATCH,
-  GAME_STORY_BUILDER,
   type GameId,
 } from "@/platform/games/registry";
 import {
@@ -45,16 +44,13 @@ import {
   DEFAULT_BASKETBALL_STATE,
   type BasketballState,
 } from "./games/basketball";
-import {
-  DEFAULT_MINIGAME_STATE,
-  type MiniGameState,
-} from "./games/minigames";
+import { DEFAULT_MINIGAME_STATE, type MiniGameState } from "./games/minigames";
 
 /**
  * Every registered game's slice, keyed by permanent game id.
  *
  * The six mini-games share the `MiniGameState` *shape* but each has its own
- * key, so a Bubble Blast personal best and a Story Builder personal best are
+ * key, so a Bubble Blast personal best and a Sound Match personal best are
  * different objects that no function can confuse for each other — §20's
  * "do NOT mix individual mini-game progression together", enforced by the
  * type rather than by convention.
@@ -66,7 +62,6 @@ export interface GameStates {
   [GAME_SOUND_MATCH]: MiniGameState;
   [GAME_COLOR_SHAPE_HUNT]: MiniGameState;
   [GAME_GUESS_THE_SOUND]: MiniGameState;
-  [GAME_STORY_BUILDER]: MiniGameState;
 }
 
 /** Everything persisted about one child. */
@@ -120,7 +115,6 @@ export const DEFAULT_PROFILE: PlayerProfile = {
     [GAME_SOUND_MATCH]: DEFAULT_MINIGAME_STATE,
     [GAME_COLOR_SHAPE_HUNT]: DEFAULT_MINIGAME_STATE,
     [GAME_GUESS_THE_SOUND]: DEFAULT_MINIGAME_STATE,
-    [GAME_STORY_BUILDER]: DEFAULT_MINIGAME_STATE,
   },
 };
 

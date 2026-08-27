@@ -30,7 +30,6 @@ six built on the shared framework in `src/minigames`. See
 | `GAME-004` | Sound Match | Drag the right picture into the backpack |
 | `GAME-005` | Colour & Shape Hunt | Listen, then find it in the scene |
 | `GAME-006` | Guess the Sound | Which one made that noise? |
-| `GAME-008` | Story Builder | Pick the words, build the sentence |
 
 Coins are a **universal wallet** spendable in any shop; what coins buy stays
 in the buying game's own inventory. Every game owns its own save namespace.

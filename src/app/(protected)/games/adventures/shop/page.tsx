@@ -30,9 +30,18 @@ function CrestGlyph({ look }: { look: CharacterLook }) {
   switch (look.crest) {
     case "ears":
       return (
-        <div className="absolute -top-2 left-1/2 flex -translate-x-1/2 gap-3" aria-hidden>
-          <span className="block h-3 w-3 rounded-full" style={{ background: look.skinDark }} />
-          <span className="block h-3 w-3 rounded-full" style={{ background: look.skinDark }} />
+        <div
+          className="absolute -top-2 left-1/2 flex -translate-x-1/2 gap-3"
+          aria-hidden
+        >
+          <span
+            className="block h-3 w-3 rounded-full"
+            style={{ background: look.skinDark }}
+          />
+          <span
+            className="block h-3 w-3 rounded-full"
+            style={{ background: look.skinDark }}
+          />
         </div>
       );
     case "halo":
@@ -53,7 +62,10 @@ function CrestGlyph({ look }: { look: CharacterLook }) {
       );
     case "curls":
       return (
-        <div className="absolute -top-2 left-1/2 flex -translate-x-1/2 gap-0.5" aria-hidden>
+        <div
+          className="absolute -top-2 left-1/2 flex -translate-x-1/2 gap-0.5"
+          aria-hidden
+        >
           {[0, 1, 2, 3].map((i) => (
             <span
               key={i}
@@ -115,7 +127,10 @@ function HatPreview({ hat }: { hat: HatItem }) {
       aria-hidden
     >
       {hat.style === "speedster" ? (
-        <div className="relative h-9 w-11 rounded-t-full" style={{ background: hat.primary }}>
+        <div
+          className="relative h-9 w-11 rounded-t-full"
+          style={{ background: hat.primary }}
+        >
           <span
             className="absolute -top-1 left-1/2 h-3 w-1.5 -translate-x-1/2 -skew-x-12"
             style={{ background: hat.secondary }}
@@ -130,7 +145,10 @@ function HatPreview({ hat }: { hat: HatItem }) {
           }}
         />
       ) : (
-        <div className="relative h-10 w-10 rounded-t-full" style={{ background: hat.primary }}>
+        <div
+          className="relative h-10 w-10 rounded-t-full"
+          style={{ background: hat.primary }}
+        >
           <span
             className="absolute top-3 left-1/2 h-2.5 w-2.5 -translate-x-1/2 rounded-sm"
             style={{ background: hat.secondary }}
@@ -160,7 +178,10 @@ function ItemGlyph({ item }: { item: ShopItem }) {
         style={{ borderColor: aura.color, background: `${aura.color}22` }}
         aria-hidden
       >
-        <span className="block h-5 w-5 rounded-full" style={{ background: aura.color }} />
+        <span
+          className="block h-5 w-5 rounded-full"
+          style={{ background: aura.color }}
+        />
       </div>
     );
   }
