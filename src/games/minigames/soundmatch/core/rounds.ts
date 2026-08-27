@@ -14,6 +14,17 @@
  * Distractors come from `pickDistractors`, so at every level they avoid
  * sounds confusable with the target — a matching game must not quietly
  * become an articulation discrimination test (§7).
+ *
+ * ## Thin packs
+ *
+ * A Beginner round shows *letters*, so two items sharing a sound would draw
+ * the same card twice and the pack must supply at least three distinct
+ * sounds. Action Time supplies two. Rather than refuse to run — which
+ * reaches a child as "this pack is not ready yet" on a pack the setup
+ * screen just offered them — the letter choices are topped up from the
+ * whole library. The *target* still comes from the chosen pack, so the
+ * pack a family picked is still the thing being practised. Same judgement,
+ * and same justification, as Guess the Sound's Beginner distractors.
  */
 
 import {
@@ -84,7 +95,7 @@ export function planSession(options: {
     count: 0,
   });
   const choices = choiceCount(level);
-  if (pool.length < choices + 1) return null;
+  if (pool.length === 0) return null;
 
   // At Beginner the "thing" is a letter, so two items sharing a sound would
   // produce two identical cards. Deduplicate by sound before choosing.
@@ -92,13 +103,28 @@ export function planSession(options: {
     level === "beginner"
       ? dedupeBySound(pool.filter((item) => item.targetSound))
       : pool;
-  if (candidates.length < 3) return null;
+  if (candidates.length === 0) return null;
+
+  // Top up from the library when the chosen pack is too thin to fill a
+  // round on its own. See the note at the top of this file.
+  const libraryPool = contentPoolFor({
+    gameId: GAME_SOUND_MATCH,
+    packId: "mixed",
+    level,
+    count: 0,
+  });
+  const libraryCandidates =
+    level === "beginner"
+      ? dedupeBySound(libraryPool.filter((item) => item.targetSound))
+      : libraryPool;
+
+  const distractorPool =
+    candidates.length >= choices ? candidates : libraryCandidates;
+  if (distractorPool.length < choices) return null;
 
   const targets = shuffle(candidates, rng).slice(0, ROUNDS_PER_SESSION);
 
   return targets.map((target, index) => {
-    const distractorPool =
-      level === "beginner" ? candidates : pool;
     const distractors = pickDistractors({
       target,
       pool: distractorPool,

@@ -93,22 +93,26 @@ export function planSounds(options: {
     }),
   );
 
-  // Beginner reaches across the library for its wrong answers. See the note
-  // at the top of this file.
-  const distractorSource =
-    level === "beginner"
-      ? withRecipe(
-          contentPoolFor({
-            gameId: GAME_GUESS_THE_SOUND,
-            packId: "mixed",
-            level,
-            count: 0,
-            requires: ["listen"],
-          }),
-        )
-      : pool;
+  const library = withRecipe(
+    contentPoolFor({
+      gameId: GAME_GUESS_THE_SOUND,
+      packId: "mixed",
+      level,
+      count: 0,
+      requires: ["listen"],
+    }),
+  );
 
   const choices = choiceCount(level);
+
+  // Beginner reaches across the library for its wrong answers by design.
+  // Above Beginner it does so only when the chosen pack cannot fill a round
+  // on its own — Outside Adventures carries three sounds, and an Expert
+  // round needs four choices. Reaching for a fourth is better than telling
+  // a child a pack the setup screen just offered them is not ready.
+  const distractorSource =
+    level === "beginner" || pool.length < choices ? library : pool;
+
   if (pool.length < 1 || distractorSource.length < choices) return null;
 
   const targets = shuffle(pool, rng).slice(0, SOUNDS_PER_SESSION);
