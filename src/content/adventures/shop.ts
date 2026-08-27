@@ -28,7 +28,7 @@ export interface CharacterLook {
   boot: string;
   cheek: string;
   /** What sits on top of the head. */
-  crest: "antenna" | "ears" | "halo" | "leaf" | "curls";
+  crest: "antenna" | "ears" | "halo" | "leaf" | "curls" | "cap";
   /**
    * Which set of meshes fills the rig.
    *
@@ -160,7 +160,7 @@ export const CHARACTERS: CharacterItem[] = [
       limb: "#1e2a44",
       boot: "#2f8bf0",
       cheek: "#b5714a",
-      crest: "curls",
+      crest: "cap",
       build: "tj",
     },
   },
