@@ -15,6 +15,10 @@ import type { PlayerController } from "../core/controller";
 const GOLD = "#f5c33b";
 const EYE_WHITE = "#ffffff";
 const EYE_DARK = "#1b2233";
+/** TJ's dad hat. Not pure black — a flat #000 reads as a hole in the world
+ * under this scene's lighting. */
+const CAP_BLACK = "#15161c";
+const CAP_GREY = "#3b3d47";
 
 /** What sits on top of the head — the fastest read on which character this is. */
 function Crest({
@@ -98,6 +102,26 @@ function Crest({
               <meshLambertMaterial color={look.skinDark} />
             </mesh>
           ))}
+        </>
+      );
+    case "cap":
+      return (
+        <>
+          <mesh position={[0, 0.2, 0]} scale={[1, 0.6, 1]}>
+            <sphereGeometry
+              args={[0.3, 14, 10, 0, Math.PI * 2, 0, Math.PI / 2]}
+            />
+            <meshLambertMaterial color={CAP_BLACK} />
+          </mesh>
+          <mesh
+            ref={wobble}
+            position={[0, 0.2, 0.2]}
+            rotation={[0.2, 0, 0]}
+            scale={[1, 0.12, 1]}
+          >
+            <sphereGeometry args={[0.26, 14, 10]} />
+            <meshLambertMaterial color={CAP_BLACK} />
+          </mesh>
         </>
       );
     case "antenna":
@@ -247,45 +271,86 @@ function TjTorso({ look }: { look: CharacterLook }) {
 }
 
 /**
- * The afro. Six overlapping spheres rather than one big one, because the
- * lumpy outline is the whole silhouette — it is what makes him readable as
- * TJ from across a phone screen, at the size he actually appears.
+ * TJ's black dad hat, and the close-cut fade under it.
+ *
+ * He wore an afro here first. It was the right call from the cover art and
+ * the wrong one on screen: at the size he actually appears it was a large
+ * brown mass that fought the head shape from every angle, and the founder
+ * called it. The cap gives him a flat, dark, unmistakable silhouette
+ * instead — low crown, curved brim, no crease — and it reads at a glance
+ * from across a phone, which the afro never quite did.
+ *
+ * The fade underneath is not decoration: without it he is bald whenever a
+ * bought hat replaces the cap.
  */
-function TjHair({
+function TjCap({
   look,
-  wobble,
+  wearingHat,
 }: {
   look: CharacterLook;
-  wobble: React.RefObject<THREE.Mesh | null>;
+  wearingHat: boolean;
 }) {
   const hair = look.hair ?? look.skinDark;
-  // Tuned against real screenshots rather than on paper: the first pass sat
-  // the puffs low and forward and they swallowed his eyes from the front and
-  // his whole face from the side. The afro is tall and sits *back* off the
-  // brow; the face keeps the front of the head to itself.
-  const puffs: Array<[number, number, number, number]> = [
-    [0, 0.34, -0.05, 0.3],
-    [-0.25, 0.24, -0.02, 0.22],
-    [0.25, 0.24, -0.02, 0.22],
-    [0, 0.18, -0.31, 0.25],
-    [-0.2, 0.22, 0.14, 0.15],
-    [0.2, 0.22, 0.14, 0.15],
-  ];
   return (
     <>
-      {puffs.map(([x, y, z, r], i) => (
-        <mesh key={i} position={[x, y, z]} ref={i === 0 ? wobble : undefined}>
-          <sphereGeometry args={[r, 12, 10]} />
-          <meshLambertMaterial color={hair} />
-        </mesh>
-      ))}
-      {/* Hairline, so the afro sits on a head rather than hovering above
-          one. High and shallow — any lower and it becomes a fringe over his
-          eyes. */}
-      <mesh position={[0, 0.21, 0.05]} scale={[1, 0.42, 0.92]}>
-        <sphereGeometry args={[0.31, 14, 10]} />
+      {/* Close-cut hair, all the way round.
+          Everything on this head — hair, band, crown, brim — has to start
+          ABOVE y=0.16. The first pass sat the band and brim at eye level and
+          he came out wearing a black bandit mask: a dark strip straight
+          across two white slits. The brows top out at 0.183; nothing but the
+          brim's leading edge goes lower than that. */}
+      <mesh position={[0, 0.15, -0.02]} scale={[1.01, 0.9, 1.01]}>
+        <sphereGeometry
+          args={[0.352, 16, 12, 0, Math.PI * 2, 0, Math.PI / 2]}
+        />
         <meshLambertMaterial color={hair} />
       </mesh>
+
+      {/* A bought hat wins over his own — the child picked it. Skipping the
+          cap here is what stops two hats stacking on one head. */}
+      {wearingHat ? null : (
+        <>
+          {/* The band the crown sits on, so it meets the head in a line
+              instead of floating. */}
+          <mesh position={[0, 0.2, -0.01]}>
+            <cylinderGeometry args={[0.368, 0.363, 0.09, 20]} />
+            <meshLambertMaterial color={CAP_BLACK} />
+          </mesh>
+          {/* Crown — low and soft, the dad-hat shape rather than a
+              structured ball cap's tall front panel. */}
+          <mesh position={[0, 0.21, -0.01]} scale={[1.01, 0.8, 1.02]}>
+            <sphereGeometry
+              args={[0.368, 20, 14, 0, Math.PI * 2, 0, Math.PI / 2]}
+            />
+            <meshLambertMaterial color={CAP_BLACK} />
+          </mesh>
+          {/* Curved brim, tipped down at the front and set high enough that
+              it shades his forehead rather than his eyes. */}
+          <mesh
+            position={[0, 0.185, 0.28]}
+            rotation={[0.3, 0, 0]}
+            scale={[1.32, 0.09, 1.05]}
+          >
+            <sphereGeometry args={[0.3, 18, 12]} />
+            <meshLambertMaterial color={CAP_BLACK} />
+          </mesh>
+          {/* Underside of the brim, a shade lighter so the curve reads
+              against the crown rather than merging into one black blob. */}
+          <mesh
+            position={[0, 0.168, 0.28]}
+            rotation={[0.3, 0, 0]}
+            scale={[1.26, 0.05, 1]}
+          >
+            <sphereGeometry args={[0.3, 18, 12]} />
+            <meshLambertMaterial color={CAP_GREY} />
+          </mesh>
+          {/* Button on top */}
+          <mesh position={[0, 0.5, -0.01]}>
+            <sphereGeometry args={[0.036, 10, 8]} />
+            <meshLambertMaterial color={CAP_GREY} />
+          </mesh>
+        </>
+      )}
     </>
   );
 }
@@ -760,7 +825,7 @@ export function PlayerAvatar({
 
             {isTj ? (
               <>
-                <TjHair look={look} wobble={crest} />
+                <TjCap look={look} wearingHat={Boolean(hatId)} />
                 <TjFace look={look} />
                 <Hat hatId={hatId ?? null} />
               </>

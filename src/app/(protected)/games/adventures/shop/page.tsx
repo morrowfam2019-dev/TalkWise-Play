@@ -60,6 +60,14 @@ function CrestGlyph({ look }: { look: CharacterLook }) {
           aria-hidden
         />
       );
+    case "cap":
+      return (
+        <span
+          className="absolute -top-2 left-1/2 block h-3.5 w-11 -translate-x-1/2 rounded-t-full"
+          style={{ background: "#15161c" }}
+          aria-hidden
+        />
+      );
     case "curls":
       return (
         <div
