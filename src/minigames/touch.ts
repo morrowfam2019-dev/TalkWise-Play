@@ -160,7 +160,9 @@ export interface DragController {
   move: (event: React.PointerEvent) => void;
   /** Ends the drag and reports where it was released, or null if it never
    * became a real drag. */
-  end: (event: React.PointerEvent) => { itemId: string; x: number; y: number } | null;
+  end: (
+    event: React.PointerEvent,
+  ) => { itemId: string; x: number; y: number } | null;
   cancel: () => void;
 }
 

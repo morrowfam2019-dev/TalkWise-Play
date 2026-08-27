@@ -26,7 +26,11 @@ export function Hoop({ x = 0 }: { x?: number }) {
           scoring radius in core/arcade.ts, to make shots a little easier. */}
       <mesh position={[0, 2.6, 0.02]} rotation={[Math.PI / 2, 0, 0]}>
         <torusGeometry args={[0.28, 0.024, 8, 20]} />
-        <meshLambertMaterial color="#e5342f" emissive="#e5342f" emissiveIntensity={0.25} />
+        <meshLambertMaterial
+          color="#e5342f"
+          emissive="#e5342f"
+          emissiveIntensity={0.25}
+        />
       </mesh>
       {/* Net — a simple ring of thin strands, enough to read as a net. */}
       {Array.from({ length: 10 }).map((_, i) => {

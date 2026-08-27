@@ -151,7 +151,11 @@ export async function resolveAccess(): Promise<AccessDecision> {
           verifiedAt: Date.now(),
         });
         if (refreshed) {
-          cookieStore.set(SESSION_COOKIE_NAME, refreshed, SESSION_COOKIE_OPTIONS);
+          cookieStore.set(
+            SESSION_COOKIE_NAME,
+            refreshed,
+            SESSION_COOKIE_OPTIONS,
+          );
         }
       }
 
@@ -163,10 +167,20 @@ export async function resolveAccess(): Promise<AccessDecision> {
       };
     }
 
-    return { mode: "locked", allowed: false, whopUserId: null, embedded: false };
+    return {
+      mode: "locked",
+      allowed: false,
+      whopUserId: null,
+      embedded: false,
+    };
   }
 
   // 3. Enforcement not configured — behave exactly as the app did before
   //    the launch bridge existed.
-  return { mode: "unenforced", allowed: true, whopUserId: null, embedded: false };
+  return {
+    mode: "unenforced",
+    allowed: true,
+    whopUserId: null,
+    embedded: false,
+  };
 }

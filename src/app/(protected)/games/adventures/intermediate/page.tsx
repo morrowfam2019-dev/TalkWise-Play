@@ -92,7 +92,10 @@ export default function IntermediateHome() {
                     <span className="text-5xl font-black text-white/70 drop-shadow-lg">
                       {level.sound.label}
                     </span>
-                    <span className="absolute top-3 right-3 text-2xl" aria-hidden>
+                    <span
+                      className="absolute top-3 right-3 text-2xl"
+                      aria-hidden
+                    >
                       🔒
                     </span>
                   </div>
@@ -132,8 +135,8 @@ export default function IntermediateHome() {
                     {level.title}
                   </h3>
                   <p className="mt-1 text-sm font-semibold text-[#6b6b80]">
-                    Target sound: {level.sound.label} · {level.challenges.length}{" "}
-                    speech challenges
+                    Target sound: {level.sound.label} ·{" "}
+                    {level.challenges.length} speech challenges
                   </p>
                   <p className="mt-2 text-sm font-medium text-[#4a4a60]">
                     {level.tagline}

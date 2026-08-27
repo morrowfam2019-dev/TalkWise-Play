@@ -104,7 +104,11 @@ export function ExplorerScene({
       <ambientLight intensity={1.2} />
       <hemisphereLight args={[map.skyColor, "#5f8f52", 0.6]} />
       <directionalLight position={[24, 40, 18]} intensity={1.25} />
-      <directionalLight position={[-18, 16, -24]} intensity={0.4} color="#ffe6bd" />
+      <directionalLight
+        position={[-18, 16, -24]}
+        intensity={0.4}
+        color="#ffe6bd"
+      />
 
       <Terrain world={world} />
       <Decorations world={world} />

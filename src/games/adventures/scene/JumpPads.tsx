@@ -36,11 +36,7 @@ function Pad({ pad, seed }: { pad: JumpPad; seed: number }) {
           emissiveIntensity={0.5}
         />
       </mesh>
-      <mesh
-        ref={ring}
-        rotation={[-Math.PI / 2, 0, 0]}
-        position={[0, 0.04, 0]}
-      >
+      <mesh ref={ring} rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.04, 0]}>
         <ringGeometry args={[pad.radius * 0.9, pad.radius, 24]} />
         <meshLambertMaterial
           color={PAD_RED_DARK}

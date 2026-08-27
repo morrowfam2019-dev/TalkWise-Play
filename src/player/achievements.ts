@@ -32,7 +32,10 @@ export const ACHIEVEMENTS: Achievement[] = [
     title: "First Steps",
     description: "Finish your first adventure.",
     glyph: "🎉",
-    check: ({ profile }) => Object.values(profile.games[GAME_ADVENTURES].levels).some((level) => level.completed),
+    check: ({ profile }) =>
+      Object.values(profile.games[GAME_ADVENTURES].levels).some(
+        (level) => level.completed,
+      ),
   },
   {
     id: "world-tour",
@@ -41,7 +44,9 @@ export const ACHIEVEMENTS: Achievement[] = [
     glyph: "🌍",
     check: ({ profile, totalLevels }) =>
       totalLevels > 0 &&
-      Object.values(profile.games[GAME_ADVENTURES].levels).filter((level) => level.completed).length >= totalLevels,
+      Object.values(profile.games[GAME_ADVENTURES].levels).filter(
+        (level) => level.completed,
+      ).length >= totalLevels,
   },
   {
     id: "word-wizard",
@@ -49,10 +54,16 @@ export const ACHIEVEMENTS: Achievement[] = [
     description: "Find every checkpoint in one run.",
     glyph: "⭐",
     check: ({ profile, levelChallengeCounts }) =>
-      Object.entries(profile.games[GAME_ADVENTURES].levels).some(([levelId, progress]) => {
-        const total = levelChallengeCounts[levelId];
-        return total !== undefined && total > 0 && progress.bestCheckpoints >= total;
-      }),
+      Object.entries(profile.games[GAME_ADVENTURES].levels).some(
+        ([levelId, progress]) => {
+          const total = levelChallengeCounts[levelId];
+          return (
+            total !== undefined &&
+            total > 0 &&
+            progress.bestCheckpoints >= total
+          );
+        },
+      ),
   },
   {
     id: "coin-collector",
@@ -84,6 +95,8 @@ export const ACHIEVEMENTS: Achievement[] = [
   },
 ];
 
-export function getUnlockedAchievements(ctx: AchievementContext): Achievement[] {
+export function getUnlockedAchievements(
+  ctx: AchievementContext,
+): Achievement[] {
   return ACHIEVEMENTS.filter((achievement) => achievement.check(ctx));
 }

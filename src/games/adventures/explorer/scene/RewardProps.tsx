@@ -68,7 +68,8 @@ function Lantern({ prop, lit }: { prop: RewardProp; lit: boolean }) {
       const material = bulb.current.material as THREE.MeshLambertMaterial;
       material.color.copy(off).lerp(color, g);
       material.emissive.copy(color);
-      material.emissiveIntensity = g * (0.8 + Math.sin(state.clock.elapsedTime * 2) * 0.12);
+      material.emissiveIntensity =
+        g * (0.8 + Math.sin(state.clock.elapsedTime * 2) * 0.12);
     }
     if (halo.current) {
       const material = halo.current.material as THREE.MeshBasicMaterial;
@@ -89,7 +90,12 @@ function Lantern({ prop, lit }: { prop: RewardProp; lit: boolean }) {
       </mesh>
       <mesh ref={halo} position={[0, 2, 0]}>
         <sphereGeometry args={[0.85, 10, 8]} />
-        <meshBasicMaterial color={color} transparent opacity={0} depthWrite={false} />
+        <meshBasicMaterial
+          color={color}
+          transparent
+          opacity={0}
+          depthWrite={false}
+        />
       </mesh>
     </group>
   );
@@ -256,7 +262,8 @@ function Starpost({ prop, lit }: { prop: RewardProp; lit: boolean }) {
     const g = glow.current.glow;
     if (!star.current) return;
     star.current.rotation.y += delta * 1.4 * (0.2 + g);
-    star.current.position.y = 2.4 + Math.sin(state.clock.elapsedTime * 1.6) * 0.2 * g;
+    star.current.position.y =
+      2.4 + Math.sin(state.clock.elapsedTime * 1.6) * 0.2 * g;
     const material = star.current.material as THREE.MeshLambertMaterial;
     material.color.copy(off).lerp(color, g);
     material.emissive.copy(color);

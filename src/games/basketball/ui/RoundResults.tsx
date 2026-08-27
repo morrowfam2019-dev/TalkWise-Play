@@ -80,7 +80,9 @@ export function RoundResults({
 
         {summary.bestStreak >= 3 ? (
           <p className="mt-3 rounded-full bg-[#ff8a3d] px-4 py-2 text-sm font-black text-white">
-            {summary.bestStreak >= 5 ? "⭐ All-Star streak: " : "🔥 Hot streak: "}
+            {summary.bestStreak >= 5
+              ? "⭐ All-Star streak: "
+              : "🔥 Hot streak: "}
             {summary.bestStreak} in a row
           </p>
         ) : null}

@@ -29,7 +29,8 @@ export function ShotMeter({
     const tick = () => {
       if (lockedRef.current) return;
       const elapsed = (performance.now() - startRef.current) / 1000;
-      const cycle = (elapsed % difficulty.sweepSeconds) / difficulty.sweepSeconds;
+      const cycle =
+        (elapsed % difficulty.sweepSeconds) / difficulty.sweepSeconds;
       // Triangle wave 0 -> 1 -> 0, so the marker sweeps and returns.
       const value = cycle < 0.5 ? cycle * 2 : 2 - cycle * 2;
       setPosition(value);

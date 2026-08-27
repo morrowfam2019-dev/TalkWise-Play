@@ -197,7 +197,9 @@ export default function TalkWisePlayHome() {
                           type="text"
                           autoFocus
                           value={newChildName}
-                          onChange={(event) => setNewChildName(event.target.value)}
+                          onChange={(event) =>
+                            setNewChildName(event.target.value)
+                          }
                           placeholder="Name"
                           maxLength={20}
                           className="w-28 rounded-full border-2 border-[#e2e4ee] bg-white px-3 py-2 text-sm font-bold text-[#141420] outline-none focus:border-[#f5c33b]"
@@ -274,12 +276,7 @@ export default function TalkWisePlayHome() {
 
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           {quickPlay.map((game, index) => (
-            <GameCard
-              key={game.id}
-              game={game}
-              compact
-              priority={index < 2}
-            />
+            <GameCard key={game.id} game={game} compact priority={index < 2} />
           ))}
 
           {Array.from({ length: FUTURE_GAME_SLOTS }).map((_, index) => (
@@ -324,7 +321,10 @@ export default function TalkWisePlayHome() {
                     : "border-white/70 bg-white/40 opacity-60"
                 }`}
               >
-                <span className={`text-3xl ${unlocked ? "" : "grayscale"}`} aria-hidden>
+                <span
+                  className={`text-3xl ${unlocked ? "" : "grayscale"}`}
+                  aria-hidden
+                >
                   {achievement.glyph}
                 </span>
                 <p
@@ -340,7 +340,10 @@ export default function TalkWisePlayHome() {
         </div>
 
         <div className="mt-10 flex justify-center gap-5 text-center">
-          <Link href="/parent" className="text-xs font-bold text-[#4a6b78] underline">
+          <Link
+            href="/parent"
+            className="text-xs font-bold text-[#4a6b78] underline"
+          >
             👪 Parent View
           </Link>
         </div>

@@ -52,7 +52,11 @@ class MusicLoop {
   setMuted(muted: boolean) {
     this.muted = muted;
     if (this.masterGain && this.ctx) {
-      this.masterGain.gain.setTargetAtTime(muted ? 0 : 1, this.ctx.currentTime, 0.05);
+      this.masterGain.gain.setTargetAtTime(
+        muted ? 0 : 1,
+        this.ctx.currentTime,
+        0.05,
+      );
     }
   }
 
@@ -61,7 +65,10 @@ class MusicLoop {
     this.playing = true;
     this.stepIndex = 0;
     this.scheduleStep();
-    this.intervalId = window.setInterval(() => this.scheduleStep(), this.stepSeconds * 1000);
+    this.intervalId = window.setInterval(
+      () => this.scheduleStep(),
+      this.stepSeconds * 1000,
+    );
   }
 
   stop() {
@@ -101,14 +108,18 @@ class MusicLoop {
 
     // A soft bass note every four steps, sustained under the next four notes.
     if (this.stepIndex % 4 === 0) {
-      const bassFreq = this.bassNotes[(this.stepIndex / 4) % this.bassNotes.length];
+      const bassFreq =
+        this.bassNotes[(this.stepIndex / 4) % this.bassNotes.length];
       const bassOsc = ctx.createOscillator();
       const bassAmp = ctx.createGain();
       bassOsc.type = "sine";
       bassOsc.frequency.setValueAtTime(bassFreq, start);
       bassAmp.gain.setValueAtTime(0.0001, start);
       bassAmp.gain.exponentialRampToValueAtTime(0.04, start + 0.08);
-      bassAmp.gain.exponentialRampToValueAtTime(0.0001, start + step * 4 * 0.95);
+      bassAmp.gain.exponentialRampToValueAtTime(
+        0.0001,
+        start + step * 4 * 0.95,
+      );
       bassOsc.connect(bassAmp);
       bassAmp.connect(gain);
       bassOsc.start(start);
@@ -150,10 +161,12 @@ class GameAudio {
    * audio focus can all leave the context suspended after the page comes
    * back — resume it the moment the page is visible/foregrounded again. */
   private attachVisibilityResume() {
-    if (this.visibilityListenerAttached || typeof document === "undefined") return;
+    if (this.visibilityListenerAttached || typeof document === "undefined")
+      return;
     this.visibilityListenerAttached = true;
     const resume = () => {
-      if (!this.muted && this.ctx?.state === "suspended") void this.ctx.resume();
+      if (!this.muted && this.ctx?.state === "suspended")
+        void this.ctx.resume();
     };
     document.addEventListener("visibilitychange", resume);
     window.addEventListener("focus", resume);
@@ -177,7 +190,14 @@ class GameAudio {
     this.music.stop();
   }
 
-  private tone({ freq, duration, type = "sine", gain = 0.12, delay = 0, sweepTo }: ToneOptions) {
+  private tone({
+    freq,
+    duration,
+    type = "sine",
+    gain = 0.12,
+    delay = 0,
+    sweepTo,
+  }: ToneOptions) {
     if (this.muted || !this.ctx) return;
     const ctx = this.ctx;
     if (ctx.state === "suspended") void ctx.resume();
@@ -188,7 +208,10 @@ class GameAudio {
     osc.type = type;
     osc.frequency.setValueAtTime(freq, start);
     if (sweepTo !== undefined) {
-      osc.frequency.exponentialRampToValueAtTime(Math.max(1, sweepTo), start + duration);
+      osc.frequency.exponentialRampToValueAtTime(
+        Math.max(1, sweepTo),
+        start + duration,
+      );
     }
 
     amp.gain.setValueAtTime(0.0001, start);
@@ -203,36 +226,84 @@ class GameAudio {
 
   coin() {
     this.tone({ freq: 988, duration: 0.09, type: "triangle", gain: 0.1 });
-    this.tone({ freq: 1319, duration: 0.12, type: "triangle", gain: 0.09, delay: 0.07 });
+    this.tone({
+      freq: 1319,
+      duration: 0.12,
+      type: "triangle",
+      gain: 0.09,
+      delay: 0.07,
+    });
   }
 
   jump() {
-    this.tone({ freq: 320, duration: 0.14, type: "sine", gain: 0.07, sweepTo: 620 });
+    this.tone({
+      freq: 320,
+      duration: 0.14,
+      type: "sine",
+      gain: 0.07,
+      sweepTo: 620,
+    });
   }
 
   checkpointFound() {
     this.tone({ freq: 523, duration: 0.16, type: "sine", gain: 0.09 });
-    this.tone({ freq: 784, duration: 0.2, type: "sine", gain: 0.08, delay: 0.1 });
+    this.tone({
+      freq: 784,
+      duration: 0.2,
+      type: "sine",
+      gain: 0.08,
+      delay: 0.1,
+    });
   }
 
   challengeComplete() {
     const notes = [523, 659, 784, 1047];
     notes.forEach((freq, index) => {
-      this.tone({ freq, duration: 0.2, type: "triangle", gain: 0.1, delay: index * 0.09 });
+      this.tone({
+        freq,
+        duration: 0.2,
+        type: "triangle",
+        gain: 0.1,
+        delay: index * 0.09,
+      });
     });
   }
 
   unlockFinish() {
-    this.tone({ freq: 392, duration: 0.5, type: "sawtooth", gain: 0.05, sweepTo: 880 });
-    this.tone({ freq: 587, duration: 0.4, type: "triangle", gain: 0.08, delay: 0.15 });
+    this.tone({
+      freq: 392,
+      duration: 0.5,
+      type: "sawtooth",
+      gain: 0.05,
+      sweepTo: 880,
+    });
+    this.tone({
+      freq: 587,
+      duration: 0.4,
+      type: "triangle",
+      gain: 0.08,
+      delay: 0.15,
+    });
   }
 
   levelComplete() {
     const notes = [523, 659, 784, 1047, 1319];
     notes.forEach((freq, index) => {
-      this.tone({ freq, duration: 0.32, type: "triangle", gain: 0.11, delay: index * 0.13 });
+      this.tone({
+        freq,
+        duration: 0.32,
+        type: "triangle",
+        gain: 0.11,
+        delay: index * 0.13,
+      });
     });
-    this.tone({ freq: 262, duration: 0.9, type: "sine", gain: 0.07, delay: 0.1 });
+    this.tone({
+      freq: 262,
+      duration: 0.9,
+      type: "sine",
+      gain: 0.07,
+      delay: 0.1,
+    });
   }
 }
 

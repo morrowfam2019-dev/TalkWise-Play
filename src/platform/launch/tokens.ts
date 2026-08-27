@@ -31,7 +31,9 @@ export interface LaunchClaim {
  * then acts as a best-effort replay block. Both paths are the same length
  * of random material; the fallback just appends proof.
  */
-export async function mintLaunchToken(claim: LaunchClaim): Promise<string | null> {
+export async function mintLaunchToken(
+  claim: LaunchClaim,
+): Promise<string | null> {
   const secret = getLaunchSecret();
   if (!secret) return null;
 
@@ -55,7 +57,9 @@ export async function mintLaunchToken(claim: LaunchClaim): Promise<string | null
  * token: a second call with the same value fails, whether it succeeded or
  * not the first time.
  */
-export async function redeemLaunchToken(token: string): Promise<LaunchClaim | null> {
+export async function redeemLaunchToken(
+  token: string,
+): Promise<LaunchClaim | null> {
   const secret = getLaunchSecret();
   if (!secret) return null;
 

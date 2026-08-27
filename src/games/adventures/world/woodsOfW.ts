@@ -1,9 +1,4 @@
-import type {
-  Collectible,
-  Decoration,
-  Solid,
-  WorldDefinition,
-} from "./types";
+import type { Collectible, Decoration, Solid, WorldDefinition } from "./types";
 
 /**
  * WHISPER WOODS OF W — one long trail. Action: SLIDE.
@@ -122,18 +117,78 @@ const decorations: Decoration[] = [
   { id: "wr3", kind: "rock", position: [-13, 0, -7], scale: 0.75 },
   { id: "wr4", kind: "rock", position: [13, 0, -18], scale: 0.9 },
 
-  { id: "wf1", kind: "flower", position: [-3, 0, 22], scale: 1, color: "#ffd76a" },
-  { id: "wf2", kind: "flower", position: [3, 0, 13], scale: 1, color: "#ff9ec4" },
-  { id: "wf3", kind: "flower", position: [-3, 0, 3], scale: 1, color: "#c7a6ff" },
-  { id: "wf4", kind: "flower", position: [3, 0, -7], scale: 1, color: "#ffd76a" },
-  { id: "wf5", kind: "flower", position: [-3, 0, -17], scale: 1, color: "#ff9ec4" },
+  {
+    id: "wf1",
+    kind: "flower",
+    position: [-3, 0, 22],
+    scale: 1,
+    color: "#ffd76a",
+  },
+  {
+    id: "wf2",
+    kind: "flower",
+    position: [3, 0, 13],
+    scale: 1,
+    color: "#ff9ec4",
+  },
+  {
+    id: "wf3",
+    kind: "flower",
+    position: [-3, 0, 3],
+    scale: 1,
+    color: "#c7a6ff",
+  },
+  {
+    id: "wf4",
+    kind: "flower",
+    position: [3, 0, -7],
+    scale: 1,
+    color: "#ffd76a",
+  },
+  {
+    id: "wf5",
+    kind: "flower",
+    position: [-3, 0, -17],
+    scale: 1,
+    color: "#ff9ec4",
+  },
 
   // Fireflies over each log, so the next duck is always visible.
-  { id: "wc1", kind: "crystal", position: [-5, 0, 16], scale: 0.7, color: "#e8ff8a" },
-  { id: "wc2", kind: "crystal", position: [5, 0, 6], scale: 0.7, color: "#e8ff8a" },
-  { id: "wc3", kind: "crystal", position: [-5, 0, -4], scale: 0.7, color: "#e8ff8a" },
-  { id: "wc4", kind: "crystal", position: [5, 0, -15], scale: 0.7, color: "#e8ff8a" },
-  { id: "wc5", kind: "crystal", position: [-5, 0, -23], scale: 0.7, color: "#e8ff8a" },
+  {
+    id: "wc1",
+    kind: "crystal",
+    position: [-5, 0, 16],
+    scale: 0.7,
+    color: "#e8ff8a",
+  },
+  {
+    id: "wc2",
+    kind: "crystal",
+    position: [5, 0, 6],
+    scale: 0.7,
+    color: "#e8ff8a",
+  },
+  {
+    id: "wc3",
+    kind: "crystal",
+    position: [-5, 0, -4],
+    scale: 0.7,
+    color: "#e8ff8a",
+  },
+  {
+    id: "wc4",
+    kind: "crystal",
+    position: [5, 0, -15],
+    scale: 0.7,
+    color: "#e8ff8a",
+  },
+  {
+    id: "wc5",
+    kind: "crystal",
+    position: [-5, 0, -23],
+    scale: 0.7,
+    color: "#e8ff8a",
+  },
 
   { id: "wcl1", kind: "cloud", position: [-16, 17, 8], scale: 2.6 },
   { id: "wcl2", kind: "cloud", position: [18, 19, -8], scale: 3 },

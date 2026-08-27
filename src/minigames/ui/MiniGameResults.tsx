@@ -87,7 +87,9 @@ export function MiniGameResults({
             {breakdown.speechParticipation > 0 ? (
               <div className="flex justify-between">
                 <dt>🗣️ You used your voice</dt>
-                <dd className="tabular-nums">+{breakdown.speechParticipation}</dd>
+                <dd className="tabular-nums">
+                  +{breakdown.speechParticipation}
+                </dd>
               </div>
             ) : null}
             {breakdown.performance > 0 ? (
@@ -116,8 +118,8 @@ export function MiniGameResults({
             </p>
           ) : reduced ? (
             <p className="mt-2 rounded-xl bg-[#eaf4ff] px-2 py-1.5 text-[0.7rem] font-bold text-[#2f7fd4]">
-              You have played lots today — keep going for fun, coins are
-              smaller now.
+              You have played lots today — keep going for fun, coins are smaller
+              now.
             </p>
           ) : null}
         </div>

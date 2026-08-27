@@ -61,21 +61,30 @@ export async function PUT(request: NextRequest) {
 
   const memberId = await resolveMemberId();
   if (!memberId) {
-    return NextResponse.json({ saved: false, reason: "unauthorized" }, { status: 401 });
+    return NextResponse.json(
+      { saved: false, reason: "unauthorized" },
+      { status: 401 },
+    );
   }
 
   let body: unknown;
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ saved: false, reason: "bad-request" }, { status: 400 });
+    return NextResponse.json(
+      { saved: false, reason: "bad-request" },
+      { status: 400 },
+    );
   }
 
   const household = sanitizeHousehold(
     (body as { household?: unknown } | null)?.household,
   );
   if (!household) {
-    return NextResponse.json({ saved: false, reason: "bad-request" }, { status: 400 });
+    return NextResponse.json(
+      { saved: false, reason: "bad-request" },
+      { status: 400 },
+    );
   }
 
   try {
@@ -87,6 +96,9 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json({ saved: true });
   } catch (error) {
     console.error("[progress] save failed:", error);
-    return NextResponse.json({ saved: false, reason: "error" }, { status: 500 });
+    return NextResponse.json(
+      { saved: false, reason: "error" },
+      { status: 500 },
+    );
   }
 }

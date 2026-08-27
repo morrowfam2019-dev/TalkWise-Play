@@ -110,8 +110,8 @@ export default function BeginnerHome() {
 
         <p className="mt-8 rounded-2xl border-4 border-white/70 bg-white/60 p-4 text-center text-xs font-semibold text-[#7a5a12]">
           Every sound lives in this one world, and none of them are locked —
-          wander wherever looks fun and find them in whatever order suits
-          your child.
+          wander wherever looks fun and find them in whatever order suits your
+          child.
         </p>
 
         <div className="mt-8 text-center">

@@ -122,9 +122,21 @@ export function GameplayController({
   const debugClock = useRef(0);
 
   // Live mirrors so the frame loop never reads stale props via closure.
-  const state = useRef({ paused, completed, collected, finishUnlocked, risingToyIds });
+  const state = useRef({
+    paused,
+    completed,
+    collected,
+    finishUnlocked,
+    risingToyIds,
+  });
   useEffect(() => {
-    state.current = { paused, completed, collected, finishUnlocked, risingToyIds };
+    state.current = {
+      paused,
+      completed,
+      collected,
+      finishUnlocked,
+      risingToyIds,
+    };
   }, [paused, completed, collected, finishUnlocked, risingToyIds]);
 
   useEffect(() => {
@@ -140,7 +152,11 @@ export function GameplayController({
 
   useFrame((frame, rawDelta) => {
     const delta = Math.min(rawDelta, 1 / 30);
-    const { paused: isPaused, completed: done, collected: taken } = state.current;
+    const {
+      paused: isPaused,
+      completed: done,
+      collected: taken,
+    } = state.current;
 
     // --- Camera orientation --------------------------------------------------
     const look = input.consumeLook();
@@ -209,7 +225,12 @@ export function GameplayController({
 
     if (blobShadow.current) {
       // The shadow rides the surface below the player and fades with height.
-      const found = groundHeightAt(boxes, position.x, position.z, position.y + 0.05);
+      const found = groundHeightAt(
+        boxes,
+        position.x,
+        position.z,
+        position.y + 0.05,
+      );
       const groundY = Number.isFinite(found) ? found : world.waterLevel;
       const height = Math.max(0, position.y - groundY);
       blobShadow.current.position.set(position.x, groundY + 0.04, position.z);
@@ -221,10 +242,15 @@ export function GameplayController({
 
     // --- Camera follow -------------------------------------------------------
     const cosPitch = Math.cos(pitch.current);
-    const desiredX = position.x + Math.sin(yaw.current) * CAMERA_DISTANCE * cosPitch;
-    const desiredZ = position.z + Math.cos(yaw.current) * CAMERA_DISTANCE * cosPitch;
+    const desiredX =
+      position.x + Math.sin(yaw.current) * CAMERA_DISTANCE * cosPitch;
+    const desiredZ =
+      position.z + Math.cos(yaw.current) * CAMERA_DISTANCE * cosPitch;
     const desiredY =
-      position.y + CAMERA_TARGET_HEIGHT + Math.sin(pitch.current) * CAMERA_DISTANCE + 1.1;
+      position.y +
+      CAMERA_TARGET_HEIGHT +
+      Math.sin(pitch.current) * CAMERA_DISTANCE +
+      1.1;
 
     const camera = frame.camera;
     if (!cameraReady.current) {
@@ -311,7 +337,12 @@ export function GameplayController({
     <group>
       <mesh ref={blobShadow} rotation={[-Math.PI / 2, 0, 0]}>
         <circleGeometry args={[0.55, 16]} />
-        <meshBasicMaterial color="#123" transparent opacity={0.26} depthWrite={false} />
+        <meshBasicMaterial
+          color="#123"
+          transparent
+          opacity={0.26}
+          depthWrite={false}
+        />
       </mesh>
       <group ref={playerGroup}>
         <PlayerAvatar

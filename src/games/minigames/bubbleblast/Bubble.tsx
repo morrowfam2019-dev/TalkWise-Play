@@ -22,7 +22,11 @@
 
 import { useState } from "react";
 import { useIntentionalTap } from "@/minigames/touch";
-import { BUBBLE_TINTS, RISE_DVH, type Bubble as BubbleData } from "./core/field";
+import {
+  BUBBLE_TINTS,
+  RISE_DVH,
+  type Bubble as BubbleData,
+} from "./core/field";
 
 export function BubbleView({
   bubble,
@@ -94,7 +98,10 @@ export function BubbleView({
         className={`flex touch-none flex-col items-center justify-center rounded-full border-4 border-white/85 bg-gradient-to-br shadow-lg backdrop-blur-[1px] transition-transform ${
           BUBBLE_TINTS[bubble.tint]
         } ${popped ? "tw-popped" : ""} ${pressed && !popped ? "scale-90" : ""}`}
-        style={{ width: `${bubble.sizeRem}rem`, height: `${bubble.sizeRem}rem` }}
+        style={{
+          width: `${bubble.sizeRem}rem`,
+          height: `${bubble.sizeRem}rem`,
+        }}
       >
         {bubble.face === "letter" ? (
           <span className="text-4xl font-black text-[#141420] drop-shadow-sm">

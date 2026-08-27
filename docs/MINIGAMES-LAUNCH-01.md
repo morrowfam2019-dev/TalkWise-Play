@@ -1,7 +1,6 @@
 # Mini Games — Launch Collection 01
 
-Five new TalkWise Play games (GAME-003 … GAME-008, less GAME-007) on one
-shared framework.
+Four new TalkWise Play games (GAME-003 … GAME-006) on one shared framework.
 
 > Restore point: [`docs/RESTORE-POINT-MINIGAMES-01.md`](./RESTORE-POINT-MINIGAMES-01.md)
 > Architecture: [`docs/ARCHITECTURE.md` → Mini Games](./ARCHITECTURE.md#mini-games--launch-collection-01)
@@ -16,17 +15,19 @@ shared framework.
 | GAME-004 | Sound Match | `/games/sound-match` | 8 rounds | Drag into the backpack | Every round |
 | GAME-005 | Colour & Shape Hunt | `/games/color-shape-hunt` | 8 finds | Search a scene and tap | Finds 1, 4, 7 |
 | GAME-006 | Guess the Sound | `/games/guess-the-sound` | 8 sounds | Listen and choose | Rounds 1, 4, 7 |
-| GAME-008 | Story Builder | `/games/story-builder` | 4 scenes | Build a sentence from parts | Every scene |
 
 Each is separately registered, routed, and saved. None is a mode inside a
 wrapper game.
 
-**GAME-007 Action Dash was cut.** It shipped as a 3D side-scrolling course
-and did not clear founder review, so it was removed rather than iterated on
-further. Its id is retired, not recycled — see
-[`ARCHITECTURE.md`](./ARCHITECTURE.md#the-game-registry). The content it
-used is untouched: the `action-time` pack and the action attributes still
-feed Story Builder, and TJ still appears there.
+**GAME-007 Action Dash and GAME-008 Story Builder were cut.** Both shipped
+and neither cleared founder review, so both were removed rather than
+iterated on further. Their ids are retired, not recycled — see
+[`ARCHITECTURE.md`](./ARCHITECTURE.md#the-game-registry).
+
+The content they used is untouched. The `action-time` pack, the action
+verbs and the sentence fields all stay in the library that thin packs top
+up from, and `src/minigames/ui/TJ.tsx` stays as an approved character asset
+even though nothing renders him now — he appears on the card art only.
 
 ## Learning modes
 
@@ -48,7 +49,7 @@ My Body · Around the House · Outside Adventures · Feelings
 ## Persistence namespaces
 
 ```
-games["GAME-003"] … games["GAME-008"]   (no GAME-007 — Action Dash was cut)
+games["GAME-003"] … games["GAME-006"]
   records      keyed `${packId}:${level}` → bestScore, bestAccuracy, bestCombo, plays
   collected    game-defined ids (stories built, objects found)
   achievements
@@ -102,15 +103,15 @@ microphone, so they need the external browser exactly as the big games do.
 ## B. The library
 
 - [ ] The home screen now shows **two shelves**: Featured (2 games) and
-      Quick Play (6 games).
-- [ ] All six new cards have their own picture — you can tell the games
+      Quick Play (4 games plus two "More games" placeholders).
+- [ ] All four new cards have their own picture — you can tell the games
       apart without reading the titles.
 - [ ] Each Quick Play card shows a session length.
-- [ ] Tapping each of the six reaches its setup screen.
+- [ ] Tapping each of the four reaches its setup screen.
 
 ## C. Each mini-game — the shared checks
 
-For **every** one of the six:
+For **every** one of the four:
 
 - [ ] The setup screen offers packs and levels, and your last choice is
       remembered next time.
@@ -169,17 +170,7 @@ For **every** one of the six:
 - [ ] At Beginner the three choices are obviously different kinds of thing.
 - [ ] At Expert there are four choices and they are all similar.
 
-## H. Story Builder (GAME-008)
-
-- [ ] Choices appear one slot at a time and the sentence grows visibly.
-- [ ] At Expert the finished sentence reads properly
-      ("The dog is running in the park.").
-- [ ] Miss Maya reads back **your** sentence.
-- [ ] The scene celebrates after you say it.
-- [ ] Four scenes, then results, and the results name how many stories you
-      built.
-
-## I. Economy and anti-farming
+## H. Economy and anti-farming
 
 - [ ] Play the **same** mini-game four times in a row. The fourth round pays
       noticeably fewer coins than the first — this is intentional.
@@ -188,7 +179,7 @@ For **every** one of the six:
 - [ ] Beating your own best score shows a "New personal best!" ribbon and an
       extra coin bonus.
 
-## K. Platform and security
+## I. Platform and security
 
 - [ ] Switch child profiles on the home screen, play a mini-game, and switch
       back — each child's scores are their own.
@@ -198,7 +189,7 @@ For **every** one of the six:
       you land on the membership screen, not the game.
 - [ ] Try it on an iPad too.
 
-## L. Report anything that
+## J. Report anything that
 
 - feels slow, stuttery, or hot on the phone,
 - is hard for a child to tap,
@@ -238,30 +229,26 @@ For **every** one of the six:
    games (bubbles, cards, scene objects), as it is throughout the platform.
    The `ContentItem.glyph` field is the seam for replacing them.
 
-   Card art is the founder-approved TJ cover set. In-game TJ is drawn as
-   vector in his approved colours; a transparent photographic render of him
-   exists in Higgsfield
-   (element `tj-talkwise-play`) and can be swapped in by saving it as
-   `public/characters/tj.png` and flipping `TJ_PHOTO` in
-   `src/minigames/ui/TJ.tsx`.
+   Card art is the founder-approved TJ cover set. **No game renders TJ
+   himself any more** — the two that did were cut. The vector TJ stays in
+   `src/minigames/ui/TJ.tsx` for whatever comes next, and a transparent
+   photographic render exists in Higgsfield (element `tj-talkwise-play`)
+   that can be dropped in at `public/characters/tj.png` with `TJ_PHOTO`.
 
-4. **Accuracy in Story Builder is always 100%.** It has no wrong actions to
-   count, by design. It is reported honestly rather than hidden.
-
-5. **Analytics events are emitted into a no-op sink.** Nothing is recorded
+4. **Analytics events are emitted into a no-op sink.** Nothing is recorded
    anywhere yet. Wiring a transport is `setAnalyticsSink`.
 
-6. **The daily coin counter is per mini-game, not per collection.** Three
+5. **The daily coin counter is per mini-game, not per collection.** Three
    full-rate sessions of Bubble Blast *and* three of Sound Match are both
    available in one day. That is deliberate — playing six different games is
    the behaviour worth rewarding — but it means a determined day across all
-   five earns roughly 200–250 coins. Worth watching against real usage.
+   four earns roughly 160–200 coins. Worth watching against real usage.
 
-7. **No pack/level combination is hidden when a pack is thin.** Sound Match
+6. **No pack/level combination is hidden when a pack is thin.** Sound Match
    at Beginner and Guess the Sound at Expert top up their choices from the
    whole library rather than refusing to run. The target still comes from
    the chosen pack.
 
-8. **Power-ups are visual only.** They do not change scoring, timing or
+7. **Power-ups are visual only.** They do not change scoring, timing or
    difficulty. Making them mechanically meaningful is a design decision, not
    an oversight.

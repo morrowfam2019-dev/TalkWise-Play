@@ -31,9 +31,18 @@ export function BallerThumbnail({
       >
         <ambientLight intensity={1.2} />
         <directionalLight position={[2, 3, 2]} intensity={1.1} />
-        <directionalLight position={[-2, 2, -1]} intensity={0.4} color="#ffe6bd" />
+        <directionalLight
+          position={[-2, 2, -1]}
+          intensity={0.4}
+          color="#ffe6bd"
+        />
         <Suspense fallback={null}>
-          <BallerAvatar ballerId={ballerId} jerseyId={jerseyId} phase="idle" facing={0} />
+          <BallerAvatar
+            ballerId={ballerId}
+            jerseyId={jerseyId}
+            phase="idle"
+            facing={0}
+          />
         </Suspense>
       </Canvas>
     </div>

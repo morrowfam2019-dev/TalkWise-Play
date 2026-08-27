@@ -5,7 +5,11 @@
  * so a coin reads as the same brand mark everywhere it shows up, instead of
  * the generic grey 🪙 emoji standing in for it.
  */
-export function CoinIcon({ className = "h-[1em] w-[1em]" }: { className?: string }) {
+export function CoinIcon({
+  className = "h-[1em] w-[1em]",
+}: {
+  className?: string;
+}) {
   return (
     <svg viewBox="0 0 48 40" className={className} aria-hidden="true">
       <path

@@ -109,7 +109,11 @@ function SceneObjectView({
         transform: `translate(-50%, -50%) rotate(${object.tiltDeg}deg)`,
       }}
     >
-      <ShapeGlyph shape={object.shape} color={object.color} className="h-full w-full drop-shadow-lg" />
+      <ShapeGlyph
+        shape={object.shape}
+        color={object.color}
+        className="h-full w-full drop-shadow-lg"
+      />
       <span
         className="absolute text-2xl drop-shadow"
         style={{ fontSize: `${1.5 * scale}rem` }}
@@ -182,10 +186,18 @@ export function ColorShapeHuntGame({
       id: `hunt-${round.index}-${word}`,
       kind: "word",
       text: word,
-      words: [{ id: "0", text: word, normalized: word.toLowerCase().replace(/[^a-z']/g, "") }],
+      words: [
+        {
+          id: "0",
+          text: word,
+          normalized: word.toLowerCase().replace(/[^a-z']/g, ""),
+        },
+      ],
       prompt: `Say ${word.toUpperCase()}!`,
       model: word,
-      glyph: plan?.objects.find((entry) => entry.id === round.targetId)?.item.glyph ?? "⭐",
+      glyph:
+        plan?.objects.find((entry) => entry.id === round.targetId)?.item
+          .glyph ?? "⭐",
       cue: null,
       soundConfig: null,
       wordByWord: false,

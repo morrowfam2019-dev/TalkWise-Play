@@ -40,9 +40,7 @@ export const ADVENTURE_TIERS = ["beginner", "intermediate", "expert"] as const;
 export type AdventureTier = (typeof ADVENTURE_TIERS)[number];
 
 export function isAdventureTier(value: unknown): value is AdventureTier {
-  return (
-    value === "beginner" || value === "intermediate" || value === "expert"
-  );
+  return value === "beginner" || value === "intermediate" || value === "expert";
 }
 
 /** Everything GAME-001 currently has for one target sound. */

@@ -257,7 +257,9 @@ export function ChallengeModal({
                   <p className="text-[0.65rem] font-black tracking-wide text-[#2f7fd4] uppercase">
                     Miss Maya says
                   </p>
-                  <p className="text-2xl font-black text-[#141420]">{challenge.word}</p>
+                  <p className="text-2xl font-black text-[#141420]">
+                    {challenge.word}
+                  </p>
                 </div>
               </div>
               <div className="mt-3 flex gap-2">
@@ -332,21 +334,22 @@ export function ChallengeModal({
                 </button>
               )}
 
-              {micPermission === "granted" && listeningStatus === "listening" && (
-                <>
-                  <button
-                    disabled
-                    className="mt-6 w-full rounded-2xl border-b-8 border-[#f59e0b] bg-[#f59e0b] px-6 py-5 text-2xl font-black text-white shadow-lg"
-                  >
-                    🎤 Listening...
-                  </button>
-                  {attempts > 0 && (
-                    <p className="mt-2 text-xs font-bold text-[#8a8aa0]">
-                      Try {attempts + 1} of {MAX_ATTEMPTS}
-                    </p>
-                  )}
-                </>
-              )}
+              {micPermission === "granted" &&
+                listeningStatus === "listening" && (
+                  <>
+                    <button
+                      disabled
+                      className="mt-6 w-full rounded-2xl border-b-8 border-[#f59e0b] bg-[#f59e0b] px-6 py-5 text-2xl font-black text-white shadow-lg"
+                    >
+                      🎤 Listening...
+                    </button>
+                    {attempts > 0 && (
+                      <p className="mt-2 text-xs font-bold text-[#8a8aa0]">
+                        Try {attempts + 1} of {MAX_ATTEMPTS}
+                      </p>
+                    )}
+                  </>
+                )}
 
               {/* The way out of microphone mode, always reachable — including
                   mid-listen, which is exactly when a child discovers the mic

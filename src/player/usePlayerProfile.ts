@@ -45,7 +45,8 @@ export function usePlayerProfile() {
     householdStore.getServerSnapshot,
   );
 
-  const profile = household.children[household.activeChildId] ?? DEFAULT_PROFILE;
+  const profile =
+    household.children[household.activeChildId] ?? DEFAULT_PROFILE;
 
   /** Applies a change to whichever child is active right now. */
   const updateActive = useCallback(
@@ -176,7 +177,11 @@ export function usePlayerProfile() {
       const current = householdStore.getSnapshot();
       const activeProfile =
         current.children[current.activeChildId] ?? DEFAULT_PROFILE;
-      const { profile: next, bought } = purchaseItem(activeProfile, gameId, item);
+      const { profile: next, bought } = purchaseItem(
+        activeProfile,
+        gameId,
+        item,
+      );
       if (bought) {
         householdStore.save({
           ...current,

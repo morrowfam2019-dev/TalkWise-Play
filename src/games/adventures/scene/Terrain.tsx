@@ -37,11 +37,11 @@ export function Terrain({ world }: { world: WorldDefinition }) {
               number,
               number,
             ],
-            position: [centerX, solid.top - CAP_THICKNESS / 2 + 0.01, centerZ] as [
-              number,
-              number,
-              number,
-            ],
+            position: [
+              centerX,
+              solid.top - CAP_THICKNESS / 2 + 0.01,
+              centerZ,
+            ] as [number, number, number],
           },
         };
       }),
@@ -66,10 +66,7 @@ export function Terrain({ world }: { world: WorldDefinition }) {
       ))}
 
       {/* Ocean around the island. */}
-      <mesh
-        rotation={[-Math.PI / 2, 0, 0]}
-        position={[0, world.waterLevel, 0]}
-      >
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, world.waterLevel, 0]}>
         <planeGeometry args={[400, 400]} />
         <meshLambertMaterial color={world.waterColor} />
       </mesh>

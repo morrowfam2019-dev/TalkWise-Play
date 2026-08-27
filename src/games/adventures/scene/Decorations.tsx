@@ -60,7 +60,11 @@ function Pine({ scale }: { scale: number }) {
 
 function Rock({ scale }: { scale: number }) {
   return (
-    <mesh scale={scale} position={[0, 0.35 * scale, 0]} rotation={[0.3, 0.8, 0.2]}>
+    <mesh
+      scale={scale}
+      position={[0, 0.35 * scale, 0]}
+      rotation={[0.3, 0.8, 0.2]}
+    >
       <icosahedronGeometry args={[0.6, 0]} />
       <meshLambertMaterial color={ROCK} flatShading />
     </mesh>
@@ -76,7 +80,11 @@ function Flower({ scale, color }: { scale: number; color: string }) {
       </mesh>
       <mesh position={[0, 0.5, 0]}>
         <sphereGeometry args={[0.16, 8, 7]} />
-        <meshLambertMaterial color={color} emissive={color} emissiveIntensity={0.25} />
+        <meshLambertMaterial
+          color={color}
+          emissive={color}
+          emissiveIntensity={0.25}
+        />
       </mesh>
     </group>
   );
@@ -106,7 +114,13 @@ function Cloud({ scale }: { scale: number }) {
  * round token. Deliberately unlike a coin in both shape and default color, so
  * a trail marker never reads as a stray pickup a child forgot to collect.
  */
-function Crystal({ scale, color = "#bff2ff" }: { scale: number; color?: string }) {
+function Crystal({
+  scale,
+  color = "#bff2ff",
+}: {
+  scale: number;
+  color?: string;
+}) {
   const ref = useRef<THREE.Group>(null);
   useFrame((_, delta) => {
     if (ref.current) ref.current.rotation.y += delta * 0.5;
@@ -115,15 +129,27 @@ function Crystal({ scale, color = "#bff2ff" }: { scale: number; color?: string }
     <group ref={ref} scale={scale}>
       <mesh position={[0, 0.3, 0]}>
         <coneGeometry args={[0.13, 0.6, 5]} />
-        <meshLambertMaterial color={color} emissive={color} emissiveIntensity={0.4} />
+        <meshLambertMaterial
+          color={color}
+          emissive={color}
+          emissiveIntensity={0.4}
+        />
       </mesh>
       <mesh position={[0.14, 0.16, 0.05]} rotation={[0, 0, -0.25]} scale={0.6}>
         <coneGeometry args={[0.13, 0.6, 5]} />
-        <meshLambertMaterial color={color} emissive={color} emissiveIntensity={0.4} />
+        <meshLambertMaterial
+          color={color}
+          emissive={color}
+          emissiveIntensity={0.4}
+        />
       </mesh>
       <mesh position={[-0.12, 0.13, -0.08]} rotation={[0, 0, 0.3]} scale={0.5}>
         <coneGeometry args={[0.13, 0.6, 5]} />
-        <meshLambertMaterial color={color} emissive={color} emissiveIntensity={0.4} />
+        <meshLambertMaterial
+          color={color}
+          emissive={color}
+          emissiveIntensity={0.4}
+        />
       </mesh>
     </group>
   );
@@ -254,7 +280,12 @@ function DecorationItem({ decoration }: { decoration: Decoration }) {
     case "rock":
       return <Rock scale={decoration.scale} />;
     case "flower":
-      return <Flower scale={decoration.scale} color={decoration.color ?? "#ff8fd0"} />;
+      return (
+        <Flower
+          scale={decoration.scale}
+          color={decoration.color ?? "#ff8fd0"}
+        />
+      );
     case "cloud":
       return <Cloud scale={decoration.scale} />;
     case "crystal":

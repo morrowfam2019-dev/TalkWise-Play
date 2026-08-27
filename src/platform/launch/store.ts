@@ -157,6 +157,9 @@ export function getLaunchTokenStore(): LaunchTokenStore {
   if (cached) return cached;
   const url = process.env.KV_REST_API_URL;
   const token = process.env.KV_REST_API_TOKEN;
-  cached = url && token ? new KvLaunchTokenStore(url, token) : new MemoryLaunchTokenStore();
+  cached =
+    url && token
+      ? new KvLaunchTokenStore(url, token)
+      : new MemoryLaunchTokenStore();
   return cached;
 }

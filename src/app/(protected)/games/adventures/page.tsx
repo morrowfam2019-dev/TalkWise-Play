@@ -44,7 +44,10 @@ export default function AdventuresHome() {
       }).length
     );
   }, 0);
-  const totalStations = maps.reduce((total, map) => total + map.stations.length, 0);
+  const totalStations = maps.reduce(
+    (total, map) => total + map.stations.length,
+    0,
+  );
 
   const levelsDone = levels.filter(
     (level) => adventures.levels[level.id]?.completed,

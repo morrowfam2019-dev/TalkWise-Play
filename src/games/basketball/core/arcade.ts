@@ -64,7 +64,8 @@ export const HOOP_MOVE_PERIOD_SECONDS = 2.6;
 
 /** The hoop's horizontal offset from its resting centre, in world units. */
 export function getRimOffsetX(secondsRemaining: number): number {
-  if (secondsRemaining > HOOP_MOVE_WINDOW_SECONDS || secondsRemaining < 0) return 0;
+  if (secondsRemaining > HOOP_MOVE_WINDOW_SECONDS || secondsRemaining < 0)
+    return 0;
   const elapsed = HOOP_MOVE_WINDOW_SECONDS - secondsRemaining;
   const phase = (elapsed / HOOP_MOVE_PERIOD_SECONDS) * Math.PI * 2;
   return Math.sin(phase) * HOOP_MOVE_AMPLITUDE;
@@ -288,7 +289,11 @@ function horizontalDistanceFromRim(x: number, z: number, rimX: number): number {
  * pass the same value the scene rendered the hoop at this frame, or omit it
  * outside the closing-seconds window, where it's always 0.
  */
-export function stepBall(ball: ArcadeBall, dtSeconds: number, rimX: number = RIM_X): void {
+export function stepBall(
+  ball: ArcadeBall,
+  dtSeconds: number,
+  rimX: number = RIM_X,
+): void {
   if (!ball.active) return;
 
   ball.hitRim = false;

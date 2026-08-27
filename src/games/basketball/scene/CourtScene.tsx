@@ -60,7 +60,12 @@ export function CourtScene({
       flat
       dpr={[1, 2]}
       gl={{ antialias: true, powerPreference: "high-performance" }}
-      camera={{ fov: 55, near: 0.1, far: 100, position: [0, 3, spot.distance + 4] }}
+      camera={{
+        fov: 55,
+        near: 0.1,
+        far: 100,
+        position: [0, 3, spot.distance + 4],
+      }}
     >
       <color attach="background" args={[SKY]} />
       <fog attach="fog" args={["#bfeafd", 20, 45]} />
@@ -68,7 +73,11 @@ export function CourtScene({
       <ambientLight intensity={1.1} />
       <hemisphereLight args={[SKY, "#7a5230", 0.5]} />
       <directionalLight position={[8, 12, 6]} intensity={1.2} />
-      <directionalLight position={[-6, 8, -4]} intensity={0.35} color="#ffe6bd" />
+      <directionalLight
+        position={[-6, 8, -4]}
+        intensity={0.35}
+        color="#ffe6bd"
+      />
 
       <CameraRig spot={spot} />
       <Court />

@@ -36,7 +36,10 @@ async function hmacKey(secret: string): Promise<CryptoKey> {
 export function toBase64Url(bytes: Uint8Array): string {
   let binary = "";
   for (const byte of bytes) binary += String.fromCharCode(byte);
-  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  return btoa(binary)
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "");
 }
 
 export function fromBase64Url(value: string): Uint8Array | null {
@@ -58,7 +61,11 @@ export function randomToken(byteLength = 32): string {
 
 export async function sign(payload: string, secret: string): Promise<string> {
   const key = await hmacKey(secret);
-  const signature = await crypto.subtle.sign("HMAC", key, encoder.encode(payload));
+  const signature = await crypto.subtle.sign(
+    "HMAC",
+    key,
+    encoder.encode(payload),
+  );
   return toBase64Url(new Uint8Array(signature));
 }
 

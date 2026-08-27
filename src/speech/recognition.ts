@@ -266,8 +266,7 @@ export class PhraseRecognizer {
 export class WordRecognizer {
   private recognition: SpeechRecognitionLike | null = null;
   private timeoutId: number | null = null;
-  private statusCallback: ((status: SpeechListenStatus) => void) | null =
-    null;
+  private statusCallback: ((status: SpeechListenStatus) => void) | null = null;
   private finished = false;
 
   /** Listens once for `targetWord`, reporting a match or no-match. Always

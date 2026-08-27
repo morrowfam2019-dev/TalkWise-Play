@@ -1,9 +1,4 @@
-import type {
-  Collectible,
-  Decoration,
-  Solid,
-  WorldDefinition,
-} from "./types";
+import type { Collectible, Decoration, Solid, WorldDefinition } from "./types";
 
 /**
  * MOUNTAIN OF M — a spiral climb. Action: JUMP.
@@ -111,21 +106,99 @@ const decorations: Decoration[] = [
   { id: "r6", kind: "rock", position: [8, T3, 6], scale: 0.65 },
 
   // Meadow flowers.
-  { id: "f1", kind: "flower", position: [-8, 0, 22], scale: 1, color: "#ff6f91" },
-  { id: "f2", kind: "flower", position: [8, 0, 21], scale: 1, color: "#ffb347" },
-  { id: "f3", kind: "flower", position: [-20, 0, -14], scale: 1, color: "#7fd8ff" },
-  { id: "f4", kind: "flower", position: [-16, T1, 16], scale: 1, color: "#ffb347" },
-  { id: "f5", kind: "flower", position: [13, T2, -12], scale: 1, color: "#ff6f91" },
+  {
+    id: "f1",
+    kind: "flower",
+    position: [-8, 0, 22],
+    scale: 1,
+    color: "#ff6f91",
+  },
+  {
+    id: "f2",
+    kind: "flower",
+    position: [8, 0, 21],
+    scale: 1,
+    color: "#ffb347",
+  },
+  {
+    id: "f3",
+    kind: "flower",
+    position: [-20, 0, -14],
+    scale: 1,
+    color: "#7fd8ff",
+  },
+  {
+    id: "f4",
+    kind: "flower",
+    position: [-16, T1, 16],
+    scale: 1,
+    color: "#ffb347",
+  },
+  {
+    id: "f5",
+    kind: "flower",
+    position: [13, T2, -12],
+    scale: 1,
+    color: "#ff6f91",
+  },
 
   // Crystals lighting each stair, so the way up is always visible.
-  { id: "c1", kind: "crystal", position: [-4.4, 0, 21], scale: 0.9, color: "#dff3ff" },
-  { id: "c2", kind: "crystal", position: [4.4, 0, 21], scale: 0.9, color: "#dff3ff" },
-  { id: "c3", kind: "crystal", position: [17, T1, 4.4], scale: 0.9, color: "#dff3ff" },
-  { id: "c4", kind: "crystal", position: [17, T1, -4.4], scale: 0.9, color: "#dff3ff" },
-  { id: "c5", kind: "crystal", position: [-4.4, T2, -12], scale: 0.9, color: "#dff3ff" },
-  { id: "c6", kind: "crystal", position: [4.4, T2, -12], scale: 0.9, color: "#dff3ff" },
-  { id: "c7", kind: "crystal", position: [-8, T3, 4.4], scale: 0.9, color: "#dff3ff" },
-  { id: "c8", kind: "crystal", position: [-8, T3, -4.4], scale: 0.9, color: "#dff3ff" },
+  {
+    id: "c1",
+    kind: "crystal",
+    position: [-4.4, 0, 21],
+    scale: 0.9,
+    color: "#dff3ff",
+  },
+  {
+    id: "c2",
+    kind: "crystal",
+    position: [4.4, 0, 21],
+    scale: 0.9,
+    color: "#dff3ff",
+  },
+  {
+    id: "c3",
+    kind: "crystal",
+    position: [17, T1, 4.4],
+    scale: 0.9,
+    color: "#dff3ff",
+  },
+  {
+    id: "c4",
+    kind: "crystal",
+    position: [17, T1, -4.4],
+    scale: 0.9,
+    color: "#dff3ff",
+  },
+  {
+    id: "c5",
+    kind: "crystal",
+    position: [-4.4, T2, -12],
+    scale: 0.9,
+    color: "#dff3ff",
+  },
+  {
+    id: "c6",
+    kind: "crystal",
+    position: [4.4, T2, -12],
+    scale: 0.9,
+    color: "#dff3ff",
+  },
+  {
+    id: "c7",
+    kind: "crystal",
+    position: [-8, T3, 4.4],
+    scale: 0.9,
+    color: "#dff3ff",
+  },
+  {
+    id: "c8",
+    kind: "crystal",
+    position: [-8, T3, -4.4],
+    scale: 0.9,
+    color: "#dff3ff",
+  },
 
   // Clouds.
   { id: "cl1", kind: "cloud", position: [-18, 16, 6], scale: 2.4 },

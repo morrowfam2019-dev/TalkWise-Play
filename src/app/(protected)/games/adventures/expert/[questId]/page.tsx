@@ -14,7 +14,10 @@ export async function generateMetadata({
   const { questId } = await params;
   const quest = getExpertQuest(questId);
   if (!quest) return { title: "TalkWise Play" };
-  return { title: `${quest.title} · TalkWise Play`, description: quest.tagline };
+  return {
+    title: `${quest.title} · TalkWise Play`,
+    description: quest.tagline,
+  };
 }
 
 export default async function ExpertQuestPage({

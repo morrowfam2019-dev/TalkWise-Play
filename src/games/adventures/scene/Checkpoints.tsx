@@ -74,13 +74,21 @@ function Checkpoint({ anchor, challenge, completed, isNear }: CheckpointProps) {
       </mesh>
       <mesh position={[0, 0.5, 0]}>
         <cylinderGeometry args={[0.5, 0.62, 0.16, 12]} />
-        <meshLambertMaterial color={color} emissive={color} emissiveIntensity={0.35} />
+        <meshLambertMaterial
+          color={color}
+          emissive={color}
+          emissiveIntensity={0.35}
+        />
       </mesh>
 
       {/* Ground ring */}
       <mesh ref={ring} rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.03, 0]}>
         <torusGeometry args={[1.32, 0.09, 8, 28]} />
-        <meshLambertMaterial color={color} emissive={color} emissiveIntensity={0.5} />
+        <meshLambertMaterial
+          color={color}
+          emissive={color}
+          emissiveIntensity={0.5}
+        />
       </mesh>
 
       {/* Flag — planted on the plinth, not floating, so nothing here reads
@@ -89,9 +97,17 @@ function Checkpoint({ anchor, challenge, completed, isNear }: CheckpointProps) {
         <cylinderGeometry args={[0.04, 0.04, 1.3, 6]} />
         <meshLambertMaterial color={STONE} />
       </mesh>
-      <mesh ref={pennant} position={[0, 1.9, 0.22]} rotation={[0, 0, Math.PI / 2]}>
+      <mesh
+        ref={pennant}
+        position={[0, 1.9, 0.22]}
+        rotation={[0, 0, Math.PI / 2]}
+      >
         <coneGeometry args={[0.3, 0.5, 3]} />
-        <meshLambertMaterial color={color} emissive={color} emissiveIntensity={0.55} />
+        <meshLambertMaterial
+          color={color}
+          emissive={color}
+          emissiveIntensity={0.55}
+        />
       </mesh>
 
       {/* Guiding light beam, hidden once the challenge is done */}

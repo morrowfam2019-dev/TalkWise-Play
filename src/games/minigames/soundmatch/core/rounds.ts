@@ -134,7 +134,12 @@ export function planSession(options: {
 
     const cards = shuffle(
       [
-        { id: target.id, item: target, isTarget: true, ...faceOf(target, level) },
+        {
+          id: target.id,
+          item: target,
+          isTarget: true,
+          ...faceOf(target, level),
+        },
         ...distractors.map((item) => ({
           id: item.id,
           item,

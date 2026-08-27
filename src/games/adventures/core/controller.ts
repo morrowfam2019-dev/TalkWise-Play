@@ -139,14 +139,20 @@ export class PlayerController {
     // branch, so a slide can never be triggered where nothing is duckable.
     this.slideCooldown = Math.max(0, this.slideCooldown - dt);
     if (worldAction === "slide") {
-      if (actionPressed && this.grounded && !this.sliding && this.slideCooldown <= 0) {
+      if (
+        actionPressed &&
+        this.grounded &&
+        !this.sliding &&
+        this.slideCooldown <= 0
+      ) {
         this.sliding = true;
         this.slideTimer = SLIDE_DURATION;
         // Slide along the way the player is already looking, so ducking under
         // a barrier doesn't need the stick held perfectly straight.
-        const heading = Math.hypot(this.velocity.x, this.velocity.z) > 0.4
-          ? Math.atan2(this.velocity.x, this.velocity.z)
-          : this.facing;
+        const heading =
+          Math.hypot(this.velocity.x, this.velocity.z) > 0.4
+            ? Math.atan2(this.velocity.x, this.velocity.z)
+            : this.facing;
         this.velocity.x = Math.sin(heading) * SLIDE_SPEED;
         this.velocity.z = Math.cos(heading) * SLIDE_SPEED;
       }
@@ -231,15 +237,27 @@ export class PlayerController {
     }
 
     // --- Vertical movement --------------------------------------------------
-    this.velocity.y = Math.max(TERMINAL_VELOCITY, this.velocity.y - GRAVITY * dt);
+    this.velocity.y = Math.max(
+      TERMINAL_VELOCITY,
+      this.velocity.y - GRAVITY * dt,
+    );
     let nextY = this.position.y + this.velocity.y * dt;
 
     // Surfaces the player may land on: anything up to a step above the feet
     // while grounded (so stairs pull them up), or at/below the feet mid-air.
     const surfaceLimit = wasGrounded ? feetY + STEP_HEIGHT : feetY + 0.02;
-    const ground = groundHeightAt(boxes, this.position.x, this.position.z, surfaceLimit);
+    const ground = groundHeightAt(
+      boxes,
+      this.position.x,
+      this.position.z,
+      surfaceLimit,
+    );
 
-    if (this.velocity.y <= 0 && ground > Number.NEGATIVE_INFINITY && nextY <= ground) {
+    if (
+      this.velocity.y <= 0 &&
+      ground > Number.NEGATIVE_INFINITY &&
+      nextY <= ground
+    ) {
       nextY = ground;
       if (!wasGrounded) this.landingImpact = -this.velocity.y;
       this.velocity.y = 0;
@@ -250,7 +268,12 @@ export class PlayerController {
 
     // Head bump: stop upward motion under an overhang.
     if (this.velocity.y > 0) {
-      const ceiling = ceilingHeightAt(boxes, this.position.x, this.position.z, this.position.y);
+      const ceiling = ceilingHeightAt(
+        boxes,
+        this.position.x,
+        this.position.z,
+        this.position.y,
+      );
       if (nextY + this.height > ceiling) {
         nextY = ceiling - this.height;
         this.velocity.y = 0;

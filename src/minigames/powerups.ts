@@ -56,14 +56,62 @@ export interface PowerUpDefinition {
 }
 
 export const POWER_UPS: PowerUpDefinition[] = [
-  { id: "rocket-shoes", label: "Rocket Shoes", glyph: "🚀", shout: "Zoom zoom!", gradient: "from-[#ff8a3d] to-[#e0442c]" },
-  { id: "hero-cape", label: "Hero Cape", glyph: "🦸", shout: "Super talking!", gradient: "from-[#4ac1ff] to-[#2f6fd4]" },
-  { id: "crown", label: "Golden Crown", glyph: "👑", shout: "You rule!", gradient: "from-[#ffd76e] to-[#e0a020]" },
-  { id: "star-trail", label: "Star Trail", glyph: "✨", shout: "Sparkle time!", gradient: "from-[#ffe066] to-[#f0973d]" },
-  { id: "glow-aura", label: "Glow Aura", glyph: "🌟", shout: "You are glowing!", gradient: "from-[#8fe3c4] to-[#2f9e8c]" },
-  { id: "animal-ears", label: "Animal Ears", glyph: "🐰", shout: "Hop hop!", gradient: "from-[#ff9ecd] to-[#c76bb0]" },
-  { id: "silly-glasses", label: "Silly Glasses", glyph: "🕶️", shout: "Looking cool!", gradient: "from-[#a273e8] to-[#6d3fd4]" },
-  { id: "tiny-dragon", label: "Tiny Dragon", glyph: "🐉", shout: "Roar!", gradient: "from-[#7ed957] to-[#2f9e52]" },
+  {
+    id: "rocket-shoes",
+    label: "Rocket Shoes",
+    glyph: "🚀",
+    shout: "Zoom zoom!",
+    gradient: "from-[#ff8a3d] to-[#e0442c]",
+  },
+  {
+    id: "hero-cape",
+    label: "Hero Cape",
+    glyph: "🦸",
+    shout: "Super talking!",
+    gradient: "from-[#4ac1ff] to-[#2f6fd4]",
+  },
+  {
+    id: "crown",
+    label: "Golden Crown",
+    glyph: "👑",
+    shout: "You rule!",
+    gradient: "from-[#ffd76e] to-[#e0a020]",
+  },
+  {
+    id: "star-trail",
+    label: "Star Trail",
+    glyph: "✨",
+    shout: "Sparkle time!",
+    gradient: "from-[#ffe066] to-[#f0973d]",
+  },
+  {
+    id: "glow-aura",
+    label: "Glow Aura",
+    glyph: "🌟",
+    shout: "You are glowing!",
+    gradient: "from-[#8fe3c4] to-[#2f9e8c]",
+  },
+  {
+    id: "animal-ears",
+    label: "Animal Ears",
+    glyph: "🐰",
+    shout: "Hop hop!",
+    gradient: "from-[#ff9ecd] to-[#c76bb0]",
+  },
+  {
+    id: "silly-glasses",
+    label: "Silly Glasses",
+    glyph: "🕶️",
+    shout: "Looking cool!",
+    gradient: "from-[#a273e8] to-[#6d3fd4]",
+  },
+  {
+    id: "tiny-dragon",
+    label: "Tiny Dragon",
+    glyph: "🐉",
+    shout: "Roar!",
+    gradient: "from-[#7ed957] to-[#2f9e52]",
+  },
 ];
 
 /** Correct answers in a row that light a power-up. */
@@ -95,10 +143,10 @@ export interface PowerUpApi {
 /**
  * Runs the power-up layer for one mini-game.
  *
- * `enabled` comes from the mini-game's registry entry, so the two games
- * where a costume would distract from the task — Guess the Sound, which is
- * about listening, and Story Builder, which is about reading a sentence —
- * simply pass `false` and get an inert API rather than special-casing.
+ * `enabled` comes from the mini-game's registry entry, so a game where a
+ * costume would distract from the task — Guess the Sound, which is about
+ * listening — simply passes `false` and gets an inert API rather than
+ * special-casing.
  */
 export function usePowerUps(options: {
   enabled: boolean;

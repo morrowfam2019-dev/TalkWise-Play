@@ -261,45 +261,48 @@ export function TimeAttackMode({
 
   // --- Ball resolution ----------------------------------------------------
 
-  const handleBallEvent = useCallback((ball: ArcadeBall) => {
-    if (ball.hitFloor) hoopAudio.bounce();
-    if (ball.hitRim) hoopAudio.backboard();
+  const handleBallEvent = useCallback(
+    (ball: ArcadeBall) => {
+      if (ball.hitFloor) hoopAudio.bounce();
+      if (ball.hitRim) hoopAudio.backboard();
 
-    if (ball.outcome === "in-flight" || ball.counted) return;
-    ball.counted = true;
+      if (ball.outcome === "in-flight" || ball.counted) return;
+      ball.counted = true;
 
-    const tallies = tallyRef.current;
+      const tallies = tallyRef.current;
 
-    if (ball.outcome !== "made" || !ballCounts(ball)) {
-      // A miss ends the streak and says nothing about it. There is
-      // deliberately no negative callout anywhere in this mode.
-      tallies.streak = 0;
+      if (ball.outcome !== "made" || !ballCounts(ball)) {
+        // A miss ends the streak and says nothing about it. There is
+        // deliberately no negative callout anywhere in this mode.
+        tallies.streak = 0;
+        publishTally();
+        return;
+      }
+
+      const remaining = Math.max(0, (endAtRef.current - Date.now()) / 1000);
+      tallies.score += pointsForBasket(remaining);
+      tallies.made += 1;
+      tallies.streak += 1;
+      tallies.bestStreak = Math.max(tallies.bestStreak, tallies.streak);
+
       publishTally();
-      return;
-    }
+      hoopAudio.score();
+      hoopAudio.cheer();
 
-    const remaining = Math.max(0, (endAtRef.current - Date.now()) / 1000);
-    tallies.score += pointsForBasket(remaining);
-    tallies.made += 1;
-    tallies.streak += 1;
-    tallies.bestStreak = Math.max(tallies.bestStreak, tallies.streak);
-
-    publishTally();
-    hoopAudio.score();
-    hoopAudio.cheer();
-
-    const callout = streakCallout(tallies.streak);
-    if (callout) {
-      hoopAudio.streak();
-      setStreakLabel(callout);
-      if (streakTimerRef.current !== null)
-        window.clearTimeout(streakTimerRef.current);
-      streakTimerRef.current = window.setTimeout(
-        () => setStreakLabel(null),
-        STREAK_BANNER_MS,
-      );
-    }
-  }, [publishTally]);
+      const callout = streakCallout(tallies.streak);
+      if (callout) {
+        hoopAudio.streak();
+        setStreakLabel(callout);
+        if (streakTimerRef.current !== null)
+          window.clearTimeout(streakTimerRef.current);
+        streakTimerRef.current = window.setTimeout(
+          () => setStreakLabel(null),
+          STREAK_BANNER_MS,
+        );
+      }
+    },
+    [publishTally],
+  );
 
   // --- Shooting -----------------------------------------------------------
 
@@ -365,7 +368,8 @@ export function TimeAttackMode({
 
   const handlePointerCancel = useCallback(
     (event: React.PointerEvent<HTMLDivElement>) => {
-      if (dragRef.current?.pointerId === event.pointerId) dragRef.current = null;
+      if (dragRef.current?.pointerId === event.pointerId)
+        dragRef.current = null;
     },
     [],
   );
@@ -401,7 +405,10 @@ export function TimeAttackMode({
       isPersonalBest,
       roundsAlreadyPlayedToday: snapshot.playsToday,
     });
-    setReward({ coins: earned.coins, reduced: earned.breakdown.multiplier < 1 });
+    setReward({
+      coins: earned.coins,
+      reduced: earned.breakdown.multiplier < 1,
+    });
 
     recordBasketballRound({
       mode: "timeAttack",

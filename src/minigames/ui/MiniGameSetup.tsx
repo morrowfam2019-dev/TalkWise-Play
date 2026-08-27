@@ -128,7 +128,9 @@ export function MiniGameSetup({
                 onClick={() => handlePack(pack.id)}
                 aria-pressed={selected}
                 className={`overflow-hidden rounded-2xl border-4 text-left shadow-md transition-transform active:scale-95 ${
-                  selected ? "border-[#141420] bg-white" : "border-white bg-white/70"
+                  selected
+                    ? "border-[#141420] bg-white"
+                    : "border-white bg-white/70"
                 }`}
               >
                 <div
@@ -159,7 +161,9 @@ export function MiniGameSetup({
                 onClick={() => handleLevel(entry.id)}
                 aria-pressed={selected}
                 className={`flex items-center gap-3 rounded-2xl border-4 p-3 text-left shadow-md transition-transform active:scale-[0.98] ${
-                  selected ? "border-[#141420] bg-white" : "border-white bg-white/70"
+                  selected
+                    ? "border-[#141420] bg-white"
+                    : "border-white bg-white/70"
                 }`}
               >
                 <span className="text-2xl" aria-hidden>

@@ -168,7 +168,8 @@ export function sanitizeProfile(raw: unknown): PlayerProfile {
 export function sanitizeHousehold(raw: unknown): Household | null {
   if (typeof raw !== "object" || raw === null) return null;
   const value = raw as Partial<Household>;
-  if (typeof value.children !== "object" || value.children === null) return null;
+  if (typeof value.children !== "object" || value.children === null)
+    return null;
 
   const children: Record<string, PlayerProfile> = {};
   for (const [id, entry] of Object.entries(value.children)) {
@@ -217,7 +218,10 @@ function localDateKey(date: Date): string {
  * Platform-level: practising in either game keeps the streak alive.
  */
 function advanceStreak(
-  profile: Pick<PlayerProfile, "currentStreak" | "bestStreak" | "lastPlayedDate">,
+  profile: Pick<
+    PlayerProfile,
+    "currentStreak" | "bestStreak" | "lastPlayedDate"
+  >,
   now: Date,
 ): Pick<PlayerProfile, "currentStreak" | "bestStreak" | "lastPlayedDate"> {
   const today = localDateKey(now);
@@ -353,7 +357,10 @@ export function mergeRunResult(
         levels: {
           ...adventures.levels,
           [levelId]: {
-            bestCheckpoints: Math.max(previous.bestCheckpoints, run.checkpoints),
+            bestCheckpoints: Math.max(
+              previous.bestCheckpoints,
+              run.checkpoints,
+            ),
             bestCoins: Math.max(previous.bestCoins, run.coins),
             completed: previous.completed || run.completed,
           },
@@ -556,7 +563,7 @@ export function isMiniGamePersonalBest(
  * Exactly the same split as every other game on this platform: coins into
  * the shared wallet, the daily streak onto the platform, records into the
  * *named* mini-game's namespace and nowhere else. `gameId` is required, so
- * a Bubble Blast session physically cannot write a Story Builder record.
+ * a Bubble Blast session physically cannot write a Sound Match record.
  *
  * The streak advances here for the same reason a Beginner sound station
  * advances it: a child who spent ninety seconds saying words into Sound

@@ -58,7 +58,14 @@ class HoopAudio {
     this.muted = muted;
   }
 
-  private tone({ freq, duration, type = "sine", gain = 0.12, delay = 0, sweepTo }: ToneOptions) {
+  private tone({
+    freq,
+    duration,
+    type = "sine",
+    gain = 0.12,
+    delay = 0,
+    sweepTo,
+  }: ToneOptions) {
     if (this.muted || !this.ctx) return;
     const ctx = this.ctx;
     const start = ctx.currentTime + delay;
@@ -68,7 +75,10 @@ class HoopAudio {
     osc.type = type;
     osc.frequency.setValueAtTime(freq, start);
     if (sweepTo !== undefined) {
-      osc.frequency.exponentialRampToValueAtTime(Math.max(1, sweepTo), start + duration);
+      osc.frequency.exponentialRampToValueAtTime(
+        Math.max(1, sweepTo),
+        start + duration,
+      );
     }
 
     amp.gain.setValueAtTime(0.0001, start);
@@ -102,13 +112,25 @@ class HoopAudio {
 
   /** Ball leaving the shooter's hands. */
   release() {
-    this.tone({ freq: 260, duration: 0.1, type: "sine", gain: 0.06, sweepTo: 340 });
+    this.tone({
+      freq: 260,
+      duration: 0.1,
+      type: "sine",
+      gain: 0.06,
+      sweepTo: 340,
+    });
   }
 
   /** Clean make. */
   swish() {
     this.tone({ freq: 880, duration: 0.14, type: "triangle", gain: 0.09 });
-    this.tone({ freq: 1175, duration: 0.18, type: "triangle", gain: 0.08, delay: 0.08 });
+    this.tone({
+      freq: 1175,
+      duration: 0.18,
+      type: "triangle",
+      gain: 0.08,
+      delay: 0.08,
+    });
     this.noiseBurst(0.12, 0.03, 0.1);
   }
 
@@ -131,14 +153,26 @@ class HoopAudio {
   /** Rim/backboard miss. */
   clank() {
     this.tone({ freq: 180, duration: 0.16, type: "square", gain: 0.07 });
-    this.tone({ freq: 140, duration: 0.2, type: "square", gain: 0.05, delay: 0.06 });
+    this.tone({
+      freq: 140,
+      duration: 0.2,
+      type: "square",
+      gain: 0.05,
+      delay: 0.06,
+    });
   }
 
   /** Hot/All-Star streak sting. */
   streak() {
     const notes = [523, 659, 784, 1047];
     notes.forEach((freq, index) => {
-      this.tone({ freq, duration: 0.16, type: "triangle", gain: 0.1, delay: index * 0.07 });
+      this.tone({
+        freq,
+        duration: 0.16,
+        type: "triangle",
+        gain: 0.1,
+        delay: index * 0.07,
+      });
     });
   }
 
@@ -156,12 +190,24 @@ class HoopAudio {
 
   /** Ball meeting the floor. Quiet — this one repeats constantly. */
   bounce() {
-    this.tone({ freq: 150, duration: 0.09, type: "sine", gain: 0.045, sweepTo: 95 });
+    this.tone({
+      freq: 150,
+      duration: 0.09,
+      type: "sine",
+      gain: 0.045,
+      sweepTo: 95,
+    });
   }
 
   /** Ball off the backboard: duller and woodier than the rim clank. */
   backboard() {
-    this.tone({ freq: 210, duration: 0.12, type: "triangle", gain: 0.055, sweepTo: 160 });
+    this.tone({
+      freq: 210,
+      duration: 0.12,
+      type: "triangle",
+      gain: 0.055,
+      sweepTo: 160,
+    });
   }
 
   /** One tick of the 3-2-1 lead-in. */
@@ -172,7 +218,13 @@ class HoopAudio {
   /** The "GO!" that starts the clock. */
   countdownGo() {
     this.tone({ freq: 784, duration: 0.16, type: "triangle", gain: 0.09 });
-    this.tone({ freq: 1047, duration: 0.22, type: "triangle", gain: 0.08, delay: 0.1 });
+    this.tone({
+      freq: 1047,
+      duration: 0.22,
+      type: "triangle",
+      gain: 0.08,
+      delay: 0.1,
+    });
   }
 
   /** Urgency pip for each of the final five seconds. */
@@ -183,13 +235,25 @@ class HoopAudio {
   /** A basket dropping in during the arcade round. */
   score() {
     this.tone({ freq: 988, duration: 0.11, type: "triangle", gain: 0.075 });
-    this.tone({ freq: 1319, duration: 0.14, type: "triangle", gain: 0.06, delay: 0.06 });
+    this.tone({
+      freq: 1319,
+      duration: 0.14,
+      type: "triangle",
+      gain: 0.06,
+      delay: 0.06,
+    });
   }
 
   /** End of the 30 seconds — longer and lower than the Shootout buzzer. */
   finalBuzzer() {
     this.tone({ freq: 180, duration: 0.9, type: "sawtooth", gain: 0.085 });
-    this.tone({ freq: 120, duration: 0.9, type: "sawtooth", gain: 0.06, delay: 0.02 });
+    this.tone({
+      freq: 120,
+      duration: 0.9,
+      type: "sawtooth",
+      gain: 0.06,
+      delay: 0.02,
+    });
   }
 
   // --- Background music ----------------------------------------------------

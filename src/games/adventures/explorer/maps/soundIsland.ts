@@ -1,4 +1,9 @@
-import type { Collectible, Decoration, JumpPad, Solid } from "../../world/types";
+import type {
+  Collectible,
+  Decoration,
+  JumpPad,
+  Solid,
+} from "../../world/types";
 import type {
   ExplorerMap,
   RewardProp,
@@ -158,12 +163,48 @@ const decorations: Decoration[] = [
   { id: "bt18", kind: "pine", position: [-61, 0, 34], scale: 1.2 },
 
   // Hub — flowers around the plaza edge, clouds overhead.
-  { id: "hb1", kind: "flower", position: [-17, 0.04, -15], scale: 1, color: "#ff6f91" },
-  { id: "hb2", kind: "flower", position: [17, 0.04, -15], scale: 1, color: "#ffe066" },
-  { id: "hb3", kind: "flower", position: [-17, 0.04, 15], scale: 1, color: "#7fd8ff" },
-  { id: "hb4", kind: "flower", position: [17, 0.04, 15], scale: 1, color: "#c78bff" },
-  { id: "hb5", kind: "crystal", position: [-19, RISE * 3, 15], scale: 1, color: "#fff3c4" },
-  { id: "hb6", kind: "crystal", position: [19, RISE * 3, 15], scale: 1, color: "#cfe8ff" },
+  {
+    id: "hb1",
+    kind: "flower",
+    position: [-17, 0.04, -15],
+    scale: 1,
+    color: "#ff6f91",
+  },
+  {
+    id: "hb2",
+    kind: "flower",
+    position: [17, 0.04, -15],
+    scale: 1,
+    color: "#ffe066",
+  },
+  {
+    id: "hb3",
+    kind: "flower",
+    position: [-17, 0.04, 15],
+    scale: 1,
+    color: "#7fd8ff",
+  },
+  {
+    id: "hb4",
+    kind: "flower",
+    position: [17, 0.04, 15],
+    scale: 1,
+    color: "#c78bff",
+  },
+  {
+    id: "hb5",
+    kind: "crystal",
+    position: [-19, RISE * 3, 15],
+    scale: 1,
+    color: "#fff3c4",
+  },
+  {
+    id: "hb6",
+    kind: "crystal",
+    position: [19, RISE * 3, 15],
+    scale: 1,
+    color: "#cfe8ff",
+  },
   { id: "cl1", kind: "cloud", position: [-10, 20, 4], scale: 3.2 },
   { id: "cl2", kind: "cloud", position: [12, 22, 6], scale: 3 },
   { id: "cl3", kind: "cloud", position: [0, 24, -30], scale: 3.4 },
@@ -182,28 +223,94 @@ const decorations: Decoration[] = [
   { id: "bc1", kind: "rock", position: [-30, 0.08, 6], scale: 0.75 },
   { id: "bc2", kind: "rock", position: [-42, 0.08, 18], scale: 0.7 },
   { id: "pd1", kind: "tree", position: [-56, RISE, -12], scale: 1 },
-  { id: "pd2", kind: "flower", position: [-52, RISE, 4], scale: 1, color: "#ff6f91" },
-  { id: "pd3", kind: "flower", position: [-58, RISE, -4], scale: 1, color: "#ffb347" },
-  { id: "lf1", kind: "flower", position: [-34, 0.08, -8], scale: 1, color: "#ffe066" },
-  { id: "lf2", kind: "flower", position: [-32, 0.08, 16], scale: 1, color: "#ff6f91" },
+  {
+    id: "pd2",
+    kind: "flower",
+    position: [-52, RISE, 4],
+    scale: 1,
+    color: "#ff6f91",
+  },
+  {
+    id: "pd3",
+    kind: "flower",
+    position: [-58, RISE, -4],
+    scale: 1,
+    color: "#ffb347",
+  },
+  {
+    id: "lf1",
+    kind: "flower",
+    position: [-34, 0.08, -8],
+    scale: 1,
+    color: "#ffe066",
+  },
+  {
+    id: "lf2",
+    kind: "flower",
+    position: [-32, 0.08, 16],
+    scale: 1,
+    color: "#ff6f91",
+  },
 
   // --- AIR SOUNDS wing planting ---------------------------------------------
   { id: "cr1", kind: "rock", position: [24, -0.4, -12], scale: 0.85 },
   { id: "cr2", kind: "rock", position: [50, -0.4, -12], scale: 0.9 },
   { id: "wb1", kind: "pine", position: [26, -0.35, -17], scale: 1 },
   { id: "wb2", kind: "pine", position: [40, -0.35, -8], scale: 1.05 },
-  { id: "gd1", kind: "flower", position: [45, 0.08, 8], scale: 1, color: "#ff6f91" },
-  { id: "gd2", kind: "flower", position: [53, 0.08, 16], scale: 1, color: "#ffe066" },
-  { id: "gd3", kind: "flower", position: [48, 0.08, 18], scale: 1, color: "#c78bff" },
+  {
+    id: "gd1",
+    kind: "flower",
+    position: [45, 0.08, 8],
+    scale: 1,
+    color: "#ff6f91",
+  },
+  {
+    id: "gd2",
+    kind: "flower",
+    position: [53, 0.08, 16],
+    scale: 1,
+    color: "#ffe066",
+  },
+  {
+    id: "gd3",
+    kind: "flower",
+    position: [48, 0.08, 18],
+    scale: 1,
+    color: "#c78bff",
+  },
   { id: "gd4", kind: "rock", position: [56, 0.08, 6], scale: 0.85 },
 
   // --- TONGUE-TIP SOUNDS wing planting --------------------------------------
   { id: "lt1", kind: "pine", position: [-30, 0.08, -46], scale: 1.1 },
-  { id: "lt2", kind: "crystal", position: [-18, 0.08, -34], scale: 1, color: "#ffe9a8" },
-  { id: "lt3", kind: "flower", position: [-28, 0.08, -34], scale: 1, color: "#ffb347" },
+  {
+    id: "lt2",
+    kind: "crystal",
+    position: [-18, 0.08, -34],
+    scale: 1,
+    color: "#ffe9a8",
+  },
+  {
+    id: "lt3",
+    kind: "flower",
+    position: [-28, 0.08, -34],
+    scale: 1,
+    color: "#ffb347",
+  },
   { id: "sd1", kind: "pine", position: [30, 0.08, -46], scale: 1.1 },
-  { id: "sd2", kind: "crystal", position: [22, 0.08, -34], scale: 1, color: "#cfe8ff" },
-  { id: "sd3", kind: "flower", position: [30, 0.08, -34], scale: 1, color: "#7fd8ff" },
+  {
+    id: "sd2",
+    kind: "crystal",
+    position: [22, 0.08, -34],
+    scale: 1,
+    color: "#cfe8ff",
+  },
+  {
+    id: "sd3",
+    kind: "flower",
+    position: [30, 0.08, -34],
+    scale: 1,
+    color: "#7fd8ff",
+  },
 ];
 
 /** Coins line every spine and wing, so following them is also how a child
@@ -261,14 +368,25 @@ const stations: SoundStationAnchor[] = [
     soundId: "b",
     position: [-36, 0.08, 12],
     place: "The Ball Court",
-    activates: ["starpost-bc-1", "starpost-bc-2", "starpost-bc-3", "fountain-bc"],
+    activates: [
+      "starpost-bc-1",
+      "starpost-bc-2",
+      "starpost-bc-3",
+      "fountain-bc",
+    ],
   },
   {
     id: "isl-picnic",
     soundId: "p",
     position: [-53, RISE, -4],
     place: "The Picnic Deck",
-    activates: ["balloon-pd-1", "balloon-pd-2", "balloon-pd-3", "balloon-pd-4", "archway-pd"],
+    activates: [
+      "balloon-pd-1",
+      "balloon-pd-2",
+      "balloon-pd-3",
+      "balloon-pd-4",
+      "archway-pd",
+    ],
   },
   {
     id: "isl-bridge",
@@ -289,62 +407,229 @@ const stations: SoundStationAnchor[] = [
     soundId: "l",
     position: [-24, 0.08, -40],
     place: "The Lantern Tower",
-    activates: ["lantern-lt-1", "lantern-lt-2", "lantern-lt-3", "starpost-lt", "archway-lt"],
+    activates: [
+      "lantern-lt-1",
+      "lantern-lt-2",
+      "lantern-lt-3",
+      "starpost-lt",
+      "archway-lt",
+    ],
   },
   {
     id: "isl-star-deck",
     soundId: "s",
     position: [24, 0.08, -40],
     place: "The Star Deck",
-    activates: ["starpost-sd-1", "starpost-sd-2", "starpost-sd-3", "fountain-sd", "pinwheel-sd"],
+    activates: [
+      "starpost-sd-1",
+      "starpost-sd-2",
+      "starpost-sd-3",
+      "fountain-sd",
+      "pinwheel-sd",
+    ],
   },
 ];
 
 const rewardProps: RewardProp[] = [
   // /m/ — the swings.
-  { id: "lantern-sw-1", kind: "lantern", position: [-42, 0.08, -8], color: "#ffd76a" },
-  { id: "lantern-sw-2", kind: "lantern", position: [-36, 0.08, -4], color: "#ffd76a" },
-  { id: "lantern-sw-3", kind: "lantern", position: [-30, 0.08, -8], color: "#ffd76a" },
-  { id: "pinwheel-sw", kind: "pinwheel", position: [-36, 0.08, -18], color: "#ff8fb1" },
+  {
+    id: "lantern-sw-1",
+    kind: "lantern",
+    position: [-42, 0.08, -8],
+    color: "#ffd76a",
+  },
+  {
+    id: "lantern-sw-2",
+    kind: "lantern",
+    position: [-36, 0.08, -4],
+    color: "#ffd76a",
+  },
+  {
+    id: "lantern-sw-3",
+    kind: "lantern",
+    position: [-30, 0.08, -8],
+    color: "#ffd76a",
+  },
+  {
+    id: "pinwheel-sw",
+    kind: "pinwheel",
+    position: [-36, 0.08, -18],
+    color: "#ff8fb1",
+  },
 
   // /b/ — the court.
-  { id: "starpost-bc-1", kind: "starpost", position: [-42, 0.08, 8], color: "#7fd8ff" },
-  { id: "starpost-bc-2", kind: "starpost", position: [-30, 0.08, 8], color: "#7fd8ff" },
-  { id: "starpost-bc-3", kind: "starpost", position: [-36, 0.08, 18], color: "#7fd8ff" },
-  { id: "fountain-bc", kind: "fountain", position: [-36, 0.08, 4], color: "#8fe6ff" },
+  {
+    id: "starpost-bc-1",
+    kind: "starpost",
+    position: [-42, 0.08, 8],
+    color: "#7fd8ff",
+  },
+  {
+    id: "starpost-bc-2",
+    kind: "starpost",
+    position: [-30, 0.08, 8],
+    color: "#7fd8ff",
+  },
+  {
+    id: "starpost-bc-3",
+    kind: "starpost",
+    position: [-36, 0.08, 18],
+    color: "#7fd8ff",
+  },
+  {
+    id: "fountain-bc",
+    kind: "fountain",
+    position: [-36, 0.08, 4],
+    color: "#8fe6ff",
+  },
 
   // /p/ — the picnic deck.
-  { id: "balloon-pd-1", kind: "balloon", position: [-58, RISE, -10], color: "#ff6f91" },
-  { id: "balloon-pd-2", kind: "balloon", position: [-50, RISE, -10], color: "#ffe066" },
-  { id: "balloon-pd-3", kind: "balloon", position: [-58, RISE, 2], color: "#7fd8ff" },
-  { id: "balloon-pd-4", kind: "balloon", position: [-50, RISE, 2], color: "#c78bff" },
-  { id: "archway-pd", kind: "archway", position: [-46, RISE, -4], color: "#ffd76a" },
+  {
+    id: "balloon-pd-1",
+    kind: "balloon",
+    position: [-58, RISE, -10],
+    color: "#ff6f91",
+  },
+  {
+    id: "balloon-pd-2",
+    kind: "balloon",
+    position: [-50, RISE, -10],
+    color: "#ffe066",
+  },
+  {
+    id: "balloon-pd-3",
+    kind: "balloon",
+    position: [-58, RISE, 2],
+    color: "#7fd8ff",
+  },
+  {
+    id: "balloon-pd-4",
+    kind: "balloon",
+    position: [-50, RISE, 2],
+    color: "#c78bff",
+  },
+  {
+    id: "archway-pd",
+    kind: "archway",
+    position: [-46, RISE, -4],
+    color: "#ffd76a",
+  },
 
   // /w/ — the creek bridge.
-  { id: "lantern-br-1", kind: "lantern", position: [29, RISE, -12], color: "#8fe6ff" },
-  { id: "lantern-br-2", kind: "lantern", position: [35, RISE, -12], color: "#8fe6ff" },
-  { id: "fountain-br", kind: "fountain", position: [24, -0.4, -12], color: "#8fe6ff" },
-  { id: "pinwheel-br", kind: "pinwheel", position: [32, STEP, -16], color: "#7fd8ff" },
+  {
+    id: "lantern-br-1",
+    kind: "lantern",
+    position: [29, RISE, -12],
+    color: "#8fe6ff",
+  },
+  {
+    id: "lantern-br-2",
+    kind: "lantern",
+    position: [35, RISE, -12],
+    color: "#8fe6ff",
+  },
+  {
+    id: "fountain-br",
+    kind: "fountain",
+    position: [24, -0.4, -12],
+    color: "#8fe6ff",
+  },
+  {
+    id: "pinwheel-br",
+    kind: "pinwheel",
+    position: [32, STEP, -16],
+    color: "#7fd8ff",
+  },
 
   // /f/ — the fern garden.
-  { id: "lantern-gd-1", kind: "lantern", position: [44, 0.08, 6], color: "#ffd76a" },
-  { id: "lantern-gd-2", kind: "lantern", position: [56, 0.08, 18], color: "#ffd76a" },
-  { id: "starpost-gd", kind: "starpost", position: [50, 0.08, 18], color: "#a8ff9f" },
-  { id: "archway-gd", kind: "archway", position: [41, 0.08, 12], color: "#a8ff9f" },
+  {
+    id: "lantern-gd-1",
+    kind: "lantern",
+    position: [44, 0.08, 6],
+    color: "#ffd76a",
+  },
+  {
+    id: "lantern-gd-2",
+    kind: "lantern",
+    position: [56, 0.08, 18],
+    color: "#ffd76a",
+  },
+  {
+    id: "starpost-gd",
+    kind: "starpost",
+    position: [50, 0.08, 18],
+    color: "#a8ff9f",
+  },
+  {
+    id: "archway-gd",
+    kind: "archway",
+    position: [41, 0.08, 12],
+    color: "#a8ff9f",
+  },
 
   // /l/ — the lantern tower.
-  { id: "lantern-lt-1", kind: "lantern", position: [-30, 0.08, -36], color: "#ffd76a" },
-  { id: "lantern-lt-2", kind: "lantern", position: [-18, 0.08, -36], color: "#ffd76a" },
-  { id: "lantern-lt-3", kind: "lantern", position: [-24, 0.08, -46], color: "#ffd76a" },
-  { id: "starpost-lt", kind: "starpost", position: [-14, 0.08, -40], color: "#ffe9a8" },
-  { id: "archway-lt", kind: "archway", position: [-24, 0.08, -32], color: "#c8a6ff" },
+  {
+    id: "lantern-lt-1",
+    kind: "lantern",
+    position: [-30, 0.08, -36],
+    color: "#ffd76a",
+  },
+  {
+    id: "lantern-lt-2",
+    kind: "lantern",
+    position: [-18, 0.08, -36],
+    color: "#ffd76a",
+  },
+  {
+    id: "lantern-lt-3",
+    kind: "lantern",
+    position: [-24, 0.08, -46],
+    color: "#ffd76a",
+  },
+  {
+    id: "starpost-lt",
+    kind: "starpost",
+    position: [-14, 0.08, -40],
+    color: "#ffe9a8",
+  },
+  {
+    id: "archway-lt",
+    kind: "archway",
+    position: [-24, 0.08, -32],
+    color: "#c8a6ff",
+  },
 
   // /s/ — the star deck.
-  { id: "starpost-sd-1", kind: "starpost", position: [18, 0.08, -36], color: "#cfe8ff" },
-  { id: "starpost-sd-2", kind: "starpost", position: [30, 0.08, -36], color: "#cfe8ff" },
-  { id: "starpost-sd-3", kind: "starpost", position: [24, 0.08, -46], color: "#cfe8ff" },
-  { id: "fountain-sd", kind: "fountain", position: [34, 0.08, -40], color: "#8fe6ff" },
-  { id: "pinwheel-sd", kind: "pinwheel", position: [14, 0.08, -40], color: "#ffd7f0" },
+  {
+    id: "starpost-sd-1",
+    kind: "starpost",
+    position: [18, 0.08, -36],
+    color: "#cfe8ff",
+  },
+  {
+    id: "starpost-sd-2",
+    kind: "starpost",
+    position: [30, 0.08, -36],
+    color: "#cfe8ff",
+  },
+  {
+    id: "starpost-sd-3",
+    kind: "starpost",
+    position: [24, 0.08, -46],
+    color: "#cfe8ff",
+  },
+  {
+    id: "fountain-sd",
+    kind: "fountain",
+    position: [34, 0.08, -40],
+    color: "#8fe6ff",
+  },
+  {
+    id: "pinwheel-sd",
+    kind: "pinwheel",
+    position: [14, 0.08, -40],
+    color: "#ffd7f0",
+  },
 ];
 
 /** Free-standing balloons, poppable from the very first visit — a little
@@ -364,13 +649,20 @@ const toyBalloons: ToyBalloon[] = [
 /** The bouncy bed's actual physics — a hidden jump pad under the mattress
  * decoration, so it launches the player without looking like a launch pad. */
 const jumpPads: JumpPad[] = [
-  { id: "bed-bounce", position: [0, 0.06, -9.2], radius: 1.7, boost: 9, hidden: true },
+  {
+    id: "bed-bounce",
+    position: [0, 0.06, -9.2],
+    radius: 1.7,
+    boost: 9,
+    hidden: true,
+  },
 ];
 
 export const soundIsland: ExplorerMap = {
   id: "sound-island",
   title: "Sound Island",
-  blurb: "One big world with all seven sounds — plus slides, balloons and a bouncy-bed house.",
+  blurb:
+    "One big world with all seven sounds — plus slides, balloons and a bouncy-bed house.",
   glyph: "🏝️",
   cardGradient: "from-[#8fe07e] to-[#2f9fd6]",
   spawn: [0, 0.06, 56],

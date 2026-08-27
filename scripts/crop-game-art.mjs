@@ -32,10 +32,10 @@ const script = `
 from PIL import Image
 import sys, os
 src = Image.open(sys.argv[1]).convert("RGB")
-# The sheet still has six cells; cell 5 was Action Dash, which was cut from
-# the collection, so that cell is skipped rather than written.
+# The sheet still has six cells. Cells 5 and 6 were Action Dash and Story
+# Builder, both cut from the collection, so those cells are skipped.
 keys = [["bubble-blast","sound-match","color-shape-hunt"],
-        ["guess-the-sound",None,"story-builder"]]
+        ["guess-the-sound",None,None]]
 CELL, ART_H = 512, 314
 for cy, row in enumerate(keys):
     for cx, key in enumerate(row):

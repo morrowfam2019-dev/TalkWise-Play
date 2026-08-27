@@ -66,7 +66,11 @@ export function speakerForWord(word: string): (() => void) | null {
   return () => void playExampleWord(word);
 }
 
-export function MayaAvatar({ className = "h-12 w-12" }: { className?: string }) {
+export function MayaAvatar({
+  className = "h-12 w-12",
+}: {
+  className?: string;
+}) {
   return (
     <Image
       src="/characters/miss-maya.png"
@@ -114,7 +118,9 @@ export function MayaCoach({
         >
           Miss Maya says
         </p>
-        <p className="text-lg leading-tight font-black text-[#141420]">{line}</p>
+        <p className="text-lg leading-tight font-black text-[#141420]">
+          {line}
+        </p>
       </div>
       {speak ? (
         <button

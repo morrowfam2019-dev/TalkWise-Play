@@ -80,10 +80,13 @@ export default function BasketballShopPage() {
   const [flash, setFlash] = useState<string | null>(null);
 
   const balance = spendableCoins(profile);
-  const items: (BallerItem | JerseyItem)[] = tab === "baller" ? BALLERS : JERSEYS;
+  const items: (BallerItem | JerseyItem)[] =
+    tab === "baller" ? BALLERS : JERSEYS;
 
   const equippedId =
-    tab === "baller" ? basketball.loadout.ballerId : basketball.loadout.jerseyId;
+    tab === "baller"
+      ? basketball.loadout.ballerId
+      : basketball.loadout.jerseyId;
 
   const handleBuy = (item: BallerItem | JerseyItem) => {
     const bought = buyItem(GAME_BASKETBALL, {
@@ -114,9 +117,9 @@ export default function BasketballShopPage() {
 
       <div className="mx-auto max-w-3xl px-5 pt-6 pb-16">
         <p className="rounded-2xl bg-white/70 px-4 py-3 text-sm font-semibold text-[#4a4a60]">
-          These are <strong>basketball</strong> items — they suit up your
-          baller on the court. Your adventure characters, hats and boosts live
-          in the Adventure Store and stay there.
+          These are <strong>basketball</strong> items — they suit up your baller
+          on the court. Your adventure characters, hats and boosts live in the
+          Adventure Store and stay there.
         </p>
 
         <div

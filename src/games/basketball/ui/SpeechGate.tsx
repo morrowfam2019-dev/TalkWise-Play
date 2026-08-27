@@ -200,9 +200,7 @@ export function SpeechGate({
                 <span
                   key={word.id}
                   className={`rounded-lg px-1.5 py-0.5 text-2xl font-black transition-colors ${
-                    done
-                      ? "bg-[#d8f5e4] text-[#25a25a]"
-                      : "text-[#141420]"
+                    done ? "bg-[#d8f5e4] text-[#25a25a]" : "text-[#141420]"
                   }`}
                 >
                   {word.text}

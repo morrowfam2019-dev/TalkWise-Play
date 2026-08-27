@@ -27,7 +27,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { dailySeed } from "@/content/minigames";
-import { getListenRecipe, listenRecipeDurationMs } from "@/content/minigames/listen";
+import {
+  getListenRecipe,
+  listenRecipeDurationMs,
+} from "@/content/minigames/listen";
 import type {
   ContentPackId,
   MiniLearningLevel,
@@ -257,7 +260,9 @@ export function GuessTheSoundGame({
     );
   }
 
-  const recipe = round.target.listen ? getListenRecipe(round.target.listen) : null;
+  const recipe = round.target.listen
+    ? getListenRecipe(round.target.listen)
+    : null;
   const soundMs = recipe ? listenRecipeDurationMs(recipe) : 0;
 
   return (
@@ -297,7 +302,10 @@ export function GuessTheSoundGame({
           </button>
 
           {playing ? (
-            <div className="mt-3 flex h-6 items-end justify-center gap-1" aria-hidden>
+            <div
+              className="mt-3 flex h-6 items-end justify-center gap-1"
+              aria-hidden
+            >
               {[0, 1, 2, 3, 4].map((bar) => (
                 <span
                   key={bar}
@@ -330,7 +338,8 @@ export function GuessTheSoundGame({
               key={choice.id}
               choice={choice}
               state={
-                (stage === "revealed" || stage === "speaking") && choice.isTarget
+                (stage === "revealed" || stage === "speaking") &&
+                choice.isTarget
                   ? "right"
                   : wrongIds.includes(choice.id)
                     ? "wrong"

@@ -138,9 +138,7 @@ export function shuffle<T>(items: readonly T[], rng: () => number): T[] {
  * confused because it reshuffled mid-session".
  */
 export function dailySeed(now: Date = new Date()): number {
-  return (
-    now.getFullYear() * 10000 + (now.getMonth() + 1) * 100 + now.getDate()
-  );
+  return now.getFullYear() * 10000 + (now.getMonth() + 1) * 100 + now.getDate();
 }
 
 // ---------------------------------------------------------------------------
@@ -168,7 +166,10 @@ export interface ContentRequest {
   seed?: number;
 }
 
-function hasCapability(item: ContentItem, capability: ContentCapability): boolean {
+function hasCapability(
+  item: ContentItem,
+  capability: ContentCapability,
+): boolean {
   switch (capability) {
     case "color":
       return item.color !== null;
@@ -194,7 +195,9 @@ function hasCapability(item: ContentItem, capability: ContentCapability): boolea
  */
 export function contentPoolFor(request: ContentRequest): ContentItem[] {
   const source =
-    request.packId === "mixed" ? ALL_ITEMS : getContentPack(request.packId).items;
+    request.packId === "mixed"
+      ? ALL_ITEMS
+      : getContentPack(request.packId).items;
   const track = request.practiceTrack ?? "speech-development";
   const requires = request.requires ?? [];
 
@@ -277,7 +280,7 @@ export function pickDistractors(request: DistractorRequest): ContentItem[] {
   const { target, pool, count, rng } = request;
   const excluded = new Set([target.id, ...(request.exclude ?? [])]);
   const confusable = new Set(
-    target.targetSound ? CONFUSABLE_SOUNDS[target.targetSound] ?? [] : [],
+    target.targetSound ? (CONFUSABLE_SOUNDS[target.targetSound] ?? []) : [],
   );
 
   const candidates = pool.filter((item) => !excluded.has(item.id));

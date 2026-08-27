@@ -1,9 +1,4 @@
-import type {
-  Collectible,
-  Decoration,
-  Solid,
-  WorldDefinition,
-} from "./types";
+import type { Collectible, Decoration, Solid, WorldDefinition } from "./types";
 
 /**
  * LAGOON OF L — a ring you walk all the way around. Action: SLIDE.
@@ -100,22 +95,106 @@ const decorations: Decoration[] = [
   { id: "lr3", kind: "rock", position: [11, 0, 15], scale: 0.75 },
   { id: "lr4", kind: "rock", position: [-11, 0, -15], scale: 0.8 },
 
-  { id: "lf1", kind: "flower", position: [-6, 0, 11], scale: 1, color: "#ffd76a" },
-  { id: "lf2", kind: "flower", position: [6, 0, 11], scale: 1, color: "#ff9ec4" },
-  { id: "lf3", kind: "flower", position: [11, 0, -6], scale: 1, color: "#c7a6ff" },
-  { id: "lf4", kind: "flower", position: [-11, 0, 6], scale: 1, color: "#ffd76a" },
+  {
+    id: "lf1",
+    kind: "flower",
+    position: [-6, 0, 11],
+    scale: 1,
+    color: "#ffd76a",
+  },
+  {
+    id: "lf2",
+    kind: "flower",
+    position: [6, 0, 11],
+    scale: 1,
+    color: "#ff9ec4",
+  },
+  {
+    id: "lf3",
+    kind: "flower",
+    position: [11, 0, -6],
+    scale: 1,
+    color: "#c7a6ff",
+  },
+  {
+    id: "lf4",
+    kind: "flower",
+    position: [-11, 0, 6],
+    scale: 1,
+    color: "#ffd76a",
+  },
 
   // A lantern each side of every arch, marking where to duck.
-  { id: "lc1", kind: "crystal", position: [-9, 0, 7.2], scale: 0.8, color: "#ffe9a8" },
-  { id: "lc2", kind: "crystal", position: [-9, 0, 18.8], scale: 0.8, color: "#ffe9a8" },
-  { id: "lc3", kind: "crystal", position: [9, 0, 7.2], scale: 0.8, color: "#ffe9a8" },
-  { id: "lc4", kind: "crystal", position: [9, 0, 18.8], scale: 0.8, color: "#ffe9a8" },
-  { id: "lc5", kind: "crystal", position: [7.2, 0, 0], scale: 0.8, color: "#ffe9a8" },
-  { id: "lc6", kind: "crystal", position: [18.8, 0, 0], scale: 0.8, color: "#ffe9a8" },
-  { id: "lc7", kind: "crystal", position: [9, 0, -7.2], scale: 0.8, color: "#ffe9a8" },
-  { id: "lc8", kind: "crystal", position: [-9, 0, -7.2], scale: 0.8, color: "#ffe9a8" },
-  { id: "lc9", kind: "crystal", position: [-7.2, 0, 0], scale: 0.8, color: "#ffe9a8" },
-  { id: "lc10", kind: "crystal", position: [-18.8, 0, 0], scale: 0.8, color: "#ffe9a8" },
+  {
+    id: "lc1",
+    kind: "crystal",
+    position: [-9, 0, 7.2],
+    scale: 0.8,
+    color: "#ffe9a8",
+  },
+  {
+    id: "lc2",
+    kind: "crystal",
+    position: [-9, 0, 18.8],
+    scale: 0.8,
+    color: "#ffe9a8",
+  },
+  {
+    id: "lc3",
+    kind: "crystal",
+    position: [9, 0, 7.2],
+    scale: 0.8,
+    color: "#ffe9a8",
+  },
+  {
+    id: "lc4",
+    kind: "crystal",
+    position: [9, 0, 18.8],
+    scale: 0.8,
+    color: "#ffe9a8",
+  },
+  {
+    id: "lc5",
+    kind: "crystal",
+    position: [7.2, 0, 0],
+    scale: 0.8,
+    color: "#ffe9a8",
+  },
+  {
+    id: "lc6",
+    kind: "crystal",
+    position: [18.8, 0, 0],
+    scale: 0.8,
+    color: "#ffe9a8",
+  },
+  {
+    id: "lc7",
+    kind: "crystal",
+    position: [9, 0, -7.2],
+    scale: 0.8,
+    color: "#ffe9a8",
+  },
+  {
+    id: "lc8",
+    kind: "crystal",
+    position: [-9, 0, -7.2],
+    scale: 0.8,
+    color: "#ffe9a8",
+  },
+  {
+    id: "lc9",
+    kind: "crystal",
+    position: [-7.2, 0, 0],
+    scale: 0.8,
+    color: "#ffe9a8",
+  },
+  {
+    id: "lc10",
+    kind: "crystal",
+    position: [-18.8, 0, 0],
+    scale: 0.8,
+    color: "#ffe9a8",
+  },
 
   { id: "lcl1", kind: "cloud", position: [-16, 14, 8], scale: 2.4 },
   { id: "lcl2", kind: "cloud", position: [18, 16, -8], scale: 2.8 },

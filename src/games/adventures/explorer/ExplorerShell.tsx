@@ -208,22 +208,19 @@ export function ExplorerShell({ map, onExit }: ExplorerShellProps) {
     ? getBeginnerSound(activeStation.soundId)
     : undefined;
 
-  const handleTurn = useCallback(
-    () => {
-      if (!activeStation || !activeSound) return;
-      gameAudio.challengeComplete();
-      setCompletions((current) => ({
-        ...current,
-        [activeStation.id]: (current[activeStation.id] ?? 0) + 1,
-      }));
-      setCoins((current) => current + activeSound.reward);
-      recordStationTurn(map.id, activeStation.soundId, {
-        completed: true,
-        coins: activeSound.reward,
-      });
-    },
-    [activeStation, activeSound, map.id, recordStationTurn],
-  );
+  const handleTurn = useCallback(() => {
+    if (!activeStation || !activeSound) return;
+    gameAudio.challengeComplete();
+    setCompletions((current) => ({
+      ...current,
+      [activeStation.id]: (current[activeStation.id] ?? 0) + 1,
+    }));
+    setCoins((current) => current + activeSound.reward);
+    recordStationTurn(map.id, activeStation.soundId, {
+      completed: true,
+      coins: activeSound.reward,
+    });
+  }, [activeStation, activeSound, map.id, recordStationTurn]);
 
   /**
    * Closing a station card is the only moment the last light can have just
@@ -254,7 +251,9 @@ export function ExplorerShell({ map, onExit }: ExplorerShellProps) {
   }, []);
 
   const nearStation = nearIndex === null ? null : map.stations[nearIndex];
-  const nearSound = nearStation ? getBeginnerSound(nearStation.soundId) : undefined;
+  const nearSound = nearStation
+    ? getBeginnerSound(nearStation.soundId)
+    : undefined;
 
   return (
     <div className="relative h-[100dvh] w-full overflow-hidden overscroll-none bg-[#8fd8f5] select-none">
@@ -332,8 +331,8 @@ export function ExplorerShell({ map, onExit }: ExplorerShellProps) {
                 })}
               </div>
               <p className="mt-4 text-base font-bold text-[#4a4a60]">
-                Explore and find the glowing letters. Say each sound to light
-                up {map.title}!
+                Explore and find the glowing letters. Say each sound to light up{" "}
+                {map.title}!
               </p>
               <button
                 type="button"

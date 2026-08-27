@@ -13,7 +13,8 @@ import { usePlayerProfile } from "@/player/usePlayerProfile";
  * and an AudioContext, none of which exist during server rendering.
  */
 const GameShell = dynamic(
-  () => import("@/games/adventures/GameShell").then((module) => module.GameShell),
+  () =>
+    import("@/games/adventures/GameShell").then((module) => module.GameShell),
   {
     ssr: false,
     loading: () => (
@@ -44,7 +45,8 @@ export function LevelRunner({ levelId }: { levelId: string }) {
   if (!level) return null;
 
   if (!isLevelUnlocked(profile, level)) {
-    const requiredTitle = getLevel(level.unlockRequires ?? "")?.title ?? "the previous adventure";
+    const requiredTitle =
+      getLevel(level.unlockRequires ?? "")?.title ?? "the previous adventure";
     return (
       <div className="grid min-h-[100dvh] place-items-center bg-[#141420] p-6 text-center text-white">
         <div>
