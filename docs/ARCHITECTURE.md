@@ -16,11 +16,20 @@ the platform, and neither can reach into the other.
 src/
   platform/          Whop identity, entitlement, launch bridge, game registry
   speech/            Shared speech services: recognition + Miss Maya's voice
+  minigames/         The Mini Game framework (SDK) shared by GAME-003…008
+                     registry.ts  what each mini-game needs
+                     session.ts   scoring, combos, accuracy (pure)
+                     rewards.ts   the one coin formula + anti-farming
+                     touch.ts     intentional tap/drag, gesture lock
+                     ui/          speech gate, setup, HUD, results, particles
   content/
-    speech/          Shared speech content — both games ask it for challenges
+    speech/          Shared speech content — both big games ask it for challenges
                      beginner/  sound library + developmental groups
                      expert/    sentence quests
                      curriculum.ts  the sound → word → sentence view
+    minigames/       Mini-game content — one ContentItem per *thing*
+                     packs/     the nine themed content packs
+                     listen.ts  synthesis recipes for Guess the Sound
     shop-item.ts     The 4 fields every shop item has, whoever sells it
     adventures/      GAME-001 catalogue (characters, hats, auras, boosts)
     basketball/      GAME-002 catalogue (ballers, jerseys) + court/scoring data
@@ -29,8 +38,10 @@ src/
                      explorer/  BEGINNER — open maps, sound stations
                      expert/    EXPERT — sentence story shell
     basketball/      GAME-002 engine — court, shot meter, round logic
+    minigames/       GAME-003…008 — one folder per mini-game, gameplay only
   player/            Child profiles, wallet, per-game namespaces, persistence
   ui/                Platform-level shared components
+    gameArt/         Original inline-SVG card art for the mini-games
   app/
     (protected)/     Everything behind the membership gate
     launch/          Launch-credential redemption (ungated by necessity)
@@ -53,10 +64,16 @@ grep -rh 'from "@/' src/games/basketball | sed 's/.*from "//; s/".*//' | sort -u
 games exist. The library homepage, routing and every namespaced data lookup
 read from it.
 
-| Permanent id | Display name (rebrandable) | Route |
-| --- | --- | --- |
-| `GAME-001` | Speech Adventures | `/games/adventures` |
-| `GAME-002` | Speech Basketball | `/games/basketball` |
+| Permanent id | Display name (rebrandable) | Route | Shelf |
+| --- | --- | --- | --- |
+| `GAME-001` | Speech Adventures | `/games/adventures` | Featured |
+| `GAME-002` | Speech Basketball | `/games/basketball` | Featured |
+| `GAME-003` | Bubble Blast | `/games/bubble-blast` | Quick Play |
+| `GAME-004` | Sound Match | `/games/sound-match` | Quick Play |
+| `GAME-005` | Colour & Shape Hunt | `/games/color-shape-hunt` | Quick Play |
+| `GAME-006` | Guess the Sound | `/games/guess-the-sound` | Quick Play |
+| `GAME-007` | Action Dash | `/games/action-dash` | Quick Play |
+| `GAME-008` | Story Builder | `/games/story-builder` | Quick Play |
 
 **Permanent ids are immutable.** They are written into saved progress,
 inventories and high scores. `displayName` is the only thing marketing may
@@ -75,7 +92,8 @@ Household
         ├── micEnabled, assistMode              ← platform-wide
         └── games
               ├── GAME-001 → { owned, loadout, levels, beginner, expert }
-              └── GAME-002 → { owned, loadout, highScores, modes, … }
+              ├── GAME-002 → { owned, loadout, highScores, modes, … }
+              └── GAME-003…008 → { records, collected, dailyPlays, … }
 ```
 
 Anything that belongs to the *child* is platform-level. Anything that
@@ -85,6 +103,11 @@ belongs to a *game* is namespaced under `games[GAME_ID]`.
 site cannot write into a game it did not name. That is the mechanism that
 keeps a basketball jersey out of the Adventures wardrobe — enforced by the
 function signature, not by convention.
+
+They take `ShopGameId`, not `GameId`: only the two large games sell
+anything, so a mini-game namespace cannot be handed to a shop function at
+all. The compiler is what keeps mini-games out of the founder-approved
+GAME-001 and GAME-002 inventories.
 
 ### The coin decision
 
@@ -376,32 +399,212 @@ recomputed — the same additive pattern as the v1→v2 household migration.
 Legacy scores are deliberately **not** back-filled into mode records, because
 that would invent a difficulty the child never played at.
 
-## Adding GAME-003
+## Mini Games — Launch Collection 01
 
-1. Register it in `src/platform/games/registry.ts` (new permanent id).
-2. Add its state slice in `src/player/games/<game>.ts` — default state and a
-   `sanitize` function — and wire it into `GameStates` in `player/types.ts`
-   and `sanitizeProfile` in `player/storage.ts`.
-3. Add its engine under `src/games/<game>/` and its content under
-   `src/content/<game>/`.
+Six independent games (GAME-003 … GAME-008) sharing one framework. §3 of
+the build plan is explicit that they must **not** be one "Mini Games" game
+with six modes: each is separately registered, separately routed, and
+separately saved, because that is the only way they can be individually
+searchable and favouritable later.
+
+```
+src/minigames/                  the framework — infrastructure, not a game
+  registry.ts                   levels, packs, speech cadence, scoring scale
+  session.ts                    scoring / combos / accuracy (pure, verifiable)
+  rewards.ts                    THE coin formula + anti-farming
+  touch.ts                      intentional tap & drag, gesture lock
+  useCountdown.ts               rAF clock with pause that loses no time
+  useMiniGameSession.ts         the scored session, wired to audio
+  useMiniGameRun.ts             phase machine + the one place a run is banked
+  powerups.ts                   temporary in-round costumes
+  audio.ts                      synthesised cues + the listen-recipe player
+  analytics.ts                  typed events, no-op sink
+  speech.ts                     mini level → speech target
+  ui/                           gate, coach, setup, HUD, results, particles, TJ
+
+src/games/minigames/<game>/     gameplay only — no scoring, no coins, no saves
+```
+
+### What each game owns, and what it does not
+
+**Shared:** the setup screen, the speech gate, the HUD, the countdown, the
+results screen, the coin formula, the daily cap, the touch rules, the
+particle system, the audio, the power-up layer, and the save write.
+**Owned by each game:** its rules, its round planner, its visuals, and its
+speech cadence.
+
+A mini-game is a component, a round planner, a registry entry and a save
+key. Bubble Blast's gameplay is about 200 lines; everything else it does
+comes from the framework. That is the §4 promise — six copies of the timer,
+reward and results logic is the failure mode, and it does not exist here.
+
+### The learning ladder
+
+`MiniLearningLevel` has **three** tiers where `SpeechDifficulty` has two:
+
+```
+BEGINNER      sound / simple concept    M            "Pop every M"
+INTERMEDIATE  word / short phrase       moon         "Pop things that start with M"
+EXPERT        sentence / context        "I see the big moon."
+```
+
+The big games dropped their isolated-sound tier because browser recognition
+cannot hear a bare consonant and a word adventure that cannot be completed
+is broken. The mini-games can carry it honestly for a structural reason: **a
+mini-game round never depends on the recogniser.** The speech moment is
+always passable by tapping, from the first second, so a Beginner tier here
+celebrates whatever a child produces rather than gating a game behind it.
+
+`minigames/speech.ts` maps a mini level onto the speech engine's two-tier
+axis wherever shared speech code is involved, so the two ladders meet in
+exactly one place.
+
+### Content
+
+`content/minigames` describes a **thing**, completely — its word, its sound,
+its phrase and sentence, its colour, shape, action, and the noise it makes.
+One `ContentItem` therefore feeds four different games, which is §9's rule
+against four separate animal datasets.
+
+Nine packs, 152 items. Selection is seeded (`createRng`) so a round is
+reproducible and testable, with a default seed that turns over daily — §15's
+variation without reshuffling under a child mid-session. Distractors avoid
+sounds confusable with the target, so a matching game never quietly becomes
+an articulation discrimination test.
+
+Guess the Sound's audio is a table of **synthesis recipes**, not recordings.
+Nothing is sampled, which makes §28's "no copyrighted sounds used" true by
+construction and keeps a listening game measured in kilobytes.
+
+### Touch safety (§16)
+
+The competitor complaint §16 names — resting a finger advances the activity —
+is answered in `minigames/touch.ts` and inherited by all six games:
+
+1. actions fire on **release**, not press, so a resting palm advances nothing;
+2. the release must land near the press, or it was a scroll;
+3. the arm is one-shot, so a held finger cannot repeat;
+4. a cooldown stops one tap registering twice.
+
+Drag adds a travel threshold before a card moves at all, and a drop only
+counts inside the target (plus a forgiveness margin). Releasing anywhere
+else returns the card at **no cost** — a slip is not an attempt.
+
+`onArm` exists for the press *animation* only. That split — visual feedback
+on press, state change on release — is the whole mechanism.
+
+### The coin formula (§19)
+
+One formula for all six, in `minigames/rewards.ts`:
+
+```
+speechParticipation = 3   if the child engaged the speech moment
+performance         = min(10, floor(score / pointsPerCoin))
+personalBest        = 3   if this beat the stored best for (game, pack, level)
+levelBonus          = beginner 0 | intermediate 1 | expert 2
+
+base  = min(15, speechParticipation + performance + personalBest + levelBonus)
+coins = max(1, round(base * dailyMultiplier(sessionsToday)))
+
+dailyMultiplier(n) = 1.00 for n < 3 | 0.50 for n < 8 | 0.25 otherwise
+```
+
+`pointsPerCoin` is per game (`minigames/registry.ts`), tuned so a strong
+session of any of the six earns comparably — without it a 30-second Bubble
+Blast round scoring 3,000 would be the only rational way to earn.
+
+The round cap is **15, below Basketball's 25**, deliberately: §2 asks for
+modest coins because these are short and replayable, and a snack should not
+out-earn the meal.
+
+**Anti-farming.** A session under 8 seconds, or with no correct action, is
+not practice. It still pays its floor coin — a child who tried and got
+nothing right must not be told they earned nothing — but it does **not**
+advance the daily counter, so it cannot burn through the full-rate sessions
+and cannot be repeated for profit. The performance term is capped before the
+multiplier, so one exceptional round cannot outrun the cap.
+
+### Mini-game save shape
+
+```
+games["GAME-00N"]
+  ├── records          keyed `${packId}:${level}` → best score/accuracy/combo, plays
+  ├── collected        permanent, game-defined ids (stories built, objects found)
+  ├── achievements     this mini-game's own
+  ├── dailyPlays       today's session count, for the coin decay
+  ├── lastSetup        the pack and level to re-offer next visit
+  └── totalSessions
+```
+
+Six keys sharing one `MiniGameState` **type** but never one object — the
+isolation is in the keying, and `emptyMiniGameStates()` builds six fresh
+slices precisely so a write to one cannot appear in the other five.
+
+Purely additive: a pre-collection profile gains six empty slices and loses
+nothing. A rollback loses only mini-game records; the wallet, the streak,
+GAME-001 and GAME-002 are untouched by construction.
+
+### Power-ups (§8)
+
+Temporary in-round costumes — rocket shoes, a cape, a crown — lit by a
+five-in-a-row combo and lasting ten seconds. **No camera, no face tracking,
+no filters**, and no inventory: a power-up exists only while it is lit, which
+is why it needs no save key at all. Permanent cosmetics remain a store
+decision, and nothing here can reach the GAME-001 or GAME-002 shops.
+
+Enabled per game in the registry. Guess the Sound and Story Builder opt out —
+a costume distracts from listening and from reading a sentence.
+
+### Analytics (§33, §34)
+
+`minigames/analytics.ts` emits typed events (`game_started`, `game_completed`,
+`replay_clicked`, `round_score`, `difficulty_selected`, `category_selected`,
+`power_up_activated`, …) into a **no-op sink**. No dashboard was built,
+because §33 says not to build one on infrastructure that does not exist.
+
+The point is that the expensive half of answering §34's questions — which
+mini-game is started most, completed most, replayed most, where children quit
+— is having emitted the events all along. Adding a transport later is
+`setAnalyticsSink`, not a retrofit through six engines.
+
+No event carries a child's name, profile id, household id, or any speech
+transcript or audio. There is no field to put one in.
+
+## Adding GAME-009
+
+1. Register it in `src/platform/games/registry.ts` (new permanent id, shelf,
+   tags, and an `artKey` if it gets card art).
+2. Add its state slice. For a mini-game that is one line in `GameStates`,
+   because `MiniGameState` and `sanitizeMiniGameState` already exist; for a
+   large game, a new module under `src/player/games/`.
+3. **If it is a mini-game:** add an entry in `src/minigames/registry.ts`, a
+   round planner and a component under `src/games/minigames/<game>/`, and its
+   card art in `src/ui/gameArt/`. The setup screen, speech gate, HUD, coins,
+   results and saves all come for free.
+   **If it is a large game:** add its engine under `src/games/<game>/` and its
+   content under `src/content/<game>/`.
 4. Add routes under `src/app/(protected)/games/<game>/`.
 5. If it sells anything, give it its own shop screen writing to its own
-   namespace via `buyItem(GAME_00N, item)`.
+   namespace via `buyItem(GAME_00N, item)` — and widen `ShopGameId`, which is
+   deliberately narrow so that adding a shop is an explicit decision.
+6. Add it to the planners table in `scripts/verify-minigames.mjs`, so its
+   pack × level × seed coverage is checked like the other six.
 
-Nothing in GAME-001 or GAME-002 should need editing. If it does, the
-abstraction is wrong — fix that rather than working around it.
+Nothing in an existing game should need editing. If it does, the abstraction
+is wrong — fix that rather than working around it.
 
 ## Verification
 
-Three Node suites run the real game logic with no browser and no rendering.
+Four Node suites run the real game logic with no browser and no rendering.
 They are the fastest way to know a data change did not quietly break a
-level, a save, or the speech ladder.
+level, a save, a speech ladder, or a mini-game's content pack.
 
 | Command | What it proves |
 | --- | --- |
 | `npm run verify:world` | Every word adventure walks spawn → checkpoints → portal, and every Beginner map walks spawn → every station → home, with no fall and no stuck leg. Anchors and coins sit on the surface. |
 | `npm run verify:progress` | v1 and pre-tier saves migrate intact, sanitising is idempotent, and no stage or game can write into another's records. |
 | `npm run verify:speech` | Every sound matches everything its recognition config lists and rejects silence; the sound → word → sentence ladder joins up for every supported sound; every Expert sentence splits into matchable words. |
+| `npm run verify:minigames` | The content library is internally honest; **every mini-game can fill a session from every pack it offers, at every level, across seven days' seeds** (609 combinations); distractors never collide with the target's sound; every hunt instruction has exactly one answer; the session engine, the coin formula and its anti-farming guard behave as documented; the six save namespaces stay isolated and migrate additively. |
 
 Add `npm run build`, `npm run lint` and `npm run typecheck` and that is the
 full gate. A map is data, and data is easy to get subtly wrong.
