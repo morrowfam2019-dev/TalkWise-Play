@@ -183,7 +183,7 @@ const GAMES: GameDefinition[] = [
   {
     id: GAME_SOUND_MATCH,
     displayName: "Sound Match",
-    tagline: "Drag the right picture into the treasure chest.",
+    tagline: "Drag the right picture into the backpack.",
     glyph: "\u{1F9F0}",
     cardGradient: "from-[#ffc46b] to-[#e08a2c]",
     status: "live",
