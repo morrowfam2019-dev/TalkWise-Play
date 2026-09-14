@@ -1,72 +1,63 @@
-/**
- * Platform integration boundary.
- *
- * TalkWise Play runs standalone by default. When embedded in Whop with a
- * verified member, `RootLayout` resolves a real session server-side (see
- * `src/platform/whop.ts`) and threads it down via `PlatformSessionProvider`.
- * Nothing in the game engine, speech content, or player data imports a
- * platform SDK directly — this module and its provider are the only seam —
- * so the game keeps running outside any host exactly as before.
- */
-
-export type PlatformKind = "standalone" | "embedded";
+/** Platform-neutral session boundary for TalkWise Play. */
+export type PlatformKind = "standalone" | "embedded" | "academy";
 
 export interface PlatformSession {
-  /** Where the game is running. */
   kind: PlatformKind;
-  /** Stable player identity, once a platform provides one. Null while local. */
   externalUserId: string | null;
-  /** Whether the host has granted access. Always true while unintegrated —
-   * entitlement checks gate content, never the ability to run the app. */
   entitled: boolean;
+  learnerId: string | null;
+  householdId: string | null;
+  /** null = unrestricted legacy session; array = exact Academy game scope. */
+  allowedGameIds: string[] | null;
 }
 
 const STANDALONE_SESSION: PlatformSession = {
   kind: "standalone",
   externalUserId: null,
   entitled: true,
+  learnerId: null,
+  householdId: null,
+  allowedGameIds: null,
 };
 
-/**
- * Client-only fallback: detects an iframe host without any verification.
- * Used only where `usePlatformSession` can't reach a `PlatformSessionProvider`
- * (there always is one from `RootLayout`, so this is a safety net, not the
- * primary path) — it can say "probably embedded" but never who the player is
- * or whether they're entitled, which is why it always reports `entitled: true`
- * rather than guess.
- */
 export function getPlatformSession(): PlatformSession {
   if (typeof window === "undefined") return STANDALONE_SESSION;
-
   let embedded = false;
   try {
     embedded = window.self !== window.top;
   } catch {
-    // Cross-origin frame access throws; that itself means we are embedded.
     embedded = true;
   }
-
-  return {
-    ...STANDALONE_SESSION,
-    kind: embedded ? "embedded" : "standalone",
-  };
+  return { ...STANDALONE_SESSION, kind: embedded ? "embedded" : "standalone" };
 }
 
-/**
- * Converts a resolved access decision (see `platform/access.ts`) into the
- * shape client components read. Structurally typed rather than importing
- * `AccessDecision`, because that module is server-only and this one is
- * shared with the client provider.
- */
 export function toPlatformSession(access: {
+  mode?: string;
   whopUserId: string | null;
+  adultUserId?: string | null;
+  householdId?: string | null;
+  learnerId?: string | null;
+  allowedGameIds?: string[] | null;
   embedded: boolean;
   allowed: boolean;
 }): PlatformSession {
+  if (access.mode === "academy-session") {
+    return {
+      kind: "academy",
+      externalUserId: access.adultUserId ?? null,
+      entitled: access.allowed,
+      learnerId: access.learnerId ?? null,
+      householdId: access.householdId ?? null,
+      allowedGameIds: access.allowedGameIds ?? [],
+    };
+  }
   if (!access.whopUserId) return STANDALONE_SESSION;
   return {
     kind: access.embedded ? "embedded" : "standalone",
     externalUserId: access.whopUserId,
     entitled: access.allowed,
+    learnerId: null,
+    householdId: null,
+    allowedGameIds: null,
   };
 }
