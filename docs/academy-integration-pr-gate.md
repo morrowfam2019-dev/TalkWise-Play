@@ -1,1 +1,0 @@
-The Academy integration candidate is complete enough for draft PR review. Merge to deployed `main` remains blocked on Staging runtime configuration, end-to-end launch verification, physical-device speech validation where required, and founder approval.
