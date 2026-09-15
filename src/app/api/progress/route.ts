@@ -4,27 +4,22 @@ import { getProgressStore } from "@/platform/progress/store";
 import { sanitizeHousehold } from "@/player/storage";
 
 /**
- * A member's saved progress, read and written by the browser they are
- * playing in.
+ * Server-backed TalkWise Play save transport.
  *
- * Always scoped to the **verified** member on the request — the member id
- * comes from the session cookie or the Whop token, never from the request
- * body, so one family cannot read or overwrite another's save by asking
- * nicely.
- *
- * Everything written is re-sanitised server-side through the same
- * `sanitizeHousehold` the client uses. A hand-crafted POST cannot inject a
- * malformed profile, an unknown game namespace, or an item a child does not
- * own; worst case it overwrites that member's own save with their own junk.
- * Note this is anti-corruption, not anti-cheat: the coin totals themselves
- * are still client-authored, which is the honest tradeoff for a single
- * player practice game with no competitive stakes.
+ * Whop-era sessions remain keyed to their verified member id. Academy
+ * sessions are keyed to the verified Academy learner id from the signed
+ * HttpOnly session, never to an id supplied by the browser. This preserves
+ * the existing Play save format while preventing one learner from asking for
+ * another learner's save.
  */
-
-async function resolveMemberId(): Promise<string | null> {
+async function resolveProgressIdentity(): Promise<string | null> {
   const access = await resolveAccess();
   if (!access.allowed) return null;
-  return access.whopUserId;
+  if (access.mode === "academy-session" && access.learnerId) {
+    return `academy:${access.learnerId}`;
+  }
+  if (access.whopUserId) return `whop:${access.whopUserId}`;
+  return null;
 }
 
 export async function GET() {
@@ -33,13 +28,13 @@ export async function GET() {
     return NextResponse.json({ available: false, household: null });
   }
 
-  const memberId = await resolveMemberId();
-  if (!memberId) {
+  const identity = await resolveProgressIdentity();
+  if (!identity) {
     return NextResponse.json({ available: false, household: null });
   }
 
   try {
-    const stored = await store.load(memberId);
+    const stored = await store.load(identity);
     return NextResponse.json({
       available: true,
       household: stored?.household ?? null,
@@ -47,8 +42,6 @@ export async function GET() {
     });
   } catch (error) {
     console.error("[progress] load failed:", error);
-    // A storage blip must never break the game — the client keeps using
-    // its local copy and tries again next time.
     return NextResponse.json({ available: false, household: null });
   }
 }
@@ -59,8 +52,8 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json({ saved: false, reason: "unavailable" });
   }
 
-  const memberId = await resolveMemberId();
-  if (!memberId) {
+  const identity = await resolveProgressIdentity();
+  if (!identity) {
     return NextResponse.json(
       { saved: false, reason: "unauthorized" },
       { status: 401 },
@@ -88,7 +81,7 @@ export async function PUT(request: NextRequest) {
   }
 
   try {
-    await store.save(memberId, {
+    await store.save(identity, {
       household,
       updatedAt: Date.now(),
       version: 2,
