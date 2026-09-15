@@ -1,0 +1,1 @@
+Ready to open as a draft PR against `main`; do not merge until the documented deployment gates are satisfied.
